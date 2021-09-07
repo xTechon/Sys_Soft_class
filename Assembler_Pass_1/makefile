@@ -1,11 +1,13 @@
+vpath %.c src
+vpath %.o bin
 project1: main.o symbols.o
-	gcc -o project1 main.o symbols.o
+	gcc -o project1 $^
 
 main.o: main.c
-	gcc -c main.c
+	gcc -O0 -c $^ -o $@
 
-symbols.o:	symbols.c
-	gcc -c symbols.c
+symbols.o: symbols.c
+	gcc -O0 -c $^ -o $@
 
 
 clean:
