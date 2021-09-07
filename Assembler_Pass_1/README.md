@@ -1,4 +1,4 @@
-ou will implement, using C, pass 1 of an assembler for the machine architecture 
+You will implement, using C, pass 1 of an assembler for the machine architecture 
 described in the SIC System Programmer's guide provided as reference for this course.
 Your project will accept 1 command-line argument, which is a file that contains a 
 SIC assembler program. Project 1 will create and output a symbol table as a result 
