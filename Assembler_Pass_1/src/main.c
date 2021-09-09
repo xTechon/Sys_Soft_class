@@ -15,8 +15,8 @@ int main(int argc, char *argv[]){
         return 0;
     }
     printf("File Opened successfully.");
-    int j = IsAValidSymbol("Whazzup");
-    printf("\nj is: %i", j);
+    int j = IsAValidSymbol("RESWR");
+    printf("\ninput is: %s\nj is: %i", "RESWR",j);
     fclose(fp);
     return 0;
 }

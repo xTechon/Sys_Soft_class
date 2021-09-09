@@ -1,5 +1,6 @@
 #include "headers.h"
 
+int CmprDir(char *Symbol);
 int IsAValidSymbol (char *TestSymbol){
     int Result = 1;
 
@@ -8,6 +9,19 @@ int IsAValidSymbol (char *TestSymbol){
     if ((int)TestSymbol[0] < 65 || (int)TestSymbol[0] > 90){
         Result = 0;
         return Result;
+    }
+    //check to see if it's a directive only if the first letter starts the same as one
+    switch(TestSymbol[0]){
+        case 'B':
+        case 'E':
+        case 'R':
+        case 'S':
+        case 'W':
+            Result = CmprDir(TestSymbol);
+            if (Result == 0) return Result;
+            else break;
+        default:
+            break;
     }
 
     //test Symbol Length
@@ -50,12 +64,30 @@ int IsAValidSymbol (char *TestSymbol){
 }
 
 int CmprDir(char *Symbol){
-    //using binary search algorithm
-    char *Dir[7] = {"BYTE", "END", "RESB", "RESR", "RESW", "START", "WORD"};
-    char *mid = Dir[4];
-    int m = 4;
-    int l = 0;
-//    while(l <=){
-
-//    }
+    char r[4] = "RES";
+    switch (Symbol[0]){
+        case'B':
+            return strcmp(Symbol, "BYTE");
+        case'E':
+            return strcmp(Symbol, "END");
+        case 'R':
+            for (int i = 0; i < 3; i++){
+                if(Symbol[i]!=r[i]) return 0;
+            }
+            switch (Symbol[3]){
+                case 'B':
+                case 'R':
+                case 'W':
+                    if (Symbol[4] == NULL)return 0;
+                    else return 1;
+                default:
+                    break;
+            }
+            return 1;
+        case 'S':
+            return strcmp(Symbol, "START");
+        case 'W':
+            return strcmp(Symbol, "WORD");
+    }
+    return 1;
 }
