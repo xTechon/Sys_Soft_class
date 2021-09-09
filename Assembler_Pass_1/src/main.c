@@ -2,6 +2,7 @@
 
 
 int main(int argc, char *argv[]){
+    //File Checking Section of code
     if (argc != 2) { //check to see if correct amnt of arguments entered
         printf("ERROR: Usage: %s filename\n", argv[0]);
         return 0;
@@ -13,8 +14,9 @@ int main(int argc, char *argv[]){
         printf ("ERROR: %s could not be opened for reading.\n", argv[1]);
         return 0;
     }
-
-
+    printf("File Opened successfully.");
+    int j = IsAValidSymbol("Whazzup");
+    printf("\nj is: %i", j);
     fclose(fp);
     return 0;
 }
