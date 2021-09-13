@@ -1,7 +1,8 @@
 #include "headers.h"
 
-
+int TestMode();
 int main(int argc, char *argv[]){
+    //TestMode();return 0; //uncomment for testing mode
     //File Checking Section of code
     if (argc != 2) { //check to see if correct amnt of arguments entered
         printf("ERROR: Usage: %s filename\n", argv[0]);
@@ -15,11 +16,11 @@ int main(int argc, char *argv[]){
         return 0;
     }
 //    printf("File Opened successfully.");
-//    int j = IsAValidSymbol("RESWR");
-//    printf("\ninput is: %s\nj is: %i", "RESWR",j);
+
 
     char line[1024];
     char* newsym;
+    int errC = 0;
     newsym = malloc(1024*sizeof(char));
     memset(newsym, '\0', 1024*sizeof(char));
 
@@ -33,8 +34,9 @@ int main(int argc, char *argv[]){
             newsym = strtok(line, " \t\n");
             printf("NEW SYMBOL ON LINE: %s\n", line);
             printf("NEW SYMBOL IS: %s\n", newsym);
-            if (IsAValidSymbol == 0){
-                printf("ERROR. INVALID SYMBOL\n");
+            errC = IsAValidSymbol(newsym);
+            if (errC != 1){
+                printf("ERROR. INVALID SYMBOL CODE: %d\n", errC);
                 fclose(fp);
                 return 0;
             }
@@ -43,4 +45,11 @@ int main(int argc, char *argv[]){
     }
     fclose(fp);
     return 0;
+}
+
+//testing mode to skip normal program runtime behavior
+int TestMode(){
+     int j = IsAValidSymbol("BYTE");
+     printf("\ninput is: %s\nj is: %i", "BYTE",j);
+     return 0;
 }

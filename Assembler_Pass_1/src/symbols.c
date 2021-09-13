@@ -18,7 +18,7 @@ int IsAValidSymbol (char *TestSymbol){
         case 'S':
         case 'W':
             Result = CmprDir(TestSymbol);
-            if (Result == 0) return Result;
+            if (Result == -1) return Result;
             else break;
         default:
             break;
@@ -65,29 +65,32 @@ int IsAValidSymbol (char *TestSymbol){
 
 int CmprDir(char *Symbol){
     char r[4] = "RES";
+    //int testR;
     switch (Symbol[0]){
         case'B':
-            return strcmp(Symbol, "BYTE");
+            return -(!strcmp(Symbol, "BYTE"));
         case'E':
-            return strcmp(Symbol, "END");
+            //testR = -(!strcmp(Symbol, "END"));
+            //printf("Possible Dir: %s, test Result: %d\n", Symbol, testR);
+            return -(!strcmp(Symbol, "END"));
         case 'R':
             for (int i = 0; i < 3; i++){
-                if(Symbol[i]!=r[i]) return 0;
+                if(Symbol[i]!=r[i]) return -1;
             }
             switch (Symbol[3]){
                 case 'B':
                 case 'R':
                 case 'W':
-                    if (Symbol[4] == NULL)return 0;
+                    if (Symbol[4] == NULL)return -1;
                     else return 1;
                 default:
                     break;
             }
             return 1;
         case 'S':
-            return strcmp(Symbol, "START");
+            return -(!strcmp(Symbol, "START"));
         case 'W':
-            return strcmp(Symbol, "WORD");
+            return -(!strcmp(Symbol, "WORD"));
     }
     return 1;
 }
