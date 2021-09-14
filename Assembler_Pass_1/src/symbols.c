@@ -3,7 +3,7 @@
 int CmprDir(char *Symbol);
 int IsAValidSymbol (char *TestSymbol){
     int Result = 1;
-
+    int maxlength = 6;
 
     //Does Symbol start w/ alpha character
     if ((int)TestSymbol[0] < 65 || (int)TestSymbol[0] > 90){
@@ -19,14 +19,13 @@ int IsAValidSymbol (char *TestSymbol){
         case 'W':
             Result = CmprDir(TestSymbol);
             if (Result == -1) return Result;
-            else break;
+            else {Result = 1; break;}
         default:
             break;
     }
-
     //test Symbol Length
     int i = 0;
-    while(TestSymbol[i] != NULL || i > 6){
+    while((int) TestSymbol[i] != NULL || i > 7){
         switch((int)TestSymbol[i]){
             case 32:  //Space
                 Result = 0;
@@ -58,8 +57,8 @@ int IsAValidSymbol (char *TestSymbol){
         }
         i++;
     }
-    //printf("String length is: %i", i);
-    if (i > 6) {Result = 0; return Result;}
+    //printf("String length is: %i, Result is: %d", i, Result);
+    if (i > maxlength) {Result = 0; return Result;}
     return Result;
 }
 

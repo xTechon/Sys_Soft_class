@@ -11,3 +11,12 @@ struct symbols {
 typedef struct symbols SYMBOL;
 
 int IsAValidSymbol(char *TestSymbol);
+
+typedef struct symLink LIST;
+struct symLink {
+    SYMBOL node;
+    LIST* next;
+};
+
+
+int printLink(LIST table);

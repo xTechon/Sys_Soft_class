@@ -19,29 +19,40 @@ int main(int argc, char *argv[]){
 
 
     char line[1024];
+    char fline[1024];
     char* newsym;
     int errC = 0;
     newsym = malloc(1024*sizeof(char));
     memset(newsym, '\0', 1024*sizeof(char));
 
-    while (fgets(line, 1024, fp) !=NULL){
-        if (line[0] == 35){
-            printf("Comment: %s", line); //remove or comment out before submission
+    char* nextToken;
+    nextToken = malloc(1024*sizeof(char));
+    memset(nextToken, '\0', 1024*sizeof(char));
 
+    int lCount = 0;
+
+    while (fgets(line, 1024, fp) !=NULL){
+        strcpy (fline, line);
+        lCount++; //Keep track of lines
+        if (line[0] == 35){
+            //printf("Comment: %s", line); //remove or comment out before submission
             continue;
         }
-        if ( (line[0] >= 65) && (line[0] <= 90)){
+
+        if ((line[0] >= 65) && (line[0] <= 90)){ //check for symbols that start with capitals
             newsym = strtok(line, " \t\n");
-            printf("NEW SYMBOL ON LINE: %s\n", line);
+            printf("NEW SYMBOL ON LINE: %d\n", lCount);
             printf("NEW SYMBOL IS: %s\n", newsym);
             errC = IsAValidSymbol(newsym);
             if (errC != 1){
-                printf("ERROR. INVALID SYMBOL CODE: %d\n", errC);
+                printf("ERROR. INVALID SYMBOL \"%s\" WITH CODE: %d\n", newsym, errC);
                 fclose(fp);
                 return 0;
             }
+            nextToken = strtok(NULL, " \t\n");
             continue;
         }
+
     }
     fclose(fp);
     return 0;
