@@ -32,3 +32,18 @@ the turnin code for this project is:  System_Software_Project1
 References:
 1. The SIC System Programmer's Reference
 2. The SIC Assembly Language Specification
+
+TODOs:
+DONE Basic File Reading
+DONE Symbol Checking
+DONE Directive Validation
+- Directive Checking
+- Structure to contain Symbol Table
+DONE Make instruction File
+- Read Instruction File
+- Store Instructions into hashtable
+- Location Counter tracking in hexadecimal
+- Assembly instruction validation
+- Assembly instruction checking
+- Generate Symbol Table
+- Print Symbol Table
