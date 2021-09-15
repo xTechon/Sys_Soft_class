@@ -18,5 +18,13 @@ struct symLink {
     LIST* next;
 };
 
-
 int printLink(LIST table);
+
+struct opcodes {
+	char	OpCode;
+	char	Name[8];
+
+};
+
+typedef struct opcodes OPCODES;
+OPCODES OpcodeTable[ 32 ];
