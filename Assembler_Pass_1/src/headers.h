@@ -29,3 +29,7 @@ struct opcodes {
 
 typedef struct opcodes OPCODES;
 OPCODES OpcodeTable[ 32 ];
+
+int PrintList();
+int PushLink(SYMBOL addition);
+LIST NewList();
