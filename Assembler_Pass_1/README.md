@@ -37,9 +37,9 @@ TODOs:
 DONE Basic File Reading
 DONE Symbol Checking
 DONE Directive Validation
+DONE Make instruction File
 - Directive Checking
 - Structure to contain Symbol Table
-DONE Make instruction File
 - Read Instruction File
 - Store Instructions into hashtable
 - Location Counter tracking in hexadecimal
