@@ -15,7 +15,8 @@ int IsAValidSymbol(char *TestSymbol);
 typedef struct symLink LIST;
 struct symLink {
     SYMBOL node;
-    LIST* next;
+    struct symLink* next;
+    struct symLink* prev;
 };
 
 int printLink(LIST table);
