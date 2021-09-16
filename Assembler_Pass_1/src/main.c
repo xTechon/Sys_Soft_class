@@ -2,7 +2,7 @@
 
 int TestMode();
 int main(int argc, char *argv[]){
-    TestMode();return 0; //uncomment for testing mode
+    //TestMode();return 0; //uncomment for testing mode
     //File Checking Section of code
     if (argc != 2) { //check to see if correct amnt of arguments entered
         printf("ERROR: Usage: %s filename\n", argv[0]);
@@ -62,10 +62,12 @@ int main(int argc, char *argv[]){
 int TestMode(){
      int j = IsAValidSymbol("BYTE");
      printf("\ninput is: %s\nj is: %i", "BYTE",j);
-     printf("\nTesting Linked list");
+     printf("\nTesting Binary Tree");
+
      SYMBOL test;
      strcpy(test.Name, "TEST");
      test.Address = 1000;
+     /*
      NewList(); //initalize list
      PushLink(test);
      strcpy(test.Name, "TEST2");
@@ -75,5 +77,26 @@ int TestMode(){
      test.Address = 1006;
      PushLink(test);
      PrintList();
+     */
+     PushLeaf(test);
+     strcpy(test.Name, "TEST2");
+     test.Address = 1003;
+     PushLeaf(test);
+     strcpy(test.Name, "Alg1");
+     test.Address = 1006;
+     PushLeaf(test);
+     strcpy(test.Name, "Alg1");
+     test.Address = 1006;
+     PushLeaf(test);
+     strcpy(test.Name, "Base");
+     test.Address = 1009;
+     PushLeaf(test);
+     strcpy(test.Name, "FOX");
+     test.Address = 1012;
+     PushLeaf(test);
+     PrintTree();
+     printf("\nTesting Find Symbol");
+     test = FindSymbol("TEST");
+     printf("\nRESULT: %s", test.Name);
      return 0;
 }

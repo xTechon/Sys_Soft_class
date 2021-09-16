@@ -8,9 +8,7 @@ struct symbols {
     int Address;
     char Name[7];
 };
-
 typedef struct symbols SYMBOL;
-
 int IsAValidSymbol(char *TestSymbol);
 
 //opcode things
@@ -21,7 +19,7 @@ struct opcodes {
 };
 
 typedef struct opcodes OPCODES;
-OPCODES OpcodeTable[ 32 ];
+//OPCODES OpcodeTable[ 32 ];
 
 //Linked list things
 typedef struct symLink LIST;
@@ -42,3 +40,7 @@ struct branch {
     struct branch* right;
 };
 typedef struct branch TREE;
+int PushLeaf(SYMBOL leaf);
+SYMBOL FindSymbol(char* leaf);
+TREE* TraversInOrder(TREE* localRoot);
+int PrintTree();

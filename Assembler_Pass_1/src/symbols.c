@@ -25,7 +25,7 @@ int IsAValidSymbol (char *TestSymbol){
     }
     //test Symbol Length
     int i = 0;
-    while((int) TestSymbol[i] != NULL || i > 7){
+    while((int) TestSymbol[i] != '\0' || i > 7){
         switch((int)TestSymbol[i]){
             case 32:  //Space
                 Result = 0;
@@ -80,7 +80,7 @@ int CmprDir(char *Symbol){
                 case 'B':
                 case 'R':
                 case 'W':
-                    if (Symbol[4] == NULL)return -1;
+                    if (Symbol[4] == '\0')return -1;
                     else return 1;
                 default:
                     break;
