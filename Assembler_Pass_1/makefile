@@ -1,6 +1,6 @@
 vpath %.c src
 vpath %.o bin
-project1: main.o symbols.o list.o
+project1: main.o symbols.o list.o tree.o
 	gcc -Wall -o project1 $^
 
 main.o: main.c
@@ -12,8 +12,10 @@ symbols.o: symbols.c
 list.o: list.c
 	gcc -Wall -O0 -c $^ -o $@
 
+tree.o: tree.c
+	gcc -Wall -O0 -c $^ -o $@
 
 clean:
-	rm *.o -f
-	touch *.c
+	rm *.o bin/*.o -f
+	touch src/*.c
 	rm project1 -f
