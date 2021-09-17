@@ -39,7 +39,7 @@ DONE Symbol Checking
 DONE Directive Validation
 DONE Make instruction File
 - Directive Checking
-- Structure to contain Symbol Table
+DONE Structure to contain Symbol Table
 - Read Instruction File
 - Store Instructions into hashtable
 - Location Counter tracking in hexadecimal
