@@ -8,6 +8,7 @@ int main(int argc, char *argv[]){
         printf("ERROR: Usage: %s filename\n", argv[0]);
         return 0;
     }
+    ReadOpCodeFile();
     FILE *fp;
     fp = fopen(argv[1], "r");
 
@@ -15,7 +16,7 @@ int main(int argc, char *argv[]){
         printf ("ERROR: %s could not be opened for reading.\n", argv[1]);
         return 0;
     }
-//    printf("File Opened successfully.");
+    printf("File Opened successfully.");
 
 
     char line[1024];
@@ -28,7 +29,6 @@ int main(int argc, char *argv[]){
     char* nextToken;
     nextToken = malloc(1024*sizeof(char));
     memset(nextToken, '\0', 1024*sizeof(char));
-
     int lCount = 0;
 
     while (fgets(line, 1024, fp) !=NULL){
@@ -60,13 +60,20 @@ int main(int argc, char *argv[]){
 
 //testing mode to skip normal program runtime behavior
 int TestMode(){
+    /*
      int j = IsAValidSymbol("BYTE");
      printf("\ninput is: %s\nj is: %i", "BYTE",j);
      printf("\nTesting Binary Tree");
-
+*/
      SYMBOL test;
+     OPCODES opTest;
      strcpy(test.Name, "TEST");
      test.Address = 1000;
+     opTest.OpCode = 0x4C;
+     strcpy(opTest.Name, "RSUB");
+     printf("\ntesting CmpHash()");
+     int check = CmpHash(29, "RSUB");
+     printf("Computed key is: %d", check);
      /*
      NewList(); //initalize list
      PushLink(test);
@@ -77,7 +84,6 @@ int TestMode(){
      test.Address = 1006;
      PushLink(test);
      PrintList();
-     */
      PushLeaf(test);
      strcpy(test.Name, "TEST2");
      test.Address = 1003;
@@ -98,5 +104,6 @@ int TestMode(){
      printf("\nTesting Find Symbol");
      test = FindSymbol("TEST");
      printf("\nRESULT: %s", test.Name);
+     */
      return 0;
 }

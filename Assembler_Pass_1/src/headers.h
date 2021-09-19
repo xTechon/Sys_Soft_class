@@ -13,13 +13,12 @@ int IsAValidSymbol(char *TestSymbol);
 
 //opcode things
 struct opcodes {
-	char	OpCode;
+	int	OpCode;
 	char	Name[8];
-
+    int     Args;
 };
 
 typedef struct opcodes OPCODES;
-//OPCODES OpcodeTable[ 32 ];
 
 //Linked list things
 typedef struct symLink SYMLIST;
@@ -52,6 +51,11 @@ struct opList {
     int lSize;
 
 };
+int PushLinkOP(OPLIST* HEAD, OPLIST* END, int lSize, OPCODES addition);
+OPLIST* NewOpList(int* size);
+OPLIST* FindOp(OPLISTHEAD* root, char *op);
+int PrintOPList(OPLIST* HEAD);
+extern OPLISTHEAD* OpcodeTable[29];
 //binary tree things
 struct branch {
     SYMBOL node;
@@ -63,3 +67,10 @@ int PushLeaf(SYMBOL leaf);
 SYMBOL FindSymbol(char* leaf);
 TREE* TraversInOrder(TREE* localRoot);
 int PrintTree();
+
+//Hash table things
+int CmpHash(int size, char* key);
+int PushHash(OPLISTHEAD *arr[], int size, OPCODES* op);
+int FindHash(OPLISTHEAD *arr[], int size, OPCODES* op);
+int PrintHash(OPLISTHEAD *arr[], int size);
+int ReadOpCodeFile();
