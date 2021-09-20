@@ -52,10 +52,10 @@ struct opList {
 
 };
 int PushLinkOP(OPLIST* HEAD, OPLIST* END, int lSize, OPCODES addition);
-OPLIST* NewOpList(int* size);
+OPLISTHEAD NewOpList();
 OPLIST* FindOp(OPLISTHEAD* root, char *op);
 int PrintOPList(OPLIST* HEAD);
-extern OPLISTHEAD* OpcodeTable[29];
+extern OPLISTHEAD* OpcodeTable;
 //binary tree things
 struct branch {
     SYMBOL node;
@@ -70,7 +70,7 @@ int PrintTree();
 
 //Hash table things
 int CmpHash(int size, char* key);
-int PushHash(OPLISTHEAD *arr[], int size, OPCODES* op);
-int FindHash(OPLISTHEAD *arr[], int size, OPCODES* op);
-int PrintHash(OPLISTHEAD *arr[], int size);
+int PushHash(OPLISTHEAD* arr, int size, OPCODES* op);
+int FindHash(OPLISTHEAD* arr, int size, OPCODES* op);
+int PrintHash(OPLISTHEAD* arr, int size);
 int ReadOpCodeFile();

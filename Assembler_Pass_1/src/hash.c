@@ -21,33 +21,33 @@ int CmpHash(int size, char* key){
     return index;
 }
 
-int PushHash(OPLISTHEAD *arr[], int size, OPCODES* op){
+int PushHash(OPLISTHEAD* arr, int size, OPCODES* op){
     int key = CmpHash(size, op->Name);
     printf("\nKey generated: %d", key);
-    if (arr[key] == NULL){
+    if (&arr[key] == NULL){
         printf("\nArray index is NULL");
-        arr[key] = (OPLISTHEAD*)malloc(sizeof(OPLISTHEAD)); //create space for a new Head pointer
-        arr[key] -> HEAD = NewOpList(&arr[key]->lSize);     //create the new Head pointer
-        arr[key] -> lSize = PushLinkOP(arr[key]->HEAD, arr[key]->END, arr[key]->lSize, *op); //Push the OPCODE on the new linked list and increment lSize
-        printf("\nlSize is: %d", arr[key] -> lSize);
+        //arr[key] = malloc(sizeof(OPLISTHEAD)); //create space for a new Head pointer
+        arr[key] = NewOpList(); //create the new Head pointer
+        arr[key].lSize = PushLinkOP(arr[key].HEAD, arr[key].END, arr[key].lSize, *op); //Push the OPCODE on the new linked list and increment lSize
+        printf("\nlSize is: %d", arr[key].lSize);
     } else{
         printf("\nArray index contains some value");
-        arr[key] -> lSize = PushLinkOP(arr[key]->HEAD, arr[key]->END, arr[key]->lSize, *op); //Push the OPCODE on the new linked list and increment lSize
+        arr[key].lSize = PushLinkOP(arr[key].HEAD, arr[key].END, arr[key].lSize, *op); //Push the OPCODE on the new linked list and increment lSize
     }
     return 1;
 }
 
-int FindHash(OPLISTHEAD *arr[], int size, OPCODES* op){
+int FindHash(OPLISTHEAD* arr, int size, OPCODES* op){
     int key = CmpHash(size, op->Name);
-    if(FindOp(arr[key], op->Name) != NULL) return 1;
+    if(FindOp(&arr[key], op->Name) != NULL) return 1;
     else return 0;
 }
 
-int PrintHash(OPLISTHEAD *arr[], int size){
+int PrintHash(OPLISTHEAD* arr, int size){
     printf("\nAvailable OpCodes:");
     for (int i = 0; i < size; i++){
-        if (arr[i]!=NULL){
-            PrintOPList(arr[i]->HEAD);
+        if (&arr[i]!=NULL){
+            PrintOPList(arr[i].HEAD);
         }
     }
     return 1;

@@ -1,12 +1,12 @@
 #include "headers.h"
 
-OPLISTHEAD* OpcodeTable[29];
+//OPLISTHEAD* OpcodeTable;
 
 int ReadOpCodeFile(){
     printf("\nLooking for opcode file...");
     FILE *fd = NULL;
     printf("\right before fopen");
-    fd = fopen("SIC_Instructions", "r");
+    fd = fopen("SIC_Instructions.csv", "r");
     printf("\nWent through fopen");
 
     if (fd == NULL){
@@ -15,6 +15,7 @@ int ReadOpCodeFile(){
     }
 
     printf("\nImporting OpCodes...");
+    OPLISTHEAD* OpcodeTable = malloc(29*sizeof(OPLISTHEAD));
     char line [1024];
     fgets(line, 1024, fd); //skip headers
     char* opName;

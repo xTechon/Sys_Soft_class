@@ -26,3 +26,4 @@ clean:
 	rm *.o bin/*.o -f
 	touch src/*.c
 	rm project1 -f
+	rm vgcore.*
