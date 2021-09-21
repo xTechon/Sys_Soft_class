@@ -27,35 +27,19 @@ struct symLink {
     struct symLink* next;
     struct symLink* prev;
 };
-typedef struct symList SYMLISTHEAD;
-struct symList {
-    SYMLIST* HEAD;
-    SYMLIST* END;
-    int lSize;
 
-};
-int PrintSymList(SYMLIST* HEAD);
-int PushLinkSym(SYMLIST* HEAD, SYMLIST* END, int lSize, SYMBOL addition);
-SYMLIST NewSymList(int *size);
 //OP code linked list for hash table
 struct opLink {
     OPCODES node;
     struct opLink* next;
-    struct opLink* prev;
 };
 typedef struct opLink OPLIST;
-typedef struct opList OPLISTHEAD;
-struct opList {
-    OPLIST* HEAD;
-    OPLIST* END;
-    int lSize;
-
-};
-int PushLinkOP(OPLIST* HEAD, OPLIST* END, int lSize, OPCODES addition);
-OPLISTHEAD NewOpList();
-OPLIST* FindOp(OPLISTHEAD* root, char *op);
 int PrintOPList(OPLIST* HEAD);
-extern OPLISTHEAD* OpcodeTable;
+OPLIST* FindOp(OPLIST* root, char *op);
+int PushLinkOP(OPLIST* HEAD, OPCODES* addition);
+OPLIST* NewOpList();
+extern OPLIST* OpcodeTable[29];
+
 //binary tree things
 struct branch {
     SYMBOL node;
@@ -70,7 +54,7 @@ int PrintTree();
 
 //Hash table things
 int CmpHash(int size, char* key);
-int PushHash(OPLISTHEAD* arr, int size, OPCODES* op);
-int FindHash(OPLISTHEAD* arr, int size, OPCODES* op);
-int PrintHash(OPLISTHEAD* arr, int size);
+int PushHash(OPLIST* arr[], int size, OPCODES* op);
+int FindHash(OPLIST* arr[], int size, OPCODES* op);
+int PrintHash(OPLIST* arr[], int size);
 int ReadOpCodeFile();

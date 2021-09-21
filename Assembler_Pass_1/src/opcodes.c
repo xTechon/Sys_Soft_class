@@ -1,6 +1,6 @@
 #include "headers.h"
 
-//OPLISTHEAD* OpcodeTable;
+OPLIST* OpcodeTable[29];
 
 int ReadOpCodeFile(){
     printf("\nLooking for opcode file...");
@@ -15,7 +15,8 @@ int ReadOpCodeFile(){
     }
 
     printf("\nImporting OpCodes...");
-    OPLISTHEAD* OpcodeTable = malloc(29*sizeof(OPLISTHEAD));
+    //OPLISTHEAD* OpcodeTable = malloc(29*sizeof(OPLISTHEAD));
+    memset(OpcodeTable, '\0', 29*sizeof(OPLIST*));
     char line [1024];
     fgets(line, 1024, fd); //skip headers
     char* opName;
@@ -27,13 +28,17 @@ int ReadOpCodeFile(){
     int opCode;
     OPCODES* op;
     op = (OPCODES*) malloc(sizeof(OPCODES));
+    memset(op, '\0', sizeof(OPCODES));
     while(fgets(line, 1024, fd) != NULL){
+        //pull memonic from file
         opName = strtok(line, ",");
+        //skip some data
         strtok(NULL, ",");
         strtok(NULL, ",");
+        //pull opcode from file
         opChar = strtok(NULL, ",");
         printf("\nopChar is: %s", opChar);
-        opCode = (int) strtol(opChar, NULL, 16);
+        opCode = (int) strtol(opChar, NULL, 16); //convert char in hex to int
         //store the data from the file into an opcode link
         strcpy(op->Name,opName);
         op->OpCode = opCode;

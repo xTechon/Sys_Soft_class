@@ -53,6 +53,8 @@ int main(int argc, char *argv[]){
             continue;
         }
 
+        //max word size is 2^23, check programmer's ref
+
     }
     fclose(fp);
     return 0;
