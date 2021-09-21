@@ -8,7 +8,6 @@ int main(int argc, char *argv[]){
         printf("ERROR: Usage: %s filename\n", argv[0]);
         return 0;
     }
-    ReadOpCodeFile();
     FILE *fp;
     fp = fopen(argv[1], "r");
 
@@ -16,8 +15,9 @@ int main(int argc, char *argv[]){
         printf ("ERROR: %s could not be opened for reading.\n", argv[1]);
         return 0;
     }
-    printf("File Opened successfully.");
+    printf("\nFile Opened successfully.");
 
+    ReadOpCodeFile(); //import opcodes
 
     char line[1024];
     char fline[1024];
@@ -41,11 +41,11 @@ int main(int argc, char *argv[]){
 
         if ((line[0] >= 65) && (line[0] <= 90)){ //check for symbols that start with capitals
             newsym = strtok(line, " \t\n");
-            printf("NEW SYMBOL ON LINE: %d\n", lCount);
-            printf("NEW SYMBOL IS: %s\n", newsym);
+            printf("\nNEW SYMBOL ON LINE: %d", lCount);
+            printf("\nNEW SYMBOL IS: %s", newsym);
             errC = IsAValidSymbol(newsym);
             if (errC != 1){
-                printf("ERROR. INVALID SYMBOL \"%s\" WITH CODE: %d\n", newsym, errC);
+                printf("\nERROR. INVALID SYMBOL \"%s\" WITH CODE: %d", newsym, errC);
                 fclose(fp);
                 return 0;
             }
@@ -66,46 +66,14 @@ int TestMode(){
      int j = IsAValidSymbol("BYTE");
      printf("\ninput is: %s\nj is: %i", "BYTE",j);
      printf("\nTesting Binary Tree");
-*/
-     SYMBOL test;
+    */
+
      OPCODES opTest;
-     strcpy(test.Name, "TEST");
-     test.Address = 1000;
-     opTest.OpCode = 0x4C;
-     strcpy(opTest.Name, "RSUB");
-     printf("\ntesting CmpHash()");
-     int check = CmpHash(29, "RSUB");
-     printf("Computed key is: %d", check);
-     /*
-     NewList(); //initalize list
-     PushLink(test);
-     strcpy(test.Name, "TEST2");
-     test.Address = 1003;
-     PushLink(test);
-     strcpy(test.Name, "TEST3");
-     test.Address = 1006;
-     PushLink(test);
-     PrintList();
-     PushLeaf(test);
-     strcpy(test.Name, "TEST2");
-     test.Address = 1003;
-     PushLeaf(test);
-     strcpy(test.Name, "Alg1");
-     test.Address = 1006;
-     PushLeaf(test);
-     strcpy(test.Name, "Alg1");
-     test.Address = 1006;
-     PushLeaf(test);
-     strcpy(test.Name, "Base");
-     test.Address = 1009;
-     PushLeaf(test);
-     strcpy(test.Name, "FOX");
-     test.Address = 1012;
-     PushLeaf(test);
-     PrintTree();
-     printf("\nTesting Find Symbol");
-     test = FindSymbol("TEST");
-     printf("\nRESULT: %s", test.Name);
-     */
+     strcpy(opTest.Name, "ADD");
+     opTest.OpCode = 0x18;
+     ReadOpCodeFile();
+     int result;
+     result = FindHash(OpcodeTable, 29, &opTest);
+     printf("\nFindHash Result: %d", result);
      return 0;
 }

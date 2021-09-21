@@ -3,11 +3,11 @@
 OPLIST* OpcodeTable[29];
 
 int ReadOpCodeFile(){
-    printf("\nLooking for opcode file...");
+    //printf("\nLooking for opcode file...");
     FILE *fd = NULL;
-    printf("\right before fopen");
+    //printf("\right before fopen");
     fd = fopen("SIC_Instructions.csv", "r");
-    printf("\nWent through fopen");
+    //printf("\nWent through fopen");
 
     if (fd == NULL){
         printf("ERROR: OPCODE CSV COULD NOT BE FOUND");
@@ -37,12 +37,12 @@ int ReadOpCodeFile(){
         strtok(NULL, ",");
         //pull opcode from file
         opChar = strtok(NULL, ",");
-        printf("\nopChar is: %s", opChar);
+        //printf("\nopChar is: %s", opChar);
         opCode = (int) strtol(opChar, NULL, 16); //convert char in hex to int
         //store the data from the file into an opcode link
         strcpy(op->Name,opName);
         op->OpCode = opCode;
-        printf("\nOPCODE is: %x", opCode);
+        //printf("\nOPCODE is: %x", opCode);
         //push the data into the hash
         PushHash(OpcodeTable, 29, op);
     }

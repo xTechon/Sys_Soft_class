@@ -36,8 +36,7 @@ struct opLink {
 typedef struct opLink OPLIST;
 int PrintOPList(OPLIST* HEAD);
 OPLIST* FindOp(OPLIST* root, char *op);
-int PushLinkOP(OPLIST* HEAD, OPCODES* addition);
-OPLIST* NewOpList();
+OPLIST* PushLinkOP(OPLIST* HEAD, OPCODES addition);
 extern OPLIST* OpcodeTable[29];
 
 //binary tree things

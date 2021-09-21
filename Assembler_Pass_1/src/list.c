@@ -1,25 +1,16 @@
 #include "headers.h"
 
-OPLIST* NewOpList(){
-    OPLIST* newlist = (OPLIST*) malloc(sizeof(OPLIST));
-    memset(newlist, '\0', sizeof(char));
-    newlist->next = NULL;
-    printf("\ncreated list");
-    return newlist;
-}//end NewList()
-
-int PushLinkOP(OPLIST* HEAD, OPCODES* addition){
+OPLIST* PushLinkOP(OPLIST* HEAD, OPCODES addition){
    OPLIST* newlist = (OPLIST*) malloc(sizeof(OPLIST));
-   //memset(newlist, '\0', sizeof(char));
-   newlist->node = *addition;
+   memset(newlist, '\0', sizeof(OPLIST));
+   newlist->node = addition;
    if (HEAD == NULL){
        HEAD = newlist;
        HEAD->next = NULL;
    }else {
        newlist->next = HEAD;
-       HEAD = newlist;
    }
-   return 1;
+   return newlist;
 }//end PushLink
 
 OPLIST* FindOp(OPLIST* root, char *op){
@@ -36,9 +27,9 @@ OPLIST* FindOp(OPLIST* root, char *op){
 
 int PrintOPList(OPLIST* HEAD){
     OPLIST* current = HEAD;
-    printf("\nAvailable OpCodes:");
+    //printf("\nAvailable OpCodes:");
     while (current != NULL){
-        printf("\n%s\t%d", current->node.Name, current->node.OpCode); //print node data to terminal
+        printf("\n%s\t%x", current->node.Name, current->node.OpCode); //print node data to terminal
         current = current->next; //go to next list
     }
     return 1;
