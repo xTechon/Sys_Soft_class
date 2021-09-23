@@ -72,6 +72,7 @@ int main(int argc, char *argv[]){
             if (locCount != 0){
                 sym.Address = locCount;
                 if (!PushLeaf(sym)) return 0;
+                printf("\nPUSHED LEAF");
             }
 
         }
@@ -153,7 +154,7 @@ int main(int argc, char *argv[]){
             printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID DIRECTIVE OR OPCODE", nextToken, lCount);
         }
         nextToken = strtok(NULL, " \t\n");
-        printf("\nnext token is: %s", nextToken);
+        printf("\nnext token is: %s\n", nextToken);
         //max word size is 2^23, check programmer's ref
 
     }
