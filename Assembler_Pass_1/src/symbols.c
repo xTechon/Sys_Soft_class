@@ -18,7 +18,7 @@ int IsAValidSymbol (char *TestSymbol){
         case 'S':
         case 'W':
             Result = CmprDir(TestSymbol);
-            if (Result == -1) return Result;
+            if (Result < 0) return Result;
             else {Result = 1; break;}
         default:
             break;
@@ -64,32 +64,58 @@ int IsAValidSymbol (char *TestSymbol){
 
 int CmprDir(char *Symbol){
     char r[4] = "RES";
-    //int testR;
+    int testR;
     switch (Symbol[0]){
-        case'B':
-            return -(!strcmp(Symbol, "BYTE"));
-        case'E':
-            //testR = -(!strcmp(Symbol, "END"));
+        case'B': //-1
+            if (!strcmp(Symbol, "BYTE")) return -1;
+            else return 1;
+            //operand is character or hexadecimal constant
+        case'E': //-2 and -3
+            testR = strcmp(Symbol, "END");
             //printf("Possible Dir: %s, test Result: %d\n", Symbol, testR);
-            return -(!strcmp(Symbol, "END"));
-        case 'R':
+            if (testR == 0){
+                return -2;
+            }
+            testR = strcmp(Symbol, "EXPORTS");
+            if (testR == 0){
+                return -3;
+                //3 bytes reserved
+            }
+            return 1;
+        case 'R': //-4, -5, -6
             for (int i = 0; i < 3; i++){
-                if(Symbol[i]!=r[i]) return -1;
+                if(Symbol[i]!=r[i]) return 1;
             }
             switch (Symbol[3]){
                 case 'B':
-                case 'R':
-                case 'W':
-                    if (Symbol[4] == '\0')return -1;
+                    if (Symbol[4] == '\0')return -4;
                     else return 1;
+                   //reserve num bytes
+                case 'R':
+                    if (Symbol[4] == '\0')return -5;
+                    else return 1;
+                    //reserve 3 bytes of mem
+                case 'W':
+                    if (Symbol[4] == '\0')return -6;
+                    else return 1;
+                    //reserve num words
                 default:
                     break;
             }
             return 1;
-        case 'S':
-            return -(!strcmp(Symbol, "START"));
-        case 'W':
-            return -(!strcmp(Symbol, "WORD"));
+        case 'S': //-7
+            testR = strcmp(Symbol, "START");
+            if (testR == 0){
+                return -7;
+            }else return 1;
+            //next operand is start address
+        case 'W': //-8
+            testR = strcmp(Symbol, "WORD");
+            if (testR == 0){
+                return -8;
+            }else return 1;
+            //3 bytes
+
     }
     return 1;
 }

@@ -27,11 +27,12 @@ int PushHash(OPLIST* arr[], int size, OPCODES* op){
     return 1;
 }
 
-int FindHash(OPLIST* arr[], int size, OPCODES* op){
-    int key = CmpHash(size, op->Name);
-    printf("Key is: %d", key);
-    if(FindOp(arr[key], op->Name) != NULL) return 1;
-    else return 0;
+OPCODES* FindHash(OPLIST* arr[], int size, char* op){
+    int key = CmpHash(size, op);
+    //printf("Key is: %d", key);
+    OPLIST* temp = FindOp(arr[key], op);
+    if(temp != NULL) return &(temp->node); //get the address of the OPCODE
+    else return NULL;
 }
 
 int PrintHash(OPLIST* arr[], int size){

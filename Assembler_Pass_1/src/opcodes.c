@@ -14,8 +14,7 @@ int ReadOpCodeFile(){
         return 0;
     }
 
-    printf("\nImporting OpCodes...");
-    //OPLISTHEAD* OpcodeTable = malloc(29*sizeof(OPLISTHEAD));
+    //printf("\nImporting OpCodes...");
     memset(OpcodeTable, '\0', 29*sizeof(OPLIST*));
     char line [1024];
     fgets(line, 1024, fd); //skip headers
@@ -47,7 +46,7 @@ int ReadOpCodeFile(){
         PushHash(OpcodeTable, 29, op);
     }
     //confirm opcodes
-    PrintHash(OpcodeTable, 29);
+    //PrintHash(OpcodeTable, 29);
     fclose(fd);
     return 1;
 }
