@@ -18,6 +18,7 @@ int main(int argc, char *argv[]){
     }
     printf("\nFile Opened successfully.");
 
+    memset(OpcodeTable, 0, 29*sizeof(OPLIST*));
     ReadOpCodeFile(); //import opcodes
 
     char line[1024];
@@ -80,7 +81,7 @@ int main(int argc, char *argv[]){
         //get the new value for newsym
         nextToken = strtok(NULL, " \t\n");
         printf("\nnext token is: %s", nextToken);
-        dirTrack = CmprDir(nextToken);
+        dirTrack = CmprDir(nextToken); //LEAK AT THIS LINE
         //case if newsym is a directive
         if (dirTrack < 0){ //directive behavior
             printf ("\n\"%s\" is a DIRECTIVE", nextToken);
@@ -153,8 +154,8 @@ int main(int argc, char *argv[]){
         else {
             printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID DIRECTIVE OR OPCODE", nextToken, lCount);
         }
-        nextToken = strtok(NULL, " \t\n");
-        printf("\nnext token is: %s\n", nextToken);
+        //nextToken = strtok(NULL, " \t\n");
+        //printf("\nnext token is: %s\n", nextToken);
         //max word size is 2^23, check programmer's ref
 
     }

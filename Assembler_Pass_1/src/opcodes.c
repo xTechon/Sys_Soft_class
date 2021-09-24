@@ -15,7 +15,6 @@ int ReadOpCodeFile(){
     }
 
     //printf("\nImporting OpCodes...");
-    memset(OpcodeTable, '\0', 29*sizeof(OPLIST*));
     char line [1024];
     fgets(line, 1024, fd); //skip headers
     char* opName;
@@ -23,11 +22,12 @@ int ReadOpCodeFile(){
     memset(opName, '\0', 5*sizeof(char));
     char* opChar;
     opChar = malloc(3*sizeof(char));
-    memset(opChar, '\0', 5*sizeof(char));
+    memset(opChar, '\0', 3*sizeof(char));
     int opCode;
     OPCODES* op;
     op = (OPCODES*) malloc(sizeof(OPCODES));
-    memset(op, '\0', sizeof(OPCODES));
+    memset(op, 0, sizeof(OPCODES));
+
     while(fgets(line, 1024, fd) != NULL){
         //pull memonic from file
         opName = strtok(line, ",");
@@ -46,7 +46,10 @@ int ReadOpCodeFile(){
         PushHash(OpcodeTable, 29, op);
     }
     //confirm opcodes
-    //PrintHash(OpcodeTable, 29);
+    //free(op);
+    //free(opChar);
+    //free(opName);
+    PrintHash(OpcodeTable, 29);
     fclose(fd);
     return 1;
 }

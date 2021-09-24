@@ -16,7 +16,7 @@ MUL,m,3/4,20
 OR,m,3/4,44
 RD,m,3/4,D8
 RSUB,n/a,3/4,4C
-STA,m,3/4,OC
+STA,m,3/4,0C
 STCH,m,3/4,54
 STL,m,3/4,14
 STSW,m,3/4,E8
