@@ -61,7 +61,7 @@ int PrintTree(){
 TREE* TraversInOrder(TREE* localRoot){
     if (localRoot != NULL){
            TraversInOrder(localRoot->left);
-           printf("\n%s\t%d", localRoot->node.Name, localRoot->node.Address);
+           printf("\n%s\t%x", localRoot->node.Name, localRoot->node.Address);
            TraversInOrder(localRoot->right);
         }
     return localRoot;
