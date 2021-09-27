@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
             sym.SourceLine = lCount;
             if (locCount != 0){
                 sym.Address = locCount;
-                if (!PushLeaf(sym)) return 0;
+                if (!PushLeaf(sym)) {fclose(fp); return 0;}
                 //printf("\nPUSHED LEAF");
             }
             nextToken = strtok(NULL, " \t\n");
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]){
                         j += (int) strtol(argument, NULL, 16); //convert char in hex to int
                         if (j > 8388608){
                             printf("\nERROR: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON LINE %d", lCount);
-                            return 0;
+                            {fclose(fp); return 0;}
                         }
                         int i = 0;
                         while (argument[i] != '\0'){
@@ -116,41 +116,48 @@ int main(int argc, char *argv[]){
                         }
                         locCount += i; //characters are stored in one byte
                     }
-                    if (checkOverflow(locCount)) return 0;
+                    if (checkOverflow(locCount)) {fclose(fp); return 0;}
                     continue;
                 case -2: //END
                     operand = strtok(NULL, "#\n");
-                    if (checkOverflow(locCount)) return 0;
+                    if (checkOverflow(locCount)) {fclose(fp); return 0;}
                     continue;
                 case -3: //EXPORT
                     operand = strtok(NULL, "#\n");
                     locCount += 3;
-                    if (checkOverflow(locCount)) return 0;
+                    if (checkOverflow(locCount)) {fclose(fp); return 0;}
                     continue;
                 case -4: //RESB
                     operand = strtok(NULL, "#\n");
                     locCount += atoi(operand);
-                    if (checkOverflow(locCount)) return 0;
+                    if (checkOverflow(locCount)) {fclose(fp); return 0;}
                     continue;
                 case -5: //RESR
                     operand = strtok(NULL, "#\n");
                     locCount += 3;
-                    if (checkOverflow(locCount)) return 0;
+                    if (checkOverflow(locCount)) {fclose(fp); return 0;}
                     continue;
                 case -6: //RESW
                     operand = strtok(NULL, "#\n");
                     locCount += atoi(operand) * 3;
-                    if (checkOverflow(locCount)) return 0;
+                    if (checkOverflow(locCount)) {fclose(fp); return 0;}
                     continue;
                 case -7: //START
                     operand = strtok(NULL, "#\n");
                     locCount = (int) strtol(operand, NULL, 16); //convert char in hex to int
-                    if (checkOverflow(locCount)) return 0;
+                    //printf("\n%x\n", locCount);
+                    if (checkOverflow(locCount)) {fclose(fp); return 0;}
                     sym.Address = locCount;
                     PushLeaf(sym);
                     break;
                 case -8: //WORD
                     operand = strtok(NULL, "#\n");
+                    int i = atoi(operand);
+                    if (i > 8388608 || i < -8388608 ){
+                       printf("\nERROR: INTEGER CONSTANT %d EXCEEDS LIMIT", i);
+                       fclose(fp);
+                       return 0;
+                    }
                     locCount+= 3;
                     if (checkOverflow(locCount)) return 0;
                     continue;
@@ -164,6 +171,8 @@ int main(int argc, char *argv[]){
         }
         else {
             printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID DIRECTIVE OR OPCODE", nextToken, lCount);
+            fclose(fp);
+            return 0;
         }
         //max word size is 2^23, check programmer's ref
         //printf("\nLocation is: %x\n", locCount);
@@ -192,8 +201,8 @@ int TestMode(){
      return 0;
 }
 int checkOverflow(int count){
-    if (count > 32768){
-        printf("\nERROR: PROGRAM STARTS AT LOCATION %x NO ROOM LEFT IN SIC MEMORY", count);
+    if (count >= 0x8000){
+        printf("\nERROR: LOCATION %x SURPASSES SIC MEMORY", count);
         return 1;
     }
     return 0;

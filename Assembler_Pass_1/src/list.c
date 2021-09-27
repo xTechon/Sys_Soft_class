@@ -21,7 +21,7 @@ OPLIST* FindOp(OPLIST* root, char *op){
         }
         current = current->next;
     }
-    printf("\nERROR: %s IS NOT A VALID OPCODE", op);
+    printf("\nERROR: \"%s\" IS NOT A VALID OPCODE", op);
     return NULL;
 }
 
