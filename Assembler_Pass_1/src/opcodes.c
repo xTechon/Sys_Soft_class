@@ -46,10 +46,7 @@ int ReadOpCodeFile(){
         PushHash(OpcodeTable, 29, op);
     }
     //confirm opcodes
-    //free(op);
-    //free(opChar);
-    //free(opName);
-    PrintHash(OpcodeTable, 29);
+    //PrintHash(OpcodeTable, 29);
     fclose(fd);
     return 1;
 }

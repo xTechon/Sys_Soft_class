@@ -59,8 +59,8 @@ int main(int argc, char *argv[]){
         }
         if ((line[0] >= 65) && (line[0] <= 90)){ //check for symbols that start with capitals
             newsym = strtok(line, " \t\n");
-            printf("\nNEW SYMBOL ON LINE: %d", lCount);
-            printf("\nNEW SYMBOL IS: %s", newsym);
+            //printf("\nNEW SYMBOL ON LINE: %d", lCount);
+            //printf("\nNEW SYMBOL IS: %s", newsym);
             errC = IsAValidSymbol(newsym);
             if (errC != 1){
                 printf("\nERROR. INVALID SYMBOL \"%s\" WITH CODE: %d", newsym, errC);
@@ -73,33 +73,44 @@ int main(int argc, char *argv[]){
             if (locCount != 0){
                 sym.Address = locCount;
                 if (!PushLeaf(sym)) return 0;
-                printf("\nPUSHED LEAF");
+                //printf("\nPUSHED LEAF");
             }
             nextToken = strtok(NULL, " \t\n");
+        //get the new value for newsym
         }else {nextToken = strtok(line, " \t\n");}
 
-        //get the new value for newsym
-        //nextToken = strtok(line, " \t\n");
-        printf("\nnext token is: %s", nextToken);
+        //printf("\nnext token is: %s", nextToken);
         dirTrack = CmprDir(nextToken); //LEAK AT THIS LINE
         //case if newsym is a directive
         if (dirTrack < 0){ //directive behavior
-            printf ("\n\"%s\" is a DIRECTIVE", nextToken);
+            //printf ("\n\"%s\" is a DIRECTIVE", nextToken);
             switch (dirTrack){
                 case -1: //BYTE
                     operand = strtok(NULL, "#\n");
                     if (operand[0] == 'X'){
-                        argument = strtok(operand, "'");
+                        strtok(operand, "'");
+                        argument = strtok(NULL, "'");
+                        //printf("\nHEXADECIMAL CONSTANT: %s", argument);
                         int j = 0;
                         j += (int) strtol(argument, NULL, 16); //convert char in hex to int
                         if (j > 8388608){
                             printf("\nERROR: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON LINE %d", lCount);
                             return 0;
                         }
-                        locCount+= 3; //increment by the word size
-                    }else if(operand[0] == 'C'){
-                        argument = strtok(operand, "'");
                         int i = 0;
+                        while (argument[i] != '\0'){
+                            i++;
+                        }
+                        if (i % 2){
+                           i++;
+                        }
+                        i /= 2;
+                        locCount+= i; //increment by the number of bytes required to store constant
+                    }else if(operand[0] == 'C'){
+                        strtok(operand, "'");
+                        argument = strtok(NULL, "'");
+                        int i = 0;
+                        //printf("\nCHARACTER CONSTANT: %s", argument);
                         while (argument[i] != '\0'){
                             i++;
                         }
@@ -147,17 +158,15 @@ int main(int argc, char *argv[]){
         }
         //case if newsym is an opcode
         else if(FindHash(OpcodeTable, 29, nextToken) != NULL){
-            printf("\n\"%s\" is an OPCODE", nextToken);
+            //printf("\n\"%s\" is an OPCODE", nextToken);
             operand = strtok(NULL, "#\n");
             locCount += 3;
         }
         else {
             printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID DIRECTIVE OR OPCODE", nextToken, lCount);
         }
-        //nextToken = strtok(NULL, " \t\n");
-        //printf("\nnext token is: %s\n", nextToken);
         //max word size is 2^23, check programmer's ref
-
+        //printf("\nLocation is: %x\n", locCount);
     }
     PrintTree();
     fclose(fp);
