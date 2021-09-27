@@ -75,11 +75,11 @@ int main(int argc, char *argv[]){
                 if (!PushLeaf(sym)) return 0;
                 printf("\nPUSHED LEAF");
             }
-
-        }
+            nextToken = strtok(NULL, " \t\n");
+        }else {nextToken = strtok(line, " \t\n");}
 
         //get the new value for newsym
-        nextToken = strtok(NULL, " \t\n");
+        //nextToken = strtok(line, " \t\n");
         printf("\nnext token is: %s", nextToken);
         dirTrack = CmprDir(nextToken); //LEAK AT THIS LINE
         //case if newsym is a directive
