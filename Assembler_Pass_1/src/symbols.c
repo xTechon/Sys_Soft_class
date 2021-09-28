@@ -119,3 +119,29 @@ int CmprDir(char *Symbol){
     }
     return 1;
 }
+
+//rip windows, but I don't want to develop server-side
+int ValHEX(char* eval){
+    int i = 0;
+    while(eval[i] != '\0'){
+        if ((eval[i] >= 48 && eval[i] <=57)      //0-9
+            ||(eval[i] >= 65 && eval[i] <= 70)   //A-F
+            ||(eval[i] >= 97 && eval[i] <= 102)) //a-f
+        {
+            //printf("\neval[%d] is: %c", i, eval[i]);
+            i++;
+            continue;
+        }else{
+            return 0; //return 1 if it breaks hex convention
+        }
+    }
+    return 1;
+}
+
+int checkOverflow(int count){
+    if (count >= 0x8000){
+        printf("\nERROR: LOCATION %x SURPASSES SIC MEMORY", count);
+        return 1;
+    }
+    return 0;
+}

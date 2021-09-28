@@ -91,21 +91,27 @@ int main(int argc, char *argv[]){
                         strtok(operand, "'");
                         argument = strtok(NULL, "'");
                         //printf("\nHEXADECIMAL CONSTANT: %s", argument);
-                        int j = 0;
-                        j += (int) strtol(argument, NULL, 16); //convert char in hex to int
-                        if (j > 8388608){
-                            printf("\nERROR: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON LINE %d", lCount);
-                            {fclose(fp); return 0;}
+                        if (ValHEX(argument)){
+                            int j = 0;
+                            j += (int) strtol(argument, NULL, 16); //convert char in hex to int
+                            if (j > 8388608){
+                                printf("\nERROR: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON LINE %d", lCount);
+                                {fclose(fp); return 0;}
+                            }
+                            int i = 0;
+                            while (argument[i] != '\0'){
+                                i++;
+                            }
+                            if (i % 2){
+                                i++;
+                            }
+                            i /= 2;
+                            locCount+= i; //increment by the number of bytes required to store constant
+                        }else {
+                            printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID HEXADECIMAL CONSTANT", argument, lCount);
+                            fclose(fp);
+                            return 0;
                         }
-                        int i = 0;
-                        while (argument[i] != '\0'){
-                            i++;
-                        }
-                        if (i % 2){
-                           i++;
-                        }
-                        i /= 2;
-                        locCount+= i; //increment by the number of bytes required to store constant
                     }else if(operand[0] == 'C'){
                         strtok(operand, "'");
                         argument = strtok(NULL, "'");
@@ -199,11 +205,4 @@ int TestMode(){
      printf("\nFindHash Result: %d", result);
      */
      return 0;
-}
-int checkOverflow(int count){
-    if (count >= 0x8000){
-        printf("\nERROR: LOCATION %x SURPASSES SIC MEMORY", count);
-        return 1;
-    }
-    return 0;
 }

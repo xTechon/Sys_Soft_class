@@ -6,6 +6,10 @@
 typedef struct opLink OPLIST;
 extern OPLIST* OpcodeTable[29]; //array used often
 
+//Hex value things
+int ValHEX(char* eval);
+int checkOverflow(int count);
+
 //Symbol things
 struct symbols {
     int SourceLine;
