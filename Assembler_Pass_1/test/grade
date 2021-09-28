@@ -14,7 +14,7 @@ echo ----------------------------------------------------------------
 echo Testing with Correct SIC Assembly
 ./project1 test1.sic
 echo ----------------------------------------------------------------
-echo Testing case 2  SIC Program Has CLOOP defined twice (DUPLICATE DYMBOL)
+echo Testing case 2  SIC Program Has CLOOP defined twice DUPLICATE DYMBOL
 ./project1 test2.sic
 echo ----------------------------------------------------------------
 echo Testing case 3  SIC Program Has  Invalid Hex Constant  

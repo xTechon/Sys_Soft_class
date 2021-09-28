@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
             continue;
         }
         if (line[0] == '\n'){ //quit if it finds a blank line
-            printf("ERROR: FILE HAS BLANK LINES");
+            printf("\nERROR: FILE HAS BLANK LINES\n");
             return 0;
         }
         if ((line[0] >= 65) && (line[0] <= 90)){ //check for symbols that start with capitals
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
             //printf("\nNEW SYMBOL IS: %s", newsym);
             errC = IsAValidSymbol(newsym);
             if (errC != 1){
-                printf("\nERROR. INVALID SYMBOL \"%s\" WITH CODE: %d", newsym, errC);
+                printf("\nERROR. INVALID SYMBOL ON LINE %d, \"%s\" WITH CODE: %d", lCount, newsym, errC);
                 fclose(fp);
                 return 0;
             }
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]){
                             int j = 0;
                             j += (int) strtol(argument, NULL, 16); //convert char in hex to int
                             if (j > 8388608){
-                                printf("\nERROR: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON LINE %d", lCount);
+                                printf("\nERROR: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON LINE %d\n", lCount);
                                 {fclose(fp); return 0;}
                             }
                             int i = 0;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]){
                             i /= 2;
                             locCount+= i; //increment by the number of bytes required to store constant
                         }else {
-                            printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID HEXADECIMAL CONSTANT", argument, lCount);
+                            printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID HEXADECIMAL CONSTANT\n", argument, lCount);
                             fclose(fp);
                             return 0;
                         }
@@ -160,7 +160,7 @@ int main(int argc, char *argv[]){
                     operand = strtok(NULL, "#\n");
                     int i = atoi(operand);
                     if (i > 8388608 || i < -8388608 ){
-                       printf("\nERROR: INTEGER CONSTANT %d EXCEEDS LIMIT", i);
+                       printf("\nERROR: INTEGER CONSTANT %d EXCEEDS LIMIT ON LINE %d\n", i, lCount);
                        fclose(fp);
                        return 0;
                     }
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]){
             locCount += 3;
         }
         else {
-            printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID DIRECTIVE OR OPCODE", nextToken, lCount);
+            printf("\nERROR: \"%s\" ON LINE %d IS NOT A VALID DIRECTIVE OR OPCODE\n", nextToken, lCount);
             fclose(fp);
             return 0;
         }
