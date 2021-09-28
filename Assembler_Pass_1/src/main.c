@@ -184,6 +184,7 @@ int main(int argc, char *argv[]){
         //printf("\nLocation is: %x\n", locCount);
     }
     PrintTree();
+    printf("\n");
     fclose(fp);
     return 0;
 }

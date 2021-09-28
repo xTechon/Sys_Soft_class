@@ -1,0 +1,23 @@
+SIC base model Assembler
+
+Usage: ./project1 [filepath]
+
+Pass 1:
+In pass 1 of the SIC base model Assembler, only a symbol table is printed.
+The symbol table is stored using a binary tree data structure and is printed in alphabetical order.
+
+The Assembler comes with a list of valid opcodes in the file "SIC_Instructions.csv" and will
+not run without the inclusion of "SIC_Instructions.csv".
+
+Opcodes are stored by reading the opcode file and storing them in a hash table for fast referencing.
+
+The Assembler catches errors in the code and syntax such as:
+- duplicate symbols
+- invalid hex constants
+- symbols that do not fit the Assembly Language Specification
+- programs that exceed the SIC memory limit
+- assembly files that contain blank lines against the specification
+- word constants that exceed the maximum integer limit
+
+Errors thrown by the assembler will list the line of the error.
+Additionally, Symbols thrown with an error code less than 0 match an Assembler Directive
