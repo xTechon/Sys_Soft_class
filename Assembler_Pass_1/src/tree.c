@@ -29,7 +29,7 @@ int PushLeaf(SYMBOL leaf){
                 cur = cur ->left;
                 if (cur == NULL){par->left = newNode;return 1;}
             }else{//error case
-                printf("\nERROR: DUPLICATE SYMBOL \"%s\"", newNode->node.Name);
+                printf("\nERROR: DUPLICATE SYMBOL \"%s\"\n", newNode->node.Name);
                 return 0;
             }
         }

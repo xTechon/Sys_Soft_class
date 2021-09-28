@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
             //printf("\nNEW SYMBOL IS: %s", newsym);
             errC = IsAValidSymbol(newsym);
             if (errC != 1){
-                printf("\nERROR. INVALID SYMBOL ON LINE %d, \"%s\" WITH CODE: %d", lCount, newsym, errC);
+                printf("\nERROR. INVALID SYMBOL ON LINE %d, \"%s\" WITH CODE: %d\n", lCount, newsym, errC);
                 fclose(fp);
                 return 0;
             }
