@@ -1,0 +1,5 @@
+*.o
+*.exe
+bin/*.o
+src/*.gch
+vgcore.*
