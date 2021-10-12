@@ -1,0 +1,117 @@
+[thedkg@cisvm-softeng1 project1_fall2021]$ ./grade
+----------------------------------------------------------------
+----------------------------------------------------------------
+SIC base model Assembler
+
+Usage: ./project1 [filepath]
+
+Pass 1:
+In pass 1 of the SIC base model Assembler, only a symbol table is printed.
+The symbol table is stored using a binary tree data structure and is printed in alphabetical order.
+
+The Assembler comes with a list of valid opcodes in the file "SIC_Instructions.csv" and will
+not run without the inclusion of "SIC_Instructions.csv".
+
+Opcodes are stored by reading the opcode file and storing them in a hash table for fast referencing.
+
+The Assembler catches errors in the code and syntax such as:
+- duplicate symbols
+- invalid hex constants
+- symbols that do not fit the Assembly Language Specification
+- programs that exceed the SIC memory limit
+- assembly files that contain blank lines against the specification
+- word constants that exceed the maximum integer limit
+
+Errors thrown by the assembler will list the line of the error.
+Additionally, Symbols thrown with an error code less than 0 match an Assembler Directive
+----------------------------------------------------------------
+Running Make
+gcc -Wall -O0 -c src/main.c src/headers.h
+gcc -Wall -O0 -c src/symbols.c src/headers.h
+gcc -Wall -O0 -c src/list.c src/headers.h
+gcc -Wall -O0 -c src/tree.c src/headers.h
+gcc -Wall -O0 -c src/opcodes.c src/headers.h
+gcc -Wall -O0 -c src/hash.c src/headers.h
+gcc -Wall -o project1 main.o symbols.o list.o tree.o opcodes.o hash.o src/headers.h
+
+
+----------------------------------------------------------------
+Testing with No Command-line args
+ERROR: Usage: ./project1 filename
+----------------------------------------------------------------
+Testing with Correct SIC Assembly
+
+File Opened successfully.
+BUFFER  1039
+CLOOP   1003
+COPY    1000
+ENDFIL  1015
+ENDING  207a
+EOF     102a
+EXIT    2057
+FIRST   1000
+INPUT   205d
+LENGTH  1036
+MAXLEN  205e
+OUTPUT  2079
+RDREC   2039
+RETADR  1033
+RLOOP   203f
+THREE   102d
+WLOOP   2064
+WRREC   2061
+ZERO    1030
+----------------------------------------------------------------
+Testing case 2 SIC Program Has CLOOP defined twic
+
+File Opened successfully.
+ERROR: DUPLICATE SYMBOL "CLOOP"
+----------------------------------------------------------------
+Testing case 3 SIC Program Has Invalid Hex Constant
+
+File Opened successfully.
+ERROR: "F1AG" ON LINE 38 IS NOT A VALID HEXADECIMAL CONSTANT
+----------------------------------------------------------------
+Testing case 4 SIC Program HasSymbol Name that is an assembler Directive BYTE
+
+File Opened successfully.
+ERROR. INVALID SYMBOL ON LINE 29, "BYTE" WITH CODE: -1
+----------------------------------------------------------------
+Testing case 5 SIC Program Starts at Hex 8000. No room left in SIC memory.
+
+File Opened successfully.
+ERROR: LOCATION 8000 SURPASSES SIC MEMORY
+----------------------------------------------------------------
+Testing case 6 Long Byte Constant that is ok
+
+File Opened successfully.
+" IS NOT A VALID OPCODE
+" ON LINE 60 IS NOT A VALID DIRECTIVE OR OPCODE
+----------------------------------------------------------------
+Testing case 7 Has blank lines - violates specification. Pass1 should stop
+
+File Opened successfully.
+" IS NOT A VALID OPCODE
+" ON LINE 20 IS NOT A VALID DIRECTIVE OR OPCODE
+----------------------------------------------------------------
+Testing case 8 WORD COntant Exceeds 24 bit limitation
+
+File Opened successfully.
+ERROR: INTEGER CONSTANT 16389540 EXCEEDS LIMIT ON LINE 39
+----------------------------------------------------------------
+Testing case 9 Program Has Invalid Symbol Name
+
+File Opened successfully.
+ERROR: "%ENGTH" IS NOT A VALID OPCODE
+ERROR: "%ENGTH" ON LINE 20 IS NOT A VALID DIRECTIVE OR OPCODE
+----------------------------------------------------------------
+Testing case 10 Program Does not fit in SIC Memory
+
+File Opened successfully.
+ERROR: LOCATION 8027 SURPASSES SIC MEMORY----
+Fails test 9,7,6,1?..While it is impressive to store the symbols in a way to print them in alphabetical order, a symbol table is sorted by the address assigned rather than the name itself(I wont take points for this because it is still incremented correctly)
+so fails 6 because though byte has a very long character stream, it is a valid stream.
+Fails 7 because the error thrown should detail the blank line rather than saying it is an invalid directive/opcode
+Fails test 9 because although you identified it correctly, it is a symbol; and a symbol is neither supposed to be an "opcode" nor directive. So this should be an Invalid *symbol* error (I wont take points because you did catch it.)
+Test cases (-20)
+Good Documentation and the inclusion of a csv file (+5)
