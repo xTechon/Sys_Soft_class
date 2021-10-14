@@ -1,5 +1,5 @@
 #include "headers.h"
-
+#define DEBUG 0
 int CmpHash(int size, char* key){
     //printf("\nStarting key gen");
     //h(x) = r1x1 + r2x2 + ... + rkxk mod m
@@ -9,9 +9,15 @@ int CmpHash(int size, char* key){
     int mod = 0; //hold xk % m
     //took a lot of matlab to get these numbers
     int R[4] = {22, 22, 11, 17};
-    //printf("\nkey String is: %s", key);
+
+#if DEBUG
+    printf("\nkey String is: %s", key);
+#endif
+
     while(key[i] != '\0'){
-        //printf("\niterating through next index");
+#if DEBUG
+        printf("\niterating through next index");
+#endif
         mod = key[i] % size; //xk % m
         sum += R[i]*mod; //rkxk sum
         i++;
@@ -22,14 +28,18 @@ int CmpHash(int size, char* key){
 
 int PushHash(OPLIST* arr[], int size, OPCODES* op){
     int key = CmpHash(size, op->Name);
-    //printf("\nKey generated: %d", key);
+#if DEBUG
+    printf("\nKey generated: %d", key);
+#endif
     arr[key] = PushLinkOP(arr[key], *op);
     return 1;
 }
 
 OPCODES* FindHash(OPLIST* arr[], int size, char* op){
     int key = CmpHash(size, op);
-    //printf("Key is: %d", key);
+#if DEBUG
+    printf("Key is: %d", key);
+#endif
     OPLIST* temp = FindOp(arr[key], op);
     if(temp != NULL) return &(temp->node); //get the address of the OPCODE
     else return NULL;
@@ -38,9 +48,13 @@ OPCODES* FindHash(OPLIST* arr[], int size, char* op){
 int PrintHash(OPLIST* arr[], int size){
     printf("\nAvailable OpCodes:");
     for (int i = 0; i < size; i++){
-        //printf("\ni is: %d", i);
+#if DEBUG
+        printf("\ni is: %d", i);
+#endif
         if (arr[i]!=NULL){
-            //printf("\nsomething in index");
+#if DEBUG
+            printf("\nsomething in index");
+#endif
             PrintOPList(arr[i]);
         }
     }

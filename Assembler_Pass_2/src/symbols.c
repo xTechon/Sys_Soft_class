@@ -1,4 +1,5 @@
 #include "headers.h"
+#define DEBUG 0
 
 int CmprDir(char *Symbol);
 int IsAValidSymbol (char *TestSymbol){
@@ -128,7 +129,9 @@ int ValHEX(char* eval){
             ||(eval[i] >= 65 && eval[i] <= 70)   //A-F
             ||(eval[i] >= 97 && eval[i] <= 102)) //a-f
         {
-            //printf("\neval[%d] is: %c", i, eval[i]);
+#if DEBUG
+            printf("\neval[%d] is: %c", i, eval[i]);
+#endif
             i++;
             continue;
         }else{
@@ -140,8 +143,32 @@ int ValHEX(char* eval){
 
 int checkOverflow(int count){
     if (count >= 0x8000){
+#if DEBUG
         printf("\nERROR: LOCATION %x SURPASSES SIC MEMORY\n", count);
+#endif
         return 1;
     }
     return 0;
 }
+//found out regex is actually slower than original implementaiton
+/*
+int ValHEXreg(char* eval){
+    static regex_t* regex;
+    regex = malloc(sizeof(regex_t));
+    memset(regex, 0, sizeof(regex_t));
+    regoff_t off, len;
+    static char *const HexPattern = "(\\d*[a-f]*)+|(\\d|[a-f])";
+    if (regex == NULL){
+        if(regcomp(regex, HexPattern, REG_ICASE)) {
+            printf("ERROR: HEX PATTER COMPILATION FAILED");
+            return 1;
+        }
+    }
+    regmatch_t pmatch[1];
+    if(regexec(regex, eval, 1, pmatch, 0)){
+        return 0;
+    }
+    //off = pmatch[0].rm_so + (eval - );
+    regfree(regex); //free the compiled memory buffer
+    return 0;
+}*/
