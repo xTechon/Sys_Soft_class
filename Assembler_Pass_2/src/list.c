@@ -21,7 +21,7 @@ OPLIST* FindOp(OPLIST* root, char *op){
         }
         current = current->next;
     }
-    printf("\nERROR: \"%s\" IS NOT A VALID OPCODE", op);
+    //printf("\nERROR: \"%s\" IS NOT A VALID OPCODE", op);
     return NULL;
 }
 
@@ -29,7 +29,7 @@ int PrintOPList(OPLIST* HEAD){
     OPLIST* current = HEAD;
     //printf("\nAvailable OpCodes:");
     while (current != NULL){
-        printf("\n%s\t%x", current->node.Name, current->node.OpCode); //print node data to terminal
+        printf("\n%s\t%02x", current->node.Name, current->node.OpCode); //print node data to terminal
         current = current->next; //go to next list
     }
     return 1;

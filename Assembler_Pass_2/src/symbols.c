@@ -143,9 +143,7 @@ int ValHEX(char* eval){
 
 int checkOverflow(int count){
     if (count >= 0x8000){
-#if DEBUG
         printf("\nERROR: LOCATION %x SURPASSES SIC MEMORY\n", count);
-#endif
         return 1;
     }
     return 0;

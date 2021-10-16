@@ -83,7 +83,11 @@ int main(int argc, char *argv[]){
             sym.SourceLine = lCount;
             if (locCount != 0){
                 sym.Address = locCount;
-                if (!PushLeaf(sym)) {fclose(fp); return 0;}
+                if (PushLeaf(sym)) {
+                    fclose(fp);
+                    printf("\nERROR %2d: DUPLICATE SYMBOL \"%s\"\n", lCount, sym.Name);
+                    return 0;
+                }
 #if DEBUG
                 printf("\nPUSHED LEAF");
 #endif
@@ -102,39 +106,39 @@ int main(int argc, char *argv[]){
             printf ("\n\"%s\" is a DIRECTIVE", nextToken);
 #endif
             switch (dirTrack){
-                case -1: //BYTE
-                    operand = strtok(NULL, "#\n");
-                    if (operand[0] == 'X'){
-                        strtok(operand, "'");
-                        argument = strtok(NULL, "'");
+            case -1: //BYTE
+                operand = strtok(NULL, "#\n");
+                if (operand[0] == 'X'){
+                    strtok(operand, "'");
+                    argument = strtok(NULL, "'");
 #if DEBUG
-                        printf("\nHEXADECIMAL CONSTANT: %s", argument);
+                    printf("\nHEXADECIMAL CONSTANT: %s", argument);
 #endif
-                        if (ValHEX(argument)){
-                            int j = 0;
-                            j += (int) strtol(argument, NULL, 16); //convert char in hex to int
-                            if (j > 8388608){
-                                printf("\nERROR %2d: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON LINE\n", lCount);
-                                {fclose(fp); return 0;}
-                            }
-                            int i = 0;
-                            while (argument[i] != '\0'){
-                                i++;
-                            }
-                            if (i % 2){
-                                i++;
-                            }
-                            i /= 2;
-                            locCount+= i; //increment by the number of bytes required to store constant
-                        }else {
-                            printf("\nERROR %2d: \"%s\" IS NOT A VALID HEXADECIMAL CONSTANT\n", lCount, argument);
-                            fclose(fp);
-                            return 0;
+                    if (ValHEX(argument)){
+                        int j = 0;
+                        j += (int) strtol(argument, NULL, 16); //convert char in hex to int
+                        if (j > 8388608){
+                            printf("\nERROR %2d: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON LINE\n", lCount);
+                            {fclose(fp); return 0;}
                         }
-                    }else if(operand[0] == 'C'){
-                        strtok(operand, "'");
-                        argument = strtok(NULL, "'");
                         int i = 0;
+                        while (argument[i] != '\0'){
+                            i++;
+                        }
+                        if (i % 2){
+                            i++;
+                        }
+                        i /= 2;
+                        locCount+= i; //increment by the number of bytes required to store constant
+                    }else {
+                        printf("\nERROR %2d: \"%s\" IS NOT A VALID HEXADECIMAL CONSTANT\n", lCount, argument);
+                        fclose(fp);
+                        return 0;
+                    }
+                }else if(operand[0] == 'C'){
+                    strtok(operand, "'");
+                    argument = strtok(NULL, "'");
+                    int i = 0;
 #if DEBUG
                         printf("\nCHARACTER CONSTANT: %s", argument);
 #endif
@@ -142,54 +146,54 @@ int main(int argc, char *argv[]){
                             i++;
                         }
                         locCount += i; //characters are stored in one byte
-                    }
+                }
                     if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
                     continue;
-                case -2: //END
-                    operand = strtok(NULL, "#\n");
-                    if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
-                    continue;
-                case -3: //EXPORT
-                    operand = strtok(NULL, "#\n");
-                    locCount += 3;
-                    if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
-                    continue;
-                case -4: //RESB
-                    operand = strtok(NULL, "#\n");
-                    locCount += atoi(operand);
-                    if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
-                    continue;
-                case -5: //RESR
-                    operand = strtok(NULL, "#\n");
-                    locCount += 3;
-                    if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
-                    continue;
-                case -6: //RESW
-                    operand = strtok(NULL, "#\n");
-                    locCount += atoi(operand) * 3;
-                    if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
-                    continue;
-                case -7: //START
-                    operand = strtok(NULL, "#\n");
-                    locCount = (int) strtol(operand, NULL, 16); //convert char in hex to int
+            case -2: //END
+                operand = strtok(NULL, "#\n");
+                if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
+                continue;
+            case -3: //EXPORT
+                operand = strtok(NULL, "#\n");
+                locCount += 3;
+                if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
+                continue;
+            case -4: //RESB
+                operand = strtok(NULL, "#\n");
+                locCount += atoi(operand);
+                if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
+                continue;
+            case -5: //RESR
+                operand = strtok(NULL, "#\n");
+                locCount += 3;
+                if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
+                continue;
+            case -6: //RESW
+                operand = strtok(NULL, "#\n");
+                locCount += atoi(operand) * 3;
+                if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
+                continue;
+            case -7: //START
+                operand = strtok(NULL, "#\n");
+                locCount = (int) strtol(operand, NULL, 16); //convert char in hex to int
 #if DEBUG
-                    printf("\n%x\n", locCount);
+                printf("\n%x\n", locCount);
 #endif
-                    if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
-                    sym.Address = locCount;
-                    PushLeaf(sym);
-                    break;
-                case -8: //WORD
-                    operand = strtok(NULL, "#\n");
-                    int i = atoi(operand);
-                    if (i > 8388608 || i < -8388608 ){
-                       printf("\nERROR %2d: INTEGER CONSTANT %d EXCEEDS LIMIT\n", lCount, i);
-                       fclose(fp);
-                       return 0;
-                    }
-                    locCount+= 3;
-                    if (checkOverflow(locCount)){ ELMSG(lCount, locCount) return 0;}
-                    continue;
+                if (checkOverflow(locCount)) {fclose(fp); ELMSG(lCount, locCount) return 0;}
+                sym.Address = locCount;
+                PushLeaf(sym);
+                break;
+            case -8: //WORD
+                operand = strtok(NULL, "#\n");
+                int i = atoi(operand);
+                if (i > 8388608 || i < -8388608 ){
+                    printf("\nERROR %2d: INTEGER CONSTANT %d EXCEEDS LIMIT\n", lCount, i);
+                    fclose(fp);
+                    return 0;
+                }
+                locCount+= 3;
+                if (checkOverflow(locCount)){ ELMSG(lCount, locCount) return 0;}
+                continue;
             }
         }
         //case if newsym is an opcode
@@ -201,7 +205,7 @@ int main(int argc, char *argv[]){
             locCount += 3;
         }
         else {
-            printf("\nERROR %2d: \"%s\" IS NOT A VALID DIRECTIVE OR OPCODE\n", lCount, nextToken);
+            printf("\nERROR %2d: \"%s\" IS NOT A VALID OPCODE\n", lCount, nextToken);
             fclose(fp);
             return 0;
         }

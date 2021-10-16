@@ -1,5 +1,5 @@
 #include "headers.h"
-#define DEBUG 0
+#define DEBUG 1
 int CmpHash(int size, char* key){
     //printf("\nStarting key gen");
     //h(x) = r1x1 + r2x2 + ... + rkxk mod m
@@ -38,7 +38,7 @@ int PushHash(OPLIST* arr[], int size, OPCODES* op){
 OPCODES* FindHash(OPLIST* arr[], int size, char* op){
     int key = CmpHash(size, op);
 #if DEBUG
-    printf("Key is: %d", key);
+    printf("\nKey is: %d", key);
 #endif
     OPLIST* temp = FindOp(arr[key], op);
     if(temp != NULL) return &(temp->node); //get the address of the OPCODE

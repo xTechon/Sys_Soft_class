@@ -24,17 +24,17 @@ int PushLeaf(SYMBOL leaf){
             //goto right node
             if (cmpr > 0){
                 cur = cur->right;
-                if (cur == NULL){par->right = newNode;return 1;}
+                if (cur == NULL){par->right = newNode;return 0;}
             }else if (cmpr < 0){
                 cur = cur ->left;
-                if (cur == NULL){par->left = newNode;return 1;}
+                if (cur == NULL){par->left = newNode;return 0;}
             }else{//error case
-                printf("\nERROR: DUPLICATE SYMBOL \"%s\"\n", newNode->node.Name);
-                return 0;
+                //printf("\nERROR: DUPLICATE SYMBOL \"%s\"\n", newNode->node.Name);
+                return 1;
             }
         }
     }
-    return 1;
+    return 0;
 }
 
 SYMBOL FindSymbol(char* leaf){
