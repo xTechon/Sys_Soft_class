@@ -1,26 +1,26 @@
 vpath %.c src
 vpath %.o bin
-CC = gcc -Wall -O0
+CC = gcc -Wall -O0 -c -g
 project1: main.o symbols.o list.o tree.o opcodes.o hash.o src/headers.h
-	gcc -Wall -o project1 $^
+	gcc -Wall -g -o project1 $^
 
 main.o: main.c src/headers.h
-	$(CC) -c $^
+	$(CC) $^
 
 symbols.o: symbols.c src/headers.h
-	$(CC) -c $^
+	$(CC) $^
 
 list.o: list.c src/headers.h
-	$(CC) -c $^
+	$(CC) $^
 
 tree.o: tree.c src/headers.h
-	$(CC) -c $^
+	$(CC) $^
 
 opcodes.o: opcodes.c src/headers.h
-	$(CC) -c $^
+	$(CC) $^
 
 hash.o: hash.c src/headers.h
-	$(CC) -c $^
+	$(CC) $^
 
 clean:
 	rm *.o bin/*.o -f
