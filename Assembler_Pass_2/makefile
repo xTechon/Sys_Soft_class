@@ -1,8 +1,8 @@
 vpath %.c src
 vpath %.o bin
-CC = gcc -Wall -O0 -c -g
+CC = gcc -Wall -O0 -c -g3 -ggdb3
 project1: main.o symbols.o list.o tree.o opcodes.o hash.o record.o src/headers.h
-	gcc -Wall -g -o project1 $^
+	gcc -Wall -g3 -ggdb3 -o project1 $^
 
 main.o: main.c src/headers.h
 	$(CC) $^

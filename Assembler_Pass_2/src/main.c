@@ -5,7 +5,7 @@
   printf("\nERROR %2d: LOCATION %x SURPASSES SIC MEMORY\n", L, V);
 
 int TestMode();
-int Directives(int, int *, int *, char *, char *, char *, SYMBOL);
+int Directives(int, int *, int *, char *, char *, char *, SYMBOL, int);
 // int checkOverflow(int count);
 int main(int argc, char *argv[]) {
 #if TEST
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
     // directive behavior
     if (dirTrack < 0) {
       if (Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument,
-                     sym)) {
+                     sym, 1)) {
         fclose(fp);
         exit(0);
       }
@@ -143,14 +143,60 @@ int main(int argc, char *argv[]) {
     // printf("\nLocation is: %x\n", locCount);
   }
   // Print out the Symbol Table
-  // PrintTree(); printf("\n");
+  // PrintTree();
+  // printf("\n");
 
+  printf("\nFinish Pass 1");
   // Pass 2
   rewind(fp);
+  int progLen = locCount - getTitleNode()->node.Address;
   lCount = 0;
   locCount = 0;
+  OPCODES *hashtemp = 0;
+  // address entries in the object code are 6 characters long
+  char *address = malloc(7 * sizeof(char));
+  memset(address, '\0', 7 * sizeof(char));
+
+  // keep track of the linked list record
+  int recSize = 0;
+  // Main obj file head
+  RECLIST *HEAD = (RECLIST *)malloc(sizeof(RECLIST));
+  HEAD->record = malloc(20 * sizeof(char));
+  memset(HEAD->record, '\0', 20 * sizeof(char));
+  // Relative head for record list (starts at new lines)
+  RECLIST *rHEAD = (RECLIST *)malloc(sizeof(RECLIST));
+  memset(rHEAD, 0, sizeof(RECLIST));
+  // end of the linked list
+  RECLIST *TAIL = (RECLIST *)malloc(sizeof(RECLIST));
+  memset(TAIL, 0, sizeof(RECLIST));
+
+  // put H to start the header record
+  strcpy(HEAD->record, "H");
+  recSize++;
   // using newsym to hold the title of the program
-  newsym = getTitleNode()->node.Name;
+  memset(newsym, '\0', 1024 * sizeof(char)); // clear newsym
+  sprintf(newsym, "%-6s", getTitleNode()->node.Name);
+  // put the title in the record and set the tail
+  TAIL = PushLinkREC(HEAD, newsym);
+  // increment recSize by the length of the title
+  recSize += 6;
+
+  // add the starting address to the header
+  sprintf(address, "%06X", getTitleNode()->node.Address);
+  TAIL = PushLinkREC(TAIL, address);
+  recSize += 6;
+  // add prog length to the header
+  memset(address, '\0', 7 * sizeof(char)); // clear address field
+  sprintf(address, "%06X", progLen);
+  TAIL = PushLinkREC(TAIL, address);
+  recSize += 6;
+  // Combine header record into head
+  HEAD->record = RetrieveREC(HEAD);
+  // Terminate Header record
+  TAIL = PushLinkREC(HEAD, "\n");
+
+  printf("H Record is:\n%s\n", HEAD->record);
+
   while (fgets(line, 1024, fp) != NULL) {
     lCount++;
     // Take comments out of the output
@@ -169,8 +215,31 @@ int main(int argc, char *argv[]) {
     }
     strcpy(opcode, nextToken);
     KillWhiteChar(opcode);
+    hashtemp = FindHash(OpcodeTable, 29, opcode);
     dirTrack = CmprDir(nextToken);
-
+    // itterate through dirTrack
+    if (dirTrack < 0) {
+      if (Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument,
+                     sym, 0)) {
+        fclose(fp);
+        exit(0);
+      }
+    }
+    // Where the records get created
+    else if (hashtemp != NULL) {
+#if DEBUG
+      printf("\n\"%s\" is an OPCODE", nextToken);
+#endif
+      operand = strtok(NULL, " \t");
+#if DEBUG
+      printf("\n%s OPCODE OPERAND", operand);
+#endif
+      locCount += 3;
+    } else {
+      printf("\nERROR %2d: \"%s\" IS NOT A VALID OPCODE\n", lCount, nextToken);
+      fclose(fp);
+      exit(0);
+    }
   }
   fclose(fp);
   exit(0);
@@ -194,9 +263,8 @@ int TestMode() {
    */
   exit(0);
 }
-
 int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
-               char *operand, char *argument, SYMBOL sym) {
+               char *operand, char *argument, SYMBOL sym, int flag) {
 #if DEBUG
   printf("\n\"%s\" is a DIRECTIVE", nextToken);
 #endif
@@ -295,8 +363,10 @@ int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
     if (checkOverflow(*locCount)) {
       ELMSG(*lCount, *locCount) return 1;
     }
-    sym.Address = *locCount;
-    PushLeaf(sym);
+    if (flag) {
+      sym.Address = *locCount;
+      PushLeaf(sym);
+    }
     return 0;
   case -8: // WORD
     operand = strtok(NULL, "#\n");
@@ -304,7 +374,7 @@ int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
     if (i > 8388608 || i < -8388608) {
       printf("\nERROR %2d: INTEGER CONSTANT %d EXCEEDS LIMIT\n", *lCount, i);
     }
-    locCount += 3;
+    *locCount += 3;
     if (checkOverflow(*locCount)) {
       ELMSG(*lCount, *locCount) exit(0);
     }
