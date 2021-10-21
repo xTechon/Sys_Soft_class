@@ -167,6 +167,10 @@ int main(int argc, char *argv[]) {
     } else {
       nextToken = strtok(line, " \t\n");
     }
+    strcpy(opcode, nextToken);
+    KillWhiteChar(opcode);
+    dirTrack = CmprDir(nextToken);
+
   }
   fclose(fp);
   exit(0);

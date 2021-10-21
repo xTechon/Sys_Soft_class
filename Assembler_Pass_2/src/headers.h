@@ -62,3 +62,13 @@ int ReadOpCodeFile();
 
 int CmprDir(char *Symbol);      // returns -1 if dir, 1 if not
 void KillWhiteChar(char *eval); // trucates string at given character
+
+//Records list
+struct strRec{
+  char* record;
+  struct strRec *next;
+};
+typedef struct strRec RECLIST;
+RECLIST *PushLinkREC(RECLIST *TAIL, char* storage); //Pushes a new link to the list
+void ClearList(RECLIST *HEAD);                      //Recursively clears the list given the head
+char* RetrieveREC(RECLIST *HEAD);                   //Returns a proper string of the record and clears the list

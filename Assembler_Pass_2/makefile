@@ -1,7 +1,7 @@
 vpath %.c src
 vpath %.o bin
 CC = gcc -Wall -O0 -c -g
-project1: main.o symbols.o list.o tree.o opcodes.o hash.o src/headers.h
+project1: main.o symbols.o list.o tree.o opcodes.o hash.o record.o src/headers.h
 	gcc -Wall -g -o project1 $^
 
 main.o: main.c src/headers.h
@@ -20,6 +20,9 @@ opcodes.o: opcodes.c src/headers.h
 	$(CC) $^
 
 hash.o: hash.c src/headers.h
+	$(CC) $^
+
+record.o: record.c src/headers.h
 	$(CC) $^
 
 clean:
