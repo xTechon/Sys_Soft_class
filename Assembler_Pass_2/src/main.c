@@ -159,13 +159,16 @@ int main(int argc, char *argv[]) {
 
   // keep track of the linked list record
   int recSize = 0;
+
   // Main obj file head
   RECLIST *HEAD = (RECLIST *)malloc(sizeof(RECLIST));
   HEAD->record = malloc(20 * sizeof(char));
   memset(HEAD->record, '\0', 20 * sizeof(char));
+
   // Relative head for record list (starts at new lines)
   RECLIST *rHEAD = (RECLIST *)malloc(sizeof(RECLIST));
   memset(rHEAD, 0, sizeof(RECLIST));
+
   // end of the linked list
   RECLIST *TAIL = (RECLIST *)malloc(sizeof(RECLIST));
   memset(TAIL, 0, sizeof(RECLIST));
@@ -173,11 +176,14 @@ int main(int argc, char *argv[]) {
   // put H to start the header record
   strcpy(HEAD->record, "H");
   recSize++;
+
   // using newsym to hold the title of the program
   memset(newsym, '\0', 1024 * sizeof(char)); // clear newsym
   sprintf(newsym, "%-6s", getTitleNode()->node.Name);
+
   // put the title in the record and set the tail
   TAIL = PushLinkREC(HEAD, newsym);
+
   // increment recSize by the length of the title
   recSize += 6;
 
@@ -185,17 +191,20 @@ int main(int argc, char *argv[]) {
   sprintf(address, "%06X", getTitleNode()->node.Address);
   TAIL = PushLinkREC(TAIL, address);
   recSize += 6;
+
   // add prog length to the header
   memset(address, '\0', 7 * sizeof(char)); // clear address field
   sprintf(address, "%06X", progLen);
   TAIL = PushLinkREC(TAIL, address);
   recSize += 6;
+
   // Combine header record into head
   HEAD->record = RetrieveREC(HEAD);
+
   // Terminate Header record
   TAIL = PushLinkREC(HEAD, "\n");
 
-  printf("H Record is:\n%s\n", HEAD->record);
+  printf("\nH Record is:\n%s\n", HEAD->record);
 
   while (fgets(line, 1024, fp) != NULL) {
     lCount++;
@@ -234,6 +243,7 @@ int main(int argc, char *argv[]) {
 #if DEBUG
       printf("\n%s OPCODE OPERAND", operand);
 #endif
+
       locCount += 3;
     } else {
       printf("\nERROR %2d: \"%s\" IS NOT A VALID OPCODE\n", lCount, nextToken);
