@@ -143,8 +143,8 @@ int main(int argc, char *argv[]) {
     // printf("\nLocation is: %x\n", locCount);
   }
   // Print out the Symbol Table
-  // PrintTree();
-  // printf("\n");
+   PrintTree();
+   printf("\n");
 
   printf("\nFinish Pass 1");
   // Pass 2
@@ -166,8 +166,8 @@ int main(int argc, char *argv[]) {
   memset(HEAD->record, '\0', 20 * sizeof(char));
 
   // Relative head for record list (starts at new lines)
-  RECLIST *rHEAD = (RECLIST *)malloc(sizeof(RECLIST));
-  memset(rHEAD, 0, sizeof(RECLIST));
+  RECLIST *rHEAD = NULL; //= (RECLIST *)malloc(sizeof(RECLIST));
+  //memset(rHEAD, 0, sizeof(RECLIST));
 
   // end of the linked list
   RECLIST *TAIL = (RECLIST *)malloc(sizeof(RECLIST));
@@ -202,11 +202,12 @@ int main(int argc, char *argv[]) {
   HEAD->record = RetrieveREC(HEAD);
 
   // Terminate Header record
-  TAIL = PushLinkREC(HEAD, "\n");
+  //TAIL = PushLinkREC(HEAD, "\n");
 
   printf("\nH Record is:\n%s\n", HEAD->record);
 
   while (fgets(line, 1024, fp) != NULL) {
+    //printf("\n%s", line);
     lCount++;
     // Take comments out of the output
     if (line[0] == 35) {
@@ -219,6 +220,7 @@ int main(int argc, char *argv[]) {
     if ((line[0] >= 65) && (line[0] <= 90)) {
       strtok(line, " \t\n");
       nextToken = strtok(NULL, " \t\n");
+      printf("\nnext token after symbol is: %s", nextToken);
     } else {
       nextToken = strtok(line, " \t\n");
     }
@@ -228,22 +230,186 @@ int main(int argc, char *argv[]) {
     dirTrack = CmprDir(nextToken);
     // itterate through dirTrack
     if (dirTrack < 0) {
-      if (Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument,
-                     sym, 0)) {
+      int test = Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument,
+                     sym, 0);
+      //printf("\nTest is: %d", test);
+      if (test == 1) {
+        printf("\nclosing program");
         fclose(fp);
         exit(0);
+      }else if(test == -1){
+        printf("\nstarting word");
+        // case for a word
+        //operand = strtok(nextToken, " \t\n");
+        operand = strtok(NULL, " \t");
+        //KillWhiteChar(operand);
+        printf("\nOperand is: %s", operand);
+        if (rHEAD == NULL){
+          Relative(&rHEAD, &TAIL, locCount, &recSize);
+          printf("\nrHead is at %s")
+        }
+        if(recSize <= 27){
+          char i[7];
+          sprintf(i, "%06X", atoi(operand));
+          TAIL = PushLinkREC(TAIL, i);
+          recSize += 3;
+        }
+        else if (recSize > 27){
+          //create a temp to hold the record size
+          RECLIST temp;
+          temp.record = malloc(3*sizeof(char));
+          memset(temp.record, '\0', 3*sizeof(char));
+          //insert the temp into the list after record start address
+          temp.next = rHEAD->next;
+          rHEAD->next = &temp;
+          //enter in the record size
+          sprintf(temp.record, "%2X", recSize);
+          //combine and clear space
+          rHEAD->record = RetrieveREC(rHEAD);
+          //create a new tail
+          //TAIL = PushLinkREC(rHEAD, "\n");
+          TAIL = rHEAD;
+          //reset the rHEAD
+          rHEAD = NULL;
+        }
+      }
+      //BYTE case
+      else if(test == -2){
+        if (rHEAD == NULL){
+          Relative(&rHEAD, &TAIL, locCount, &recSize);
+        }
+        operand = strtok(NULL, "#\n");
+#if DEBUG
+        printf("\nBYTE OPERAND: %s", operand);
+#endif
+        if (operand[0] == 'X') {
+          strtok(operand, "'");
+          argument = strtok(NULL, "'");
+#if DEBUG
+          printf("\nHEXADECIMAL CONSTANT: %s", argument);
+#endif
+          if (ValHEX(argument)) {
+            int j = 0;
+            j += (int)strtol(argument, NULL, 16); // convert char in hex to int
+            int i = 0;
+            while (argument[i] != '\0') {
+              i++;
+            }
+            if (i % 2) {
+              i++;
+            }
+            i /= 2;
+            if (recSize < 27){
+              char x[7];
+              sprintf(x, "%X", j);
+              TAIL = PushLinkREC(TAIL, x);
+            }
+            else if(recSize >= 27){
+              //create a temp to hold the record size
+              RECLIST temp;
+              temp.record = malloc(3*sizeof(char));
+              memset(temp.record, '\0', 3*sizeof(char));
+              //insert the temp into the list after record start address
+              temp.next = rHEAD->next;
+              rHEAD->next = &temp;
+              //enter in the record size
+              sprintf(temp.record, "%2X", recSize);
+              //combine and clear space
+              rHEAD->record = RetrieveREC(rHEAD);
+              //create a new tail
+              //TAIL = PushLinkREC(rHEAD, "\n");
+              TAIL = rHEAD;
+              //reset the rHEAD
+              rHEAD = NULL;
+            }
+            recSize += i;
+            locCount += i; // increment by the number of bytes required to store
+            // constant
+          }
+        } else if (operand[0] == 'C') {
+          strtok(operand, "'");
+          argument = strtok(NULL, "'");
+          //printf("\nArgument is: %s", argument);
+          int i = 0;
+#if DEBUG
+          printf("\nCHARACTER CONSTANT: %s", argument);
+#endif
+          while (argument[i] != '\0') {
+            //just in case the constant overflows
+            if (rHEAD == NULL){
+              Relative(&rHEAD, &TAIL, (locCount+i), &recSize);
+            }
+            //put the character into the list
+            if (recSize < 28){
+              char c[3]; //to store character as hex
+              sprintf(c, "%2X", argument[i]); //convert character value into hex value
+              TAIL = PushLinkREC(TAIL, c);
+              recSize+= 1;
+            }else if (recSize >= 28){
+              printf("\nactivate wrap");
+              //create a temp to hold the record size
+              RECLIST *temp = malloc(sizeof(RECLIST));
+              temp->record = malloc(3*sizeof(char));
+              memset(temp->record, '\0', 3*sizeof(char));
+              //insert the temp into the list after record start address
+              temp->next = rHEAD->next;
+              rHEAD->next = temp;
+              //enter in the record size
+              sprintf(temp->record, "%2X", recSize);
+              //combine and clear space
+              rHEAD->record = RetrieveREC(rHEAD);
+              //create a new tail
+              //TAIL = PushLinkREC(rHEAD, "\n");
+              TAIL = rHEAD;
+              //reset the rHEAD
+              rHEAD = NULL;
+            }
+            i++;
+          }
+          locCount += i; // characters are stored in one byte
+          if (checkOverflow(locCount)) {
+            ELMSG(lCount, locCount) return 1;
+          }
+        }
       }
     }
-    // Where the records get created
+      // Where the records get created
     else if (hashtemp != NULL) {
-#if DEBUG
+//#if DEBUG
       printf("\n\"%s\" is an OPCODE", nextToken);
-#endif
-      operand = strtok(NULL, " \t");
-#if DEBUG
-      printf("\n%s OPCODE OPERAND", operand);
-#endif
-
+//#endif
+      operand = strtok(NULL, " ,\t");
+      KillWhiteChar(operand);
+      //get the symbol
+      sym = FindSymbol(operand);
+//#if DEBUG
+      printf("\nOPCODE OPERAND: %s", operand);
+//#endif
+      if (rHEAD == NULL){
+        Relative(&rHEAD, &TAIL, locCount, &recSize);
+      }else if (recSize < 27){
+        char instruct[7];
+        sprintf(instruct, "%2X%04X", hashtemp->OpCode, sym.Address);
+        TAIL = PushLinkREC(TAIL, instruct);
+        recSize += 3;
+      }else if (recSize >= 27){
+        //create a temp to hold the record size
+        RECLIST temp;
+        temp.record = malloc(3*sizeof(char));
+        memset(temp.record, '\0', 3*sizeof(char));
+        //insert the temp into the list after record start address
+        temp.next = rHEAD->next;
+        rHEAD->next = &temp;
+        //enter in the record size
+        sprintf(temp.record, "%2X", recSize);
+        //combine and clear space
+        rHEAD->record = RetrieveREC(rHEAD);
+        //create a new tail
+        //TAIL = PushLinkREC(rHEAD, "\n");
+        TAIL = rHEAD;
+        //reset the rHEAD
+        rHEAD = NULL;
+      }
       locCount += 3;
     } else {
       printf("\nERROR %2d: \"%s\" IS NOT A VALID OPCODE\n", lCount, nextToken);
@@ -251,6 +417,26 @@ int main(int argc, char *argv[]) {
       exit(0);
     }
   }
+
+  printf("\nrecSize is %d", recSize);
+  if (rHEAD != NULL){
+    RECLIST temp;
+    temp.record = malloc(3*sizeof(char));
+    memset(temp.record, '\0', 3*sizeof(char));
+    //insert the temp into the list after record start address
+    temp.next = rHEAD->next;
+    rHEAD->next = &temp;
+    //enter in the record size
+    sprintf(temp.record, "%2X", recSize);
+    //combine and clear space
+    rHEAD->record = RetrieveREC(rHEAD);
+    //create a new tail
+    //TAIL = PushLinkREC(rHEAD, "\n");
+    TAIL = rHEAD;
+    //reset the rHEAD
+    rHEAD = NULL;
+  }
+  PrintList(HEAD);
   fclose(fp);
   exit(0);
 }
@@ -280,56 +466,59 @@ int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
 #endif
   switch (dirTrack) {
   case -1: // BYTE
-    operand = strtok(NULL, "#\n");
+    if (flag == 1){
+      operand = strtok(NULL, "#\n");
 #if DEBUG
-    printf("\nBYTE OPERAND: %s", operand);
+      printf("\nBYTE OPERAND: %s", operand);
 #endif
-    if (operand[0] == 'X') {
-      strtok(operand, "'");
-      argument = strtok(NULL, "'");
+      if (operand[0] == 'X') {
+        strtok(operand, "'");
+        argument = strtok(NULL, "'");
 #if DEBUG
-      printf("\nHEXADECIMAL CONSTANT: %s", argument);
+        printf("\nHEXADECIMAL CONSTANT: %s", argument);
 #endif
-      if (ValHEX(argument)) {
-        int j = 0;
-        j += (int)strtol(argument, NULL, 16); // convert char in hex to int
-        if (j > 8388608) {
-          printf("\nERROR %2d: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON "
-                 "LINE\n",
-                 *lCount);
+        if (ValHEX(argument)) {
+          int j = 0;
+          j += (int)strtol(argument, NULL, 16); // convert char in hex to int
+          if (j > 8388608) {
+            printf("\nERROR %2d: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON "
+                   "LINE\n",
+                   *lCount);
+            return 1;
+          }
+          int i = 0;
+          while (argument[i] != '\0') {
+            i++;
+          }
+          if (i % 2) {
+            i++;
+          }
+          i /= 2;
+          *locCount += i; // increment by the number of bytes required to store
+          // constant
+        } else {
+          printf("\nERROR %2d: \"%s\" IS NOT A VALID HEXADECIMAL CONSTANT\n",
+                 *lCount, argument);
           return 1;
         }
+      } else if (operand[0] == 'C') {
+        strtok(operand, "'");
+        argument = strtok(NULL, "'");
         int i = 0;
+#if DEBUG
+        printf("\nCHARACTER CONSTANT: %s", argument);
+#endif
         while (argument[i] != '\0') {
           i++;
         }
-        if (i % 2) {
-          i++;
-        }
-        i /= 2;
-        *locCount += i; // increment by the number of bytes required to store
-                        // constant
-      } else {
-        printf("\nERROR %2d: \"%s\" IS NOT A VALID HEXADECIMAL CONSTANT\n",
-               *lCount, argument);
-        return 1;
+        *locCount += i; // characters are stored in one byte
       }
-    } else if (operand[0] == 'C') {
-      strtok(operand, "'");
-      argument = strtok(NULL, "'");
-      int i = 0;
-#if DEBUG
-      printf("\nCHARACTER CONSTANT: %s", argument);
-#endif
-      while (argument[i] != '\0') {
-        i++;
+      if (checkOverflow(*locCount)) {
+        ELMSG(*lCount, *locCount) return 1;
       }
-      *locCount += i; // characters are stored in one byte
+      return 0;
     }
-    if (checkOverflow(*locCount)) {
-      ELMSG(*lCount, *locCount) return 1;
-    }
-    return 0;
+    else return -2;
   case -2: // END
     operand = strtok(NULL, "#\n");
     if (checkOverflow(*locCount)) {
@@ -373,20 +562,27 @@ int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
     if (checkOverflow(*locCount)) {
       ELMSG(*lCount, *locCount) return 1;
     }
-    if (flag) {
+    if (flag == 1) {
       sym.Address = *locCount;
       PushLeaf(sym);
     }
     return 0;
   case -8: // WORD
-    operand = strtok(NULL, "#\n");
-    int i = atoi(operand);
-    if (i > 8388608 || i < -8388608) {
-      printf("\nERROR %2d: INTEGER CONSTANT %d EXCEEDS LIMIT\n", *lCount, i);
+    if (flag == 1){
+      operand = strtok(NULL, "#\n");
+      int i = atoi(operand);
+      if (i > 8388608 || i < -8388608) {
+        printf("\nERROR %2d: INTEGER CONSTANT %d EXCEEDS LIMIT\n", *lCount, i);
+      }
+      *locCount += 3;
+      if (checkOverflow(*locCount)) {
+        ELMSG(*lCount, *locCount) exit(0);
+      }
+      return 0;
     }
-    *locCount += 3;
-    if (checkOverflow(*locCount)) {
-      ELMSG(*lCount, *locCount) exit(0);
+    else if (flag == 0){
+      *locCount += 3;
+      return -1;
     }
     return 0;
   }

@@ -41,31 +41,19 @@ char *RetrieveREC(RECLIST *HEAD) {
   return line;
 }
 
-RECLIST *Trec(RECLIST *TAIL, int startAdd, int opcode, int add) {
-  static int length = 0;
-  if (TAIL != NULL) {
-    static RECLIST *tempH = NULL;
-    // initalize temp if first time
-    if (!tempH) {
-      tempH = malloc(sizeof(RECLIST));
-      memset(tempH, 0, sizeof(RECLIST));
-    }
-    // start adding opcodes and operands here
-    char instruction[7];
-    sprintf(instruction, "%2X%04X", opcode, add);
-    TAIL = PushLinkREC(TAIL, instruction);
-
-    // Case for when RSUB is reached or length is maxed out
-    if (opcode == 0x4C || length > 70) {
-      return TAIL;
-      // terminate case
-    }
-  } else {
-    char beginning[8];
-    sprintf(beginning, "T%06X", startAdd);
-    TAIL = PushLinkREC(TAIL, beginning);
-    length = 0;
-    return TAIL;
+void PrintList(RECLIST *HEAD){
+  RECLIST *current = HEAD;
+  while(current != NULL){
+    printf("\n%s", current->record);
+    current = current->next;
   }
-  return NULL;
+}
+
+void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize){
+  printf("\ncreating new T Record");
+  char beginning[10];
+  sprintf(beginning, "T%06X", locCount);
+  *rHEAD = *TAIL;
+  *TAIL = PushLinkREC(*TAIL, beginning);
+  *recSize = 0;
 }

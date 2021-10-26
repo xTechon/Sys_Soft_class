@@ -72,3 +72,5 @@ typedef struct strRec RECLIST;
 RECLIST *PushLinkREC(RECLIST *TAIL, char* storage); //Pushes a new link to the list
 void ClearList(RECLIST *HEAD);                      //Recursively clears the list given the head
 char* RetrieveREC(RECLIST *HEAD);                   //Returns a proper string of the record and clears the list
+void PrintList(RECLIST *HEAD);                      //Prints out the list starting from a given HEAD to null
+void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize);
