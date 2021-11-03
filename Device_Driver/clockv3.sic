@@ -1,4 +1,4 @@
-CLOCK       START       7F0A        # program title
+CLOCK       START       7F01        # program title
 # Variables
 MINS        RESW        1           # store mins
 HRS         RESW        1           # store hours
@@ -44,6 +44,7 @@ CONT        COMP        SIXTY       # check if less than 1 min after midnight
             STL         LETT        # store the letter A into memory
             COMP        TWELVE      # compare A reg with 12
             JGT         PM          # jump to PM behavior
+            JEQ         NOON
 # General hour calculation
 CALC        DIV         TEN         # get 10s place 
             ADD         CONV        # convert to ASCII character
@@ -57,7 +58,9 @@ CALC        DIV         TEN         # get 10s place
 ## PM behavior
 #
 PM         SUB          TWELVE      # A reg still has hours since midnight loaded, subtract 12
-           STA          HRS         # store the hours into A reg
+NOON       STA          HRS         # store the hours into A reg
+           LDL          P           # load the letter P into the L reg
+           STL          LETT        # store the letter P into memory
            J            CALC        # go back to main hour calculation
 #
 ## mod by 10 funciton
@@ -89,7 +92,7 @@ SKIP        STA         MINS        # store mins back into memory
 #
 ## Midnight routine
 #
-MID         LDA         ZERO        # load 0 into A reg
+MID         LDA         CONV        # load 0 into A reg
             WD          DEVICE      # write 4 0s to Device
             WD          DEVICE      
             WD          DEVICE
