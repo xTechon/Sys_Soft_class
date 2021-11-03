@@ -1,0 +1,47 @@
+short scott = 0;
+short limit = 10;
+for ( scott = 0; scott < limit; scott++ ){
+    printf("Hello %d\n", scott);
+    }
+
+------------------------------------
+DEMO    START    1207
+SCOTT    WORD    0
+LIMIT    WORD    10
+ONE    WORD    1
+    STA    SCOTT        1 cpu cycle            1 cycle
+LOOP    COMP    LIMIT        5-6 cycles            55 cycles
+    JEQ    DONE        2 cpu cycles            20 cycles
+    CALL    printf
+    ADD    ONE        1 cpu cycle            10 cycles
+    J    LOOP        1 cpu cycle            10 cycles
+DONE    END                            ---------
+                                96 Cycles
+
+------------------------------------ Optimized
+DEMO    START    1207
+SCOTT    WORD    0
+LIMIT    WORD    10
+    STA    SCOTT        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+    CALL    printf
+    ADD    ONE        1 cpu cycle            1 cycle
+                                ------
+                                11 cycles

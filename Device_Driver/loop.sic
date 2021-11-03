@@ -1,0 +1,29 @@
+DEMO     START     1207
+SCOTT    WORD      0
+LIMIT    WORD      10
+ZERO      WORD      0
+ONE       WORD      1
+TWO       WORD      2
+FIVE      WORD      5
+BZERO     BYTE      C,'0'
+BONE      BYTE      C,'1'
+BTWO      BYTE      C,'2'
+BTHREE    BYTE      C,'3'
+BFOUR     BYTE      C,'4'
+BFIVE     BYTE      C,'5'
+BSIX      BYTE      C,'6'
+BSEVEN    BYTE      C,'7'
+BEIGHT    BYTE      C,'8'
+BNINE     BYTE      C,'9'
+AM        BYTE      C,'A'
+PM        BYTE      C,'P'
+         STA       SCOTT
+## start of loop
+LOOP     COMP      LIMIT    
+         JEQ       DNE
+         ADD       ONE      
+         J         LOOP     # End of loop
+DNE      DIV       FIVE
+         LDL       ZERO
+         RSUB
+DONE     END                

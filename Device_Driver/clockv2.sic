@@ -1,0 +1,103 @@
+# test cases
+# morning
+# afternoon
+# evening
+# 12 and 24
+# 00000F 15 seconds after midnight --> 1200A
+# 80000F 15 seconds after midnight in 24 hr --> 0000
+CLOCK       START       1000        # title symbol
+# data constants
+LETT        RESB        1           # store a character
+MINS        RESW        1
+HRS         RESW        1
+CON         RESW        1
+MODE        RESW        1
+# numerical constants
+DEVICE      WORD        64
+ZERO        WORD        0
+TEN         WORD        10
+TWELVE      WORD        12
+CONV        WORD        48
+SIXTY       WORD        60
+AMPM        BYTE        X,'0FFFFF'
+PM          BYTE        C,'P'
+AM          BYTE        C,'A'
+
+UPDATE      LDA         SECOND      # load seconds into A reg
+            COMP        ZERO        # compare with zero to check for 24 hour time
+            JLT         ADJUST      # change the 24 hour time into positive
+            DIV         SIXTY       # get mins since midnight
+            STA         MINS        # store mins since midnight
+            DIV         SIXTY       # get hours since midnight
+            STA         HRS         # store hours since midnight
+            LDA         SECOND      # reload seconds
+            AND         AMPM        # isolate sig bit
+            STA         CON         # store isolated sig bit into memory
+            JET         HOUR        # goto 24 hour if last bit is 1
+ADJUST      AND         AMPM        # clear the last bit to treat as 1
+#
+## 12 hour behavior
+#
+            LDA         HRS         # load hours since midnight into A reg             
+            COMP        TWELVE      # compare with number 12
+            JLT                     # jump here to [TODO] if less than 12
+# PM behavior
+            JEQ         TENS        # skip sub 12 if number is 12
+            SUB         TWELVE      # sub 12 from HRS
+TENS        DIV         TEN         # get 10s place
+            ADD         CONV        # convert to ASCII
+            WD          DEVICE      # write to device
+            LDA         HRS         # reload hours
+            SUB         TEN         # get ones place
+            ADD         CONV        # convert to ASCII
+            WD          DEVICE      # write to device
+            LDA         PM          # load PM into A reg
+            STCH        LETT        # put PM into lett
+            J           MIN         # jump to minuets
+# AM behavior
+
+#
+## 24 hour behavior
+#
+HOUR        LDA         HRS         # reload hours since midnight
+            DIV         TEN         # get 10s place
+            ADD         CONV        # convert to ASCII
+            WD          DEVICE      # output to device
+            LDA         HRS         # reload hours since midnight
+
+#
+## Minuets behavior
+#
+MIN         LDA         MINS        # load mins since midnight into A reg
+MOD         SUB         SIXTY       # Mod step 1
+            COMP        ZERO        # compare A reg to zero
+            JGT         MOD         # loopback
+            JEQ         SCK         # zero condition
+            ADD         SIXTY       # go back 1 if less than zero
+SCK         STA         MINS        # store mins of hour into mem
+            DIV         TEN         # get 10s place
+            ADD         CONV        # convert to ASCII
+            WD          DEVICE      # write 10s place to device
+            LDA         MINS        # reload mins
+MOD2        SUB         TEN         # mod by 10
+            COMP        ZERO        # compare A reg to zero
+            JGT         MOD2        # loopback
+            JEQ         WR          # skip the add 10
+            ADD         TEN         # goback one
+WR          ADD         CONV        # convert to ASCII
+            WD          DEVICE      # write to device
+#
+## AMPM behavior
+#
+            LDA         CON         # reload the comparison
+            COMP        AMPM        # run comparison
+            JEQ         DONE        # skip writing AMPM
+
+#
+## Terminate Routine
+#
+DONE      LDL       ZERO
+# Reserve space for seconds
+SECOND    RESW      1          # reserve the last word in memory
+          RSUB
+          END       UPDATE     # Needs symbol of the first instruction
