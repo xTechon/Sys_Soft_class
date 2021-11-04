@@ -1,4 +1,4 @@
-CLOCK       START       7F01        # program title
+CLOCK       START       7F01        # program title takes 255 bytes of memory
 # Variables
 MINS        RESW        1           # store mins
 HRS         RESW        1           # store hours

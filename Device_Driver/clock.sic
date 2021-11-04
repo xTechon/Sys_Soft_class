@@ -1,127 +1,116 @@
-# last word of memory addres is 7FFD
+CLOCK       START       7F01        # program title takes 255 bytes of memory
+# Variables
+MINS        RESW        1           # store mins
+HRS         RESW        1           # store hours
+LETT        RESW        1           # store the letter used
+# litterals
+COUNT       WORD        -2
+ZERO        WORD        0
+TEN         WORD        10
+TWELVE      WORD        12
+CONV        WORD        48
+SIXTY       WORD        60
+DEVICE      WORD        64
+CONST       BYTE        X,'0FFFFF'
+A           WORD        65
+P           WORD        80
+# instructions
+UPDATE      LDA         SECOND      # load the seconds since midnight into the A reg
+            COMP        ZERO        # compare with zero, 24 hr will read as negative
+            JLT         ADJUST      # jump to adjust for 20 hour
+            LDX         ZERO        # zero out X reg if not 24
+            J           CONT        # jump to continue
 #
-CLOCK     START     1000    # title the program CLOCK
+## change 24 hour time into positive
 #
-# SECONDS   WORD      7FFD    # Address of where the time since midnight in seconds is stored
-DEVICE    WORD      64      # LCD panel device number
-SEC       RESW      1
-MIN       RESW      1
-HR        RESW      1
-ARG1      RESW      1
-ARG2      RESW      1
-HR1       RESW      1       # format is HR1HR2 MIN1MIN2
-HR2       RESW      1
-MIN1      RESW      1
-MIN2      RESW      1
+ADJUST      AND         CONST       # get rid of sign bit for sic comparisons
+            LDX         COUNT       # prepare X reg for comparisons
 #
-## store numerical litterals
+## continue with getting mins and hours since midnight
 #
-ZERO      WORD      0       
-ONE       WORD      1
-TWO       WORD      2
-THREE     WORD      3
-FOUR      WORD      4
-FIVE      WORD      5
-SIX       WORD      6
-SEVEN     WORD      7
-EIGHT     WORD      8
-NINE      WORD      9
-TEN       WORD      10
-TWELVE    WORD      12
-FOUR8     WORD      48
-SIXTY     WORD      60
-HUN       WORD      100
-AMPM      BYTE      X,'800000'
+CONT        COMP        SIXTY       # check if less than 1 min after midnight
+            JLT         MID         # jump to midnight routine
+            DIV         SIXTY       # div seconds by 60
+            STA         MINS        # store mins since midnight into memory
+            DIV         SIXTY       # div mins by 60
+            STA         HRS         # store the hours since midnight into memory
 #
-## store character litterals
+## All hours computation
 #
-BZERO     BYTE      C,'0'  
-BONE      BYTE      C,'1'
-BTWO      BYTE      C,'2'
-BTHREE    BYTE      C,'3'
-BFOUR     BYTE      C,'4'
-BFIVE     BYTE      C,'5'
-BSIX      BYTE      C,'6'
-BSEVEN    BYTE      C,'7'
-BEIGHT    BYTE      C,'8'
-BNINE     BYTE      C,'9'
-AM        BYTE      C,'A'
-PM        BYTE      C,'P'
+            TIX         ZERO        # run the comparison for 24 time
+            JLT         CALC        # skip 12 hour behavior
+# 12 hour behavior
+            LDL         A           # load the letter A into the L reg
+            STL         LETT        # store the letter A into memory
+            COMP        TWELVE      # compare A reg with 12
+            JGT         PM          # jump to PM behavior
+            JEQ         NOON
+# General hour calculation
+CALC        DIV         TEN         # get 10s place 
+            ADD         CONV        # convert to ASCII character
+            WD          DEVICE      # send 10s place of hour to device
+            LDA         HRS         # reload hours since midnight (or hours since noon)
+            JSUB        ONES        # call ONES method
+            ADD         CONV        # convert ones place to ASCII
+            WD          DEVICE      # write 1s place to device
+            J           MIN         # jump to MIN section
 #
-## Gather time units since midnight
+## PM behavior
 #
-UPDATE    LDA       SECOND     # put the seconds in the A reg
-          STA       SEC        # store the number of seconds since midnight
-          DIV       SIXTY      # div seconds by 60
-          STA       MIN        # store min since midnight from A reg
-          DIV       SIXTY      # div min by 60
-          STA       HR         # store hours since midnight from A reg
-          LDA       SIXTY      # load 60 in the A reg
-          STA       ARG2       # store 60 in ARG2
-          LDA       MIN        # load the min since midnight into the A reg
-          JSUB      MOD        # call mod function
-          STA       MIN        # change min since midnight into min of hour
-# store mins into memory
-          DIV       TEN        # Get the tens place of the mins
-          ADD       FOUR8      # convert to ASCII
-          STA       MIN1       # store the tens place of the mins
-          LDA       TEN        # load 10 into the A reg
-          STA       ARG2       # store 10 into ARG2
-          LDA       MIN        # reload mins into A reg
-          JSUB      MOD        # run mod operation on mins
-          ADD       FOUR8      # convert to ASCII
-          STA       MIN2       # store the ones place in memory
+PM         SUB          TWELVE      # A reg still has hours since midnight loaded, subtract 12
+NOON       STA          HRS         # store the hours into A reg
+           LDL          P           # load the letter P into the L reg
+           STL          LETT        # store the letter P into memory
+           J            CALC        # go back to main hour calculation
 #
-## Check if 24 or 12 hour
+## mod by 10 funciton
 #
-          LDA       SEC        # put the seconds since midnight into the A reg
-          AND       AMPM       # isolate the most significant bit
-          COMP      AMPM       # run the comparison
-          JEQ       HOUR       # Jump to 24 hour behavior if last bit is 1
+ONES        SUB         TEN         # start of mod
+            COMP        ZERO        # compare with zero
+            JGT         ONES        # jump if greater than zero
+            JEQ         RET         # skip goback if zero
+            ADD         TEN         # goback if it became negative
+RET         RSUB
 #
-## 12 hour behavior
+## MIN handling
 #
-APHOUR    LDA       HR         # load the hours since midnight
-          OR        AMPM
-          COMP      TWELVE     # compare hours since midnight to 12
-          JLT       HOUR       # goto 24 hour behavior if less than 12
-          SUB       TWELVE     # subtract 12 from the hours 
+MIN         LDA         MINS        # load the mins since midnight
+MOD         SUB         SIXTY       # get the mins in an hour
+            COMP        ZERO        # compare to zero
+            JGT         MOD
+            JEQ         SKIP
+            ADD         SIXTY       # addback if negative
+SKIP        STA         MINS        # store mins back into memory
+            DIV         TEN         # get 10s place
+            ADD         CONV        # convert to ASCII
+            WD          DEVICE
+            LDA         MINS        # reload mins in an hour
+            JSUB        ONES        # get ones place
+            ADD         CONV        # Convert to ASCII
+            WD          DEVICE      # write to device
+            J           TERM
 #
-## 24 hour behavior
+## Midnight routine
 #
-HOUR      LDA       HR         # load the number of hours into A reg
-          DIV       TEN        # Get the first digit of the hour
-          ADD       FOUR8      # convert to ASCII
-          WD        DEVICE     # write to device
-          STA       HR1        # Store the digit
-          LDA       TEN        # load 10 into the A reg
-          STA       ARG2       # store 10 into ARG2 for the mod func
-          LDA       HR         # reload HR into A reg
-          JSUB      MOD        # run mod op routine
-          ADD       FOUR8      # convert to ASCII
-          WD        DEVICE     # write to device
-          STA       HR2        # store the ones place into memory
+MID         LDA         CONV        # load 0 into A reg
+            WD          DEVICE      # write 4 0s to Device
+            WD          DEVICE      
+            WD          DEVICE
+            WD          DEVICE
+            LDA         SECOND      # check for 12 or 24 hour
+            COMP        ZERO
+            JLT         DONE        # skip to done if 24 hour
+            LDA         A           # load character A into A reg
+            WD          DEVICE
+            J           DONE
 #
-## Modulo op
-## A % ARG2 = result in A reg
+## END routine
 #
-MOD       SUB       ARG2       # sub A reg by ARG 2
-          COMP      ZERO       # compare the A reg to zero
-          JGT       MOD        # loop back if greater than zero
-          JEQ       RET        # skip to return if equal to zero
-# Loop end
-          ADD       ARG2       # go back 1 step to get the remainder
-RET       RSUB
-# End Modulo op
-#
-## Output to device
-#
-FRESH     WD        DEVICE     # update LCD display
-#
-## Terminate Routine
-#
-DONE      LDL       ZERO
-# Reserve space for seconds
-SECOND   RESW      1          # reserve the last word in memory
-          RSUB
-          END       UPDATE     # Needs symbol of the first instruction
+TERM        TIX         ZERO        # run comp on 24 hour
+            JEQ         DONE        # skip 12 hour routine if X reg = 0
+            LDA         LETT        # load letter into A reg
+            WD          DEVICE      # write A or P to device
+DONE        LDL         ZERO        # load zero into the LDL register
+            RSUB
+SECOND      RESW        1           # reserve last bit for seconds
+            END         UPDATE      # Terminate program

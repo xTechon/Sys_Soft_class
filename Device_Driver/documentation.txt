@@ -1,0 +1,12 @@
+The clock.sic file is fully commented and takes 255 bytes of memory.
+The program is loaded into address 7F01 by default.
+The program fullfils all of the specifcations required by SIC Solutions and displays the time based on the
+last word in memory as follows:
+
+[HH = hour, MM = minute, T = P or A]
+24 hour time: HHMM
+12 hour time: HHMMT
+
+where 24 is indicated by a bit flag on the most significant bit of the last word in memory.
+EX: 00C594 is  2:30PM which reads 0230P at device 64.
+    80C594 is 14:30   which reads 1403  at device 64.
