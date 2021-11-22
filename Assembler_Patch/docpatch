@@ -1,0 +1,50 @@
+diff -N -u turnin/documentation.txt patch/documentation.txt
+--- documentation.txt	1969-12-31 19:00:00.000000000 -0500
++++ documentation.txt	2021-10-25 23:57:08.000000000 -0400
+@@ -0,0 +1,45 @@
++SIC base model Assembler
++
++Usage: ./project1 [filepath]
++
++Pass 1:
++In pass 1 of the SIC base model Assembler, only a symbol table is printed.
++The symbol table is stored using a binary tree data structure and is printed in alphabetical order.
++
++The Assembler comes with a list of valid opcodes in the file "SIC_Instructions.csv" and will
++not run without the inclusion of "SIC_Instructions.csv".
++
++Opcodes are stored by reading the opcode file and storing them in a hash table for fast referencing.
++
++The Assembler catches errors in the code and syntax such as:
++- duplicate symbols
++- invalid hex constants
++- symbols that do not fit the Assembly Language Specification
++- programs that exceed the SIC memory limit
++- assembly files that contain blank lines against the specification
++- word constants that exceed the maximum integer limit
++
++Errors thrown by the assembler will list the line of the error.
++Additionally, Symbols thrown with an error code less than 0 match an Assembler Directive
++
++Pass 2:
++In pass 2 of the SIC base model Assembler, an object file was planned to be created
++
++Many things happened betweent the start of the assignment and the due date of the assignment,
++so pass 2 was not able to be completed.
++
++What was completed was only a the header record, and given a couple more hours, the Text
++record would have been finished. Once the Text Records were finished the M records would
++have only take a quarter of the time to finish
++
++As it stands it the debug outputs have been left on to show what is happening, the T records
++are not truncating properly.
++
++The plan was to have a relative head, add to that tail and then combine the Text record once
++the length was known.
++
++list:
++
++[HEAD] -> [record] -> [record] -> [rHEAD(cont. "Tadd")] -> [record] -> [TAIL]
++[HEAD] -> [record] -> [record] -> [rHEAD(cont. "Tadd")] -> [insert length here] -> [record] -> [TAIL]
++[HEAD] -> [record] -> [record] -> [rHEAD(cont. final T-rec)]
+Common subdirectories: turnin/src and patch/src

@@ -8,6 +8,7 @@ int TestMode();
 int Directives(int, int *, int *, char *, char *, char *, SYMBOL, int);
 // int checkOverflow(int count);
 int main(int argc, char *argv[]) {
+  //program start
 #if TEST
   TestMode();
   exit(0); // uncomment for testing mode
@@ -23,37 +24,30 @@ int main(int argc, char *argv[]) {
     printf("ERROR: %s could not be opened for reading.\n", argv[1]);
     exit(0);
   }
-
 #if DEBUG
   printf("\nFile Opened successfully.");
 #endif
-
+  //Opcode hash table
   memset(OpcodeTable, 0, 29 * sizeof(OPLIST *));
   ReadOpCodeFile(); // import opcodes
-
   char line[1024];
   char fline[1024];
-  char *newsym;
   int errC = 0;
+  char *newsym;
   newsym = malloc(1024 * sizeof(char));
   memset(newsym, '\0', 1024 * sizeof(char));
-
   char *nextToken;
   nextToken = malloc(1024 * sizeof(char));
   memset(nextToken, '\0', 1024 * sizeof(char));
-
   char *operand;
   operand = malloc(1024 * sizeof(char));
   memset(operand, '\0', 1024 * sizeof(char));
-
   char *argument;
   argument = malloc(1024 * sizeof(char));
   memset(argument, '\0', 1024 * sizeof(char));
-
   char *opcode;
   opcode = malloc(1024 * sizeof(char));
   memset(opcode, '\0', 1024 * sizeof(char));
-
   int lCount = 0;   // keeps track of the line number
   int locCount = 0; // location in BYTES not words
   SYMBOL sym;
@@ -143,8 +137,8 @@ int main(int argc, char *argv[]) {
     // printf("\nLocation is: %x\n", locCount);
   }
   // Print out the Symbol Table
-  // PrintTree();
-  // printf("\n");
+  PrintTree();
+  printf("\n");
 
   printf("\nFinish Pass 1");
   // Pass 2
@@ -230,8 +224,7 @@ int main(int argc, char *argv[]) {
     dirTrack = CmprDir(nextToken);
     // itterate through dirTrack
     if (dirTrack < 0) {
-      int test = Directives(dirTrack, &lCount, &locCount, nextToken, operand,
-                            argument, sym, 0);
+      int test = Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument, sym, 0);
       // printf("\nTest is: %d", test);
       if (test == 1) {
         printf("\nclosing program");
@@ -262,7 +255,7 @@ int main(int argc, char *argv[]) {
           temp.next = rHEAD->next;
           rHEAD->next = &temp;
           // enter in the record size
-          sprintf(temp.record, "%2X", recSize);
+          sprintf(temp.record, "%02X", recSize);
           // combine and clear space
           rHEAD->record = RetrieveREC(rHEAD);
           // create a new tail
@@ -311,7 +304,7 @@ int main(int argc, char *argv[]) {
               temp.next = rHEAD->next;
               rHEAD->next = &temp;
               // enter in the record size
-              sprintf(temp.record, "%2X", recSize);
+              sprintf(temp.record, "%02X", recSize);
               // combine and clear space
               rHEAD->record = RetrieveREC(rHEAD);
               // create a new tail
@@ -340,8 +333,7 @@ int main(int argc, char *argv[]) {
             // put the character into the list
             if (recSize < 28) {
               char c[3]; // to store character as hex
-              sprintf(c, "%2X",
-                      argument[i]); // convert character value into hex value
+              sprintf(c, "%2X", argument[i]); // convert character value into hex value
               TAIL = PushLinkREC(TAIL, c);
               recSize += 1;
             } else if (recSize >= 28) {
@@ -388,7 +380,7 @@ int main(int argc, char *argv[]) {
         Relative(&rHEAD, &TAIL, locCount, &recSize);
       } else if (recSize < 27) {
         char instruct[7];
-        sprintf(instruct, "%2X%04X", hashtemp->OpCode, sym.Address);
+        sprintf(instruct, "%02X%04X", hashtemp->OpCode, sym.Address);
         TAIL = PushLinkREC(TAIL, instruct);
         recSize += 3;
       } else if (recSize >= 27) {
@@ -400,7 +392,7 @@ int main(int argc, char *argv[]) {
         temp.next = rHEAD->next;
         rHEAD->next = &temp;
         // enter in the record size
-        sprintf(temp.record, "%2X", recSize);
+        sprintf(temp.record, "%02X", recSize);
         // combine and clear space
         rHEAD->record = RetrieveREC(rHEAD);
         // create a new tail
@@ -426,7 +418,7 @@ int main(int argc, char *argv[]) {
     temp.next = rHEAD->next;
     rHEAD->next = &temp;
     // enter in the record size
-    sprintf(temp.record, "%2X", recSize);
+    sprintf(temp.record, "%02X", recSize);
     // combine and clear space
     rHEAD->record = RetrieveREC(rHEAD);
     // create a new tail
@@ -458,8 +450,7 @@ int TestMode() {
    */
   exit(0);
 }
-int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
-               char *operand, char *argument, SYMBOL sym, int flag) {
+int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken, char *operand, char *argument, SYMBOL sym, int flag) {
 #if DEBUG
   printf("\n\"%s\" is a DIRECTIVE", nextToken);
 #endif

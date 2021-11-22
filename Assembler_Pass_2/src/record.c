@@ -41,15 +41,15 @@ char *RetrieveREC(RECLIST *HEAD) {
   return line;
 }
 
-void PrintList(RECLIST *HEAD){
+void PrintList(RECLIST *HEAD) {
   RECLIST *current = HEAD;
-  while(current != NULL){
+  while (current != NULL) {
     printf("\n%s", current->record);
     current = current->next;
   }
 }
 
-void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize){
+void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize) {
   printf("\ncreating new T Record");
   char beginning[10];
   sprintf(beginning, "T%06X", locCount);

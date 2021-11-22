@@ -1,0 +1,1459 @@
+#!/bin/sh
+# This is a shell archive (produced by GNU sharutils 4.15.2).
+# To extract the files from this archive, save it to some FILE, remove
+# everything before the '#!/bin/sh' line above, then type 'sh FILE'.
+#
+lock_dir=_sh1468657
+# Made on 2021-10-25 23:58 EDT by <n01452026@cisvm-softeng1>.
+# Source directory was '/home/n01452026@unfcsd.unf.edu/Sys_Soft_class/Assembler_Pass_2'.
+#
+# Existing files will *not* be overwritten, unless '-c' is specified.
+#
+# This shar contains:
+# length mode       name
+# ------ ---------- ------------------------------------------
+#   1947 -rw-r--r-- src/hash.c
+#   2471 -rw-r--r-- src/headers.h
+#   1359 -rw-r--r-- src/list.c
+#  17460 -rw-r--r-- src/main.c
+#   1524 -rw-r--r-- src/opcodes.c
+#     21 -rw-r--r-- src/pass1.c
+#   1497 -rw-r--r-- src/record.c
+#   5413 -rw-r--r-- src/symbols.c
+#   1662 -rw-r--r-- src/tree.c
+#    586 -rw-r--r-- makefile
+#    398 -rw-r--r-- SIC_Instructions.csv
+#
+MD5SUM=${MD5SUM-md5sum}
+f=`${MD5SUM} --version | egrep '^md5sum .*(core|text)utils'`
+test -n "${f}" && md5check=true || md5check=false
+${md5check} || \
+  echo 'Note: not verifying md5sums.  Consider installing GNU coreutils.'
+if test "X$1" = "X-c"
+then keep_file=''
+else keep_file=true
+fi
+echo=echo
+save_IFS="${IFS}"
+IFS="${IFS}:"
+gettext_dir=
+locale_dir=
+set_echo=false
+
+for dir in $PATH
+do
+  if test -f $dir/gettext \
+     && ($dir/gettext --version >/dev/null 2>&1)
+  then
+    case `$dir/gettext --version 2>&1 | sed 1q` in
+      *GNU*) gettext_dir=$dir
+      set_echo=true
+      break ;;
+    esac
+  fi
+done
+
+if ${set_echo}
+then
+  set_echo=false
+  for dir in $PATH
+  do
+    if test -f $dir/shar \
+       && ($dir/shar --print-text-domain-dir >/dev/null 2>&1)
+    then
+      locale_dir=`$dir/shar --print-text-domain-dir`
+      set_echo=true
+      break
+    fi
+  done
+
+  if ${set_echo}
+  then
+    TEXTDOMAINDIR=$locale_dir
+    export TEXTDOMAINDIR
+    TEXTDOMAIN=sharutils
+    export TEXTDOMAIN
+    echo="$gettext_dir/gettext -s"
+  fi
+fi
+IFS="$save_IFS"
+if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null
+then if (echo -n test; echo 1,2,3) | grep n >/dev/null
+     then shar_n= shar_c='
+'
+     else shar_n=-n shar_c= ; fi
+else shar_n= shar_c='\c' ; fi
+f=shar-touch.$$
+st1=200112312359.59
+st2=123123592001.59
+st2tr=123123592001.5 # old SysV 14-char limit
+st3=1231235901
+
+if   touch -am -t ${st1} ${f} >/dev/null 2>&1 && \
+     test ! -f ${st1} && test -f ${f}; then
+  shar_touch='touch -am -t $1$2$3$4$5$6.$7 "$8"'
+
+elif touch -am ${st2} ${f} >/dev/null 2>&1 && \
+     test ! -f ${st2} && test ! -f ${st2tr} && test -f ${f}; then
+  shar_touch='touch -am $3$4$5$6$1$2.$7 "$8"'
+
+elif touch -am ${st3} ${f} >/dev/null 2>&1 && \
+     test ! -f ${st3} && test -f ${f}; then
+  shar_touch='touch -am $3$4$5$6$2 "$8"'
+
+else
+  shar_touch=:
+  echo
+  ${echo} 'WARNING: not restoring timestamps.  Consider getting and
+installing GNU '\''touch'\'', distributed in GNU coreutils...'
+  echo
+fi
+rm -f ${st1} ${st2} ${st2tr} ${st3} ${f}
+#
+if test ! -d ${lock_dir} ; then :
+else ${echo} "lock directory ${lock_dir} exists"
+     exit 1
+fi
+if mkdir ${lock_dir}
+then ${echo} "x - created lock directory ${lock_dir}."
+else ${echo} "x - failed to create lock directory ${lock_dir}."
+     exit 1
+fi
+# ============= src/hash.c ==============
+if test ! -d 'src'; then
+  mkdir 'src'
+if test $? -eq 0
+then ${echo} "x - created directory src."
+else ${echo} "x - failed to create directory src."
+     exit 1
+fi
+fi
+if test -n "${keep_file}" && test -f 'src/hash.c'
+then
+${echo} "x - SKIPPING src/hash.c (file already exists)"
+
+else
+${echo} "x - extracting src/hash.c (text)"
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 src/hash.c
+M(VEN8VQU9&4@(FAE861E<G,N:"(-"B-D969I;F4@1$5"54<@,`T*#0II;G0@
+M0VUP2&%S:"AI;G0@<VEZ92P@8VAA<B`J:V5Y*2![#0H@("\O('!R:6YT9B@B
+M7&Y3=&%R=&EN9R!K97D@9V5N(BD[#0H@("\O(&@H>"D@/2!R,7@Q("L@<C)X
+M,B`K("XN+B`K(')K>&L@;6]D(&T-"B`@:6YT(&D@/2`P.PT*("!I;G0@:6YD
+M97@@/2`P.R`O+R!R971U<FX@=F%L=64-"B`@:6YT('1E;7`@/2`P.R`@+R\@
+M:&]L9"!T:&4@=F%L=64@8F5T=V5E;B!S=6US#0H@(&EN="!S=6T@/2`P.R`@
+M("\O(&AO;&0@=&AE('-U;6UN871I;VX-"B`@:6YT(&UO9"`](#`[("`@+R\@
+M:&]L9"!X:R`E(&T-"B`@+R\@=&]O:R!A(&QO="!O9B!M871L86(@=&\@9V5T
+M('1H97-E(&YU;6)E<G,-"B`@:6YT(%);-%T@/2![,C(L(#(R+"`Q,2P@,3=]
+M.PT*#0HC:68@1$5"54<-"B`@<')I;G1F*")<;FME>2!3=')I;F<@:7,Z("5S
+M(BP@:V5Y*3L-"B-E;F1I9@T*("!W:&EL92`H:V5Y6VE=("$]("=<,"<@)B8@
+M:2`\(#0I('L-"B-I9B!$14)51PT*("`@('!R:6YT9B@B7&X@:6YD97@@)60@
+M:&%S(&-H87(Z("5C('=I=&@@=F%L=64@)60B+"!I+"!K97E;:5TL(&ME>5MI
+M72D[#0HC96YD:68-"B`@("!M;V0@/2!K97E;:5T@)2!S:7IE.R`O+R!X:R`E
+M(&T-"B-I9B!$14)51PT*("`@('!R:6YT9B@B("4E("5D(#T@)3)D(BP@<VEZ
+M92P@;6]D*3L-"B-E;F1I9@T*("`@(&EF("@H:V5Y6VE=(#X](#8U("8F(&ME
+M>5MI72`\/2`Y,"D@("`@("`@("\O($$M1@T*("`@("`@("!\?"`H:V5Y6VE=
+M(#X](#DW("8F(&ME>5MI72`\/2`Q,C(I*2![("\O(&$M9@T*("`@("`@=&5M
+M<"`](%);:5T@*B!M;V0[("`@("`@("`@("`@("`@("`@("`@("\O(')K>&L@
+M<W5M#0H@("`@("!S=6T@*ST@=&5M<#L-"B-I9B!$14)51PT*("`@("`@<')I
+M;G1F*"(@*B`E9"`K/2`E9"(L(%);:5TL('1E;7`I.PT*(V5N9&EF#0H@("`@
+M?2!E;'-E('L-"B`@("`@('-U;2`K/2`P.PT*("`@('T-"B`@("!I*RL[#0H@
+M('T-"B`@:6YD97@@/2!S=6T@)2!S:7IE.PT*(VEF($1%0E5'#0H@('!R:6YT
+M9B@B7&XE9"`E)2`E9"`]("5D(BP@<W5M+"!S:7IE+"!I;F1E>"D[#0HC96YD
+M:68-"B`@<F5T=7)N(&EN9&5X.PT*?0T*#0II;G0@4'5S:$AA<V@H3U!,25-4
+M("IA<G);72P@:6YT('-I>F4L($]00T]$15,@*F]P*2![#0H@(&EN="!K97D@
+M/2!#;7!(87-H*'-I>F4L(&]P+3Y.86UE*3L-"B-I9B!$14)51PT*("!P<FEN
+M=&8H(EQN2V5Y(&=E;F5R871E9#H@)60B+"!K97DI.PT*(V5N9&EF#0H@(&%R
+M<EMK97E=(#T@4'5S:$QI;FM/4"AA<G);:V5Y72P@*F]P*3L-"B`@<F5T=7)N
+M(#$[#0I]#0H-"D]00T]$15,@*D9I;F1(87-H*$]03$E35"`J87)R6UTL(&EN
+M="!S:7IE+"!C:&%R("IO<"D@>PT*("!I;G0@:V5Y(#T@0VUP2&%S:"AS:7IE
+M+"!O<"D[#0HC:68@1$5"54<-"B`@<')I;G1F*")<;DME>2!I<SH@)60B+"!K
+M97DI.PT*(V5N9&EF#0H@($]03$E35"`J=&5M<"`]($9I;F1/<"AA<G);:V5Y
+M72P@;W`I.PT*("!I9B`H=&5M<"`A/2!.54Q,*0T*("`@(')E='5R;B`F*'1E
+M;7`M/FYO9&4I.R`O+R!G970@=&AE(&%D9')E<W,@;V8@=&AE($]00T]$10T*
+M("!E;'-E#0HC:68@1$5"54<-"B`@("!P<FEN=&8H(EQN("5D(&ES($5M<'1Y
+M(BP@:V5Y*3L-"B-E;F1I9@T*("!R971U<FX@3E5,3#L-"GT-"@T*:6YT(%!R
+M:6YT2&%S:"A/4$Q)4U0@*F%R<EM=+"!I;G0@<VEZ92D@>PT*("!P<FEN=&8H
+M(EQN079A:6QA8FQE($]P0V]D97,Z(BD[#0H@(&9O<B`H:6YT(&D@/2`P.R!I
+M(#P@<VEZ93L@:2LK*2![#0H@("`@<')I;G1F*")<;FEN9&5X(&ES.B`E9"(L
+M(&DI.PT*("`@(&EF("AA<G);:5T@(3T@3E5,3"D@>PT*(VEF($1%0E5'#0H@
+M("`@("!P<FEN=&8H(EQN<V]M971H:6YG(&EN(&EN9&5X(BD[#0HC96YD:68-
+M"B`@("`@(%!R:6YT3U!,:7-T*&%R<EMI72D[#0H@("`@?0T*("!]#0H@(')E
+,='5R;B`Q.PT*?0T*
+`
+end
+SHAR_EOF
+  (set 20 21 10 21 14 33 26 'src/hash.c'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/hash.c'
+if test $? -ne 0
+then ${echo} "restore of src/hash.c failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/hash.c': 'MD5 check failed'
+       ) << \SHAR_EOF
+ce9eef63bc2a511c251b5c0e1e02823a  src/hash.c
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/hash.c'` -ne 1947 && \
+  ${echo} "restoration warning:  size of 'src/hash.c' is not 1947"
+  fi
+fi
+# ============= src/headers.h ==============
+if test ! -d 'src'; then
+  mkdir 'src'
+if test $? -eq 0
+then ${echo} "x - created directory src."
+else ${echo} "x - failed to create directory src."
+     exit 1
+fi
+fi
+if test -n "${keep_file}" && test -f 'src/headers.h'
+then
+${echo} "x - SKIPPING src/headers.h (file already exists)"
+
+else
+${echo} "x - extracting src/headers.h (text)"
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 src/headers.h
+M(VEN8VQU9&4@/'-T9&EO+F@^#0HC:6YC;'5D92`\<W1D:6]?97AT+F@^#0HC
+M:6YC;'5D92`\<W1D;&EB+F@^#0HC:6YC;'5D92`\<W1R:6YG+F@^#0HO+R-I
+M;F-L=61E(#QR96=E>"YH/@T*#0IT>7!E9&5F('-T<G5C="!O<$QI;FL@3U!,
+M25-4.PT*97AT97)N($]03$E35"`J3W!C;V1E5&%B;&5;,CE=.R`O+R!A<G)A
+M>2!U<V5D(&]F=&5N#0H-"B\O($AE>"!V86QU92!T:&EN9W,-"FEN="!686Q(
+M15@H8VAA<B`J979A;"D[#0II;G0@8VAE8VM/=F5R9FQO=RAI;G0@8V]U;G0I
+M.PT*#0HO+R!3>6UB;VP@=&AI;F=S#0IS=')U8W0@<WEM8F]L<R![#0H@(&EN
+M="!3;W5R8V5,:6YE.PT*("!I;G0@061D<F5S<SL-"B`@8VAA<B!.86UE6S==
+M.PT*?3L-"G1Y<&5D968@<W1R=6-T('-Y;6)O;',@4UE-0D],.PT*:6YT($ES
+M059A;&ED4WEM8F]L*&-H87(@*E1E<W13>6UB;VPI.PT*#0HO+R!O<&-O9&4@
+M=&AI;F=S#0IS=')U8W0@;W!C;V1E<R![#0H@(&EN="!/<$-O9&4[#0H@(&-H
+M87(@3F%M95LX73L-"B`@:6YT($%R9W,[#0I].PT*='EP961E9B!S=')U8W0@
+M;W!C;V1E<R!/4$-/1$53.PT*#0HO+R!/4"!C;V1E(&QI;FME9"!L:7-T(&9O
+M<B!H87-H('1A8FQE#0IS=')U8W0@;W!,:6YK('L-"B`@3U!#3T1%4R!N;V1E
+M.PT*("!S=')U8W0@;W!,:6YK("IN97AT.PT*?3L-"FEN="!0<FEN=$]03&ES
+M="A/4$Q)4U0@*DA%040I.R`@("`@("`@("`O+R!R971U<FYS(#$@:68@<W5C
+M8V5S<V9U;`T*3U!,25-4("I&:6YD3W`H3U!,25-4("IR;V]T+"!C:&%R("IO
+M<"D[("\O(')E='5R;G,@<&]I;G1E<B!T;R!F;W5N9"!O<`T*3U!,25-4("I0
+M=7-H3&EN:T]0*$]03$E35"`J2$5!1"P-"B`@("`@("`@("`@("`@("`@("!/
+M4$-/1$53(&%D9&ET:6]N*3L@+R\@<F5T=7)N<R!P;VEN=&5R('1O(&YE=R!O
+M<"!H96%D#0H-"B\O(&)I;F%R>2!T<F5E('1H:6YG<PT*<W1R=6-T(&)R86YC
+M:"![#0H@(%-934)/3"!N;V1E.PT*("!S=')U8W0@8G)A;F-H("IL969T.PT*
+M("!S=')U8W0@8G)A;F-H("IR:6=H=#L-"GT[#0IT>7!E9&5F('-T<G5C="!B
+M<F%N8V@@5%)%13L-"FEN="!0=7-H3&5A9BA364U"3TP@;&5A9BD[("`@("`@
+M("`@("`@("\O(')E='5R;G,@,2!I9B!S=6-C97-S9G5L#0I364U"3TP@1FEN
+M9%-Y;6)O;"AC:&%R("IL96%F*3L@("`@("`@("`O+R!R971U<FYS(%-934)/
+M3"!I9B!S>6UB;VP@9F]U;F0-"E12144@*E1R879E<G-);D]R9&5R*%12144@
+M*FQO8V%L4F]O="D[("\O(')E8W5R<VEV96QY('1R879E<G-E<R!T<F5E(&=I
+M=F5N(')O;W0-"FEN="!0<FEN=%1R964H*3L@("`@("`@("`@("`@("`@("`@
+M("`@("\O(')E='5R;G,@,2!I9B!S=6-C97-S9G5L#0I44D5%("IG9714:71L
+M94YO9&4H*3L-"@T*+R\@2&%S:"!T86)L92!T:&EN9W,-"FEN="!#;7!(87-H
+M*&EN="!S:7IE+"!C:&%R("IK97DI.R`O+R!R971U<FYS(&EN9&5X('1O(&EN
+M<V5R="!A=`T*:6YT(%!U<VA(87-H*$]03$E35"`J87)R6UTL(&EN="!S:7IE
+M+"!/4$-/1$53("IO<"D[("\O(')E='5R;G,@,2!I9B!S=6-C97-S9G5L#0I/
+M4$-/1$53("H-"D9I;F1(87-H*$]03$E35"`J87)R6UTL(&EN="!S:7IE+`T*
+M("`@("`@("`@8VAA<B`J;W`I.R`O+R!R971U<FYS('1H92!A9&1R97-S(&]F
+M('1H92!O<&-O9&4@:68@;W!C;V1E(&5X:7-T<PT*:6YT(%!R:6YT2&%S:"A/
+M4$Q)4U0@*F%R<EM=+"!I;G0@<VEZ92D[("\O('!R:6YT<R`Q(&EF('-U8V-E
+M<W-F=6P-"FEN="!296%D3W!#;V1E1FEL92@I.PT*#0II;G0@0VUP<D1I<BAC
+M:&%R("I3>6UB;VPI.R`@("`@("\O(')E='5R;G,@+3$@:68@9&ER+"`Q(&EF
+M(&YO=`T*=F]I9"!+:6QL5VAI=&5#:&%R*&-H87(@*F5V86PI.R`O+R!T<G5C
+M871E<R!S=')I;F<@870@9VEV96X@8VAA<F%C=&5R#0H-"B\O4F5C;W)D<R!L
+M:7-T#0IS=')U8W0@<W1R4F5C>PT*("!C:&%R*B!R96-O<F0[#0H@('-T<G5C
+M="!S=')296,@*FYE>'0[#0I].PT*='EP961E9B!S=')U8W0@<W1R4F5C(%)%
+M0TQ)4U0[#0I214-,25-4("I0=7-H3&EN:U)%0RA214-,25-4("I404E,+"!C
+M:&%R*B!S=&]R86=E*3L@+R]0=7-H97,@82!N97<@;&EN:R!T;R!T:&4@;&ES
+M=`T*=F]I9"!#;&5A<DQI<W0H4D5#3$E35"`J2$5!1"D[("`@("`@("`@("`@
+M("`@("`@("`@("\O4F5C=7)S:79E;'D@8VQE87)S('1H92!L:7-T(&=I=F5N
+M('1H92!H96%D#0IC:&%R*B!2971R:65V95)%0RA214-,25-4("I(14%$*3L@
+M("`@("`@("`@("`@("`@("`@+R]2971U<FYS(&$@<')O<&5R('-T<FEN9R!O
+M9B!T:&4@<F5C;W)D(&%N9"!C;&5A<G,@=&AE(&QI<W0-"G9O:60@4')I;G1,
+M:7-T*%)%0TQ)4U0@*DA%040I.R`@("`@("`@("`@("`@("`@("`@("`O+U!R
+M:6YT<R!O=70@=&AE(&QI<W0@<W1A<G1I;F<@9G)O;2!A(&=I=F5N($A%040@
+M=&\@;G5L;`T*=F]I9"!296QA=&EV92A214-,25-4("HJ<DA%040L(%)%0TQ)
+I4U0@*BI404E,+"!I;G0@;&]C0V]U;G0L(&EN="`J<F5C4VEZ92D[#0I%
+`
+end
+SHAR_EOF
+  (set 20 21 10 25 23 57 08 'src/headers.h'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/headers.h'
+if test $? -ne 0
+then ${echo} "restore of src/headers.h failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/headers.h': 'MD5 check failed'
+       ) << \SHAR_EOF
+fa72341dec56632bd6eaad0223bb1dba  src/headers.h
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/headers.h'` -ne 2471 && \
+  ${echo} "restoration warning:  size of 'src/headers.h' is not 2471"
+  fi
+fi
+# ============= src/list.c ==============
+if test -n "${keep_file}" && test -f 'src/list.c'
+then
+${echo} "x - SKIPPING src/list.c (file already exists)"
+
+else
+${echo} "x - extracting src/list.c (text)"
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 src/list.c
+M(VEN8VQU9&4@(FAE861E<G,N:"(-"B-D969I;F4@1$5"54<@,`T*#0I/4$Q)
+M4U0@*E!U<VA,:6YK3U`H3U!,25-4("I(14%$+"!/4$-/1$53(&%D9&ET:6]N
+M*2![#0H@($]03$E35"`J;F5W;&ES="`]("A/4$Q)4U0@*BEM86QL;V,H<VEZ
+M96]F*$]03$E35"DI.PT*("!M96US970H;F5W;&ES="P@)UPP)RP@<VEZ96]F
+M*$]03$E35"DI.PT*("!N97=L:7-T+3YN;V1E(#T@861D:71I;VX[#0H@(&EF
+M("A(14%$(#T]($Y53$PI('L-"B`@("!(14%$(#T@;F5W;&ES=#L-"B`@("!(
+M14%$+3YN97AT(#T@3E5,3#L-"B`@?2!E;'-E('L-"B`@("!N97=L:7-T+3YN
+M97AT(#T@2$5!1#L-"B`@?0T*("!R971U<FX@;F5W;&ES=#L-"GT@+R\@96YD
+M(%!U<VA,:6YK#0H-"D]03$E35"`J1FEN9$]P*$]03$E35"`J<F]O="P@8VAA
+M<B`J;W`I('L-"B`@3U!,25-4("IC=7)R96YT(#T@<F]O=#L-"B-I9B!$14)5
+M1PT*("!P<FEN=&8H(EQN(&]P(&ES("5S+"!<;DUE;6)E<G,@:6X@:6YD97@Z
+M(BP@;W`I.PT*(V5N9&EF#0H@('=H:6QE("AC=7)R96YT("$]($Y53$PI('L-
+M"B-I9B!$14)51PT*("`@('!R:6YT9B@B7&XE<R(L(&-U<G)E;G0M/FYO9&4N
+M3F%M92D[#0H@("`@<')I;G1F*")<;G-T<F-M<"!R97-U;'0Z("5D(BP@<W1R
+M8VUP*&-U<G)E;G0M/FYO9&4N3F%M92P@;W`I*3L-"B`@("!P<FEN=&8H(EQN
+M)7,B+"!C=7)R96YT+3YN;V1E+DYA;64I.PT*("`@('!R:6YT9B@B7&XE<R(L
+M(&]P*3L-"B`@("!I;G0@:2`](#`[#0H@("`@=VAI;&4@*&]P6VE=("$]("=<
+M,"<I('L-"B`@("`@(&DK*SL-"B`@("!]#0H@("`@<')I;G1F*")<;F]P(&QE
+M;F=T:"!I<SH@)60B+"!I*3L-"B-E;F1I9@T*("`@(&EF("@A*'-T<F-M<"AC
+M=7)R96YT+3YN;V1E+DYA;64L(&]P*2DI('L-"B`@("`@(')E='5R;B!C=7)R
+M96YT.PT*("`@('T-"B`@("!C=7)R96YT(#T@8W5R<F5N="T^;F5X=#L-"B`@
+M?0T*("`O+R!P<FEN=&8H(EQN15)23U(Z(%PB)7-<(B!)4R!.3U0@02!604Q)
+M1"!/4$-/1$4B+"!O<"D[#0H@(')E='5R;B!.54Q,.PT*?0T*#0II;G0@4')I
+M;G1/4$QI<W0H3U!,25-4("I(14%$*2![#0H@($]03$E35"`J8W5R<F5N="`]
+M($A%040[#0H@("\O('!R:6YT9B@B7&Y!=F%I;&%B;&4@3W!#;V1E<SHB*3L-
+M"B`@=VAI;&4@*&-U<G)E;G0@(3T@3E5,3"D@>PT*("`@('!R:6YT9B@B7&XE
+M<UQT)3`R>"(L(&-U<G)E;G0M/FYO9&4N3F%M92P-"B`@("`@("`@("`@8W5R
+M<F5N="T^;F]D92Y/<$-O9&4I.R`O+R!P<FEN="!N;V1E(&1A=&$@=&\@=&5R
+M;6EN86P-"B`@("!C=7)R96YT(#T@8W5R<F5N="T^;F5X=#L@("`@("`O+R!G
+M;R!T;R!N97AT(&QI<W0-"B`@?0T*("!R971U<FX@,3L-"GT@+R\@96YD(%!R
+):6YT3&EN:PT*
+`
+end
+SHAR_EOF
+  (set 20 21 10 21 14 33 26 'src/list.c'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/list.c'
+if test $? -ne 0
+then ${echo} "restore of src/list.c failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/list.c': 'MD5 check failed'
+       ) << \SHAR_EOF
+7c8d7005d98d5c88b5b197f679787ac1  src/list.c
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/list.c'` -ne 1359 && \
+  ${echo} "restoration warning:  size of 'src/list.c' is not 1359"
+  fi
+fi
+# ============= src/main.c ==============
+if test -n "${keep_file}" && test -f 'src/main.c'
+then
+${echo} "x - SKIPPING src/main.c (file already exists)"
+
+else
+${echo} "x - extracting src/main.c (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'src/main.c' &&
+#include "headers.h"
+#define TEST 0
+#define DEBUG 0
+#define ELMSG(L, V)                                                            \
+X  printf("\nERROR %2d: LOCATION %x SURPASSES SIC MEMORY\n", L, V);
+X
+int TestMode();
+int Directives(int, int *, int *, char *, char *, char *, SYMBOL, int);
+// int checkOverflow(int count);
+int main(int argc, char *argv[]) {
+#if TEST
+X  TestMode();
+X  exit(0); // uncomment for testing mode
+#endif
+X  // File Checking Section of code
+X  if (argc != 2) { // check to see if correct amnt of arguments entered
+X    printf("ERROR: Usage: %s filename\n", argv[0]);
+X    exit(0);
+X  }
+X  FILE *fp;
+X  fp = fopen(argv[1], "r");
+X  if (fp == NULL) {
+X    printf("ERROR: %s could not be opened for reading.\n", argv[1]);
+X    exit(0);
+X  }
+X
+#if DEBUG
+X  printf("\nFile Opened successfully.");
+#endif
+X
+X  memset(OpcodeTable, 0, 29 * sizeof(OPLIST *));
+X  ReadOpCodeFile(); // import opcodes
+X
+X  char line[1024];
+X  char fline[1024];
+X  char *newsym;
+X  int errC = 0;
+X  newsym = malloc(1024 * sizeof(char));
+X  memset(newsym, '\0', 1024 * sizeof(char));
+X
+X  char *nextToken;
+X  nextToken = malloc(1024 * sizeof(char));
+X  memset(nextToken, '\0', 1024 * sizeof(char));
+X
+X  char *operand;
+X  operand = malloc(1024 * sizeof(char));
+X  memset(operand, '\0', 1024 * sizeof(char));
+X
+X  char *argument;
+X  argument = malloc(1024 * sizeof(char));
+X  memset(argument, '\0', 1024 * sizeof(char));
+X
+X  char *opcode;
+X  opcode = malloc(1024 * sizeof(char));
+X  memset(opcode, '\0', 1024 * sizeof(char));
+X
+X  int lCount = 0;   // keeps track of the line number
+X  int locCount = 0; // location in BYTES not words
+X  SYMBOL sym;
+X  memset(&sym, 0, sizeof(sym));
+X  int dirTrack = 0;
+X  // int hexCounter = 0;
+X  // Pass 1
+X  while (fgets(line, 1024, fp) != NULL) {
+X    strcpy(fline, line);
+X    lCount++; // Keep track of lines
+X    if (line[0] == 35) {
+#if DEBUG
+X      printf("\nComment: %s", line); // remove or comment out before submission
+#endif
+X      continue;
+X    }
+X    // TODO fix not triggering in blank lines
+X    // quit if it finds a blank line
+X    if (line[0] == '\n') {
+X      printf("\nERROR %2d: FILE HAS BLANK LINES\n", lCount);
+X      exit(0);
+X    }
+X    // check for symbols that start with capitals
+X    if ((line[0] >= 65) && (line[0] <= 90)) {
+X      newsym = strtok(line, " \t\n");
+#if DEBUG
+X      printf("\nNEW SYMBOL ON LINE: %d", lCount);
+X      printf("\nNEW SYMBOL IS: %s", newsym);
+#endif
+X      errC = IsAValidSymbol(newsym);
+X      if (errC != 1) {
+X        printf("\nERROR %2d: INVALID SYMBOL \"%s\" WITH CODE: %d\n", lCount,
+X               newsym, errC);
+X        fclose(fp);
+X        exit(0);
+X      }
+X      // set some of the values of the new Symbol
+X      strcpy(sym.Name, newsym);
+X      sym.SourceLine = lCount;
+X      if (locCount != 0) {
+X        sym.Address = locCount;
+X        if (PushLeaf(sym)) {
+X          fclose(fp);
+X          printf("\nERROR %2d: DUPLICATE SYMBOL \"%s\"\n", lCount, sym.Name);
+X          exit(0);
+X        }
+#if DEBUG
+X        printf("\nPUSHED LEAF");
+#endif
+X      }
+X      nextToken = strtok(NULL, " \t\n");
+X      // get the new value for newsym
+X    } else {
+X      nextToken = strtok(line, " \t\n");
+X    }
+#if DEBUG
+X    printf("\nCurrent token is: %s", nextToken);
+#endif
+X    strcpy(opcode, nextToken);
+X    KillWhiteChar(opcode);
+X    dirTrack = CmprDir(nextToken);
+X    // case if newsym is a directive
+X    // directive behavior
+X    if (dirTrack < 0) {
+X      if (Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument,
+X                     sym, 1)) {
+X        fclose(fp);
+X        exit(0);
+X      }
+X    }
+X    // case if newsym is an opcode
+X    else if (FindHash(OpcodeTable, 29, opcode) != NULL) {
+#if DEBUG
+X      printf("\n\"%s\" is an OPCODE", nextToken);
+#endif
+X      operand = strtok(NULL, " \t");
+#if DEBUG
+X      printf("\n%s OPCODE OPERAND", operand);
+#endif
+X      locCount += 3;
+X    } else {
+X      printf("\nERROR %2d: \"%s\" IS NOT A VALID OPCODE\n", lCount, nextToken);
+X      fclose(fp);
+X      exit(0);
+X    }
+X    // max word size is 2^23, check programmer's ref
+X    // printf("\nLocation is: %x\n", locCount);
+X  }
+X  // Print out the Symbol Table
+X   PrintTree();
+X   printf("\n");
+X
+X  printf("\nFinish Pass 1");
+X  // Pass 2
+X  rewind(fp);
+X  int progLen = locCount - getTitleNode()->node.Address;
+X  lCount = 0;
+X  locCount = 0;
+X  OPCODES *hashtemp = 0;
+X  // address entries in the object code are 6 characters long
+X  char *address = malloc(7 * sizeof(char));
+X  memset(address, '\0', 7 * sizeof(char));
+X
+X  // keep track of the linked list record
+X  int recSize = 0;
+X
+X  // Main obj file head
+X  RECLIST *HEAD = (RECLIST *)malloc(sizeof(RECLIST));
+X  HEAD->record = malloc(20 * sizeof(char));
+X  memset(HEAD->record, '\0', 20 * sizeof(char));
+X
+X  // Relative head for record list (starts at new lines)
+X  RECLIST *rHEAD = NULL; //= (RECLIST *)malloc(sizeof(RECLIST));
+X  //memset(rHEAD, 0, sizeof(RECLIST));
+X
+X  // end of the linked list
+X  RECLIST *TAIL = (RECLIST *)malloc(sizeof(RECLIST));
+X  memset(TAIL, 0, sizeof(RECLIST));
+X
+X  // put H to start the header record
+X  strcpy(HEAD->record, "H");
+X  recSize++;
+X
+X  // using newsym to hold the title of the program
+X  memset(newsym, '\0', 1024 * sizeof(char)); // clear newsym
+X  sprintf(newsym, "%-6s", getTitleNode()->node.Name);
+X
+X  // put the title in the record and set the tail
+X  TAIL = PushLinkREC(HEAD, newsym);
+X
+X  // increment recSize by the length of the title
+X  recSize += 6;
+X
+X  // add the starting address to the header
+X  sprintf(address, "%06X", getTitleNode()->node.Address);
+X  TAIL = PushLinkREC(TAIL, address);
+X  recSize += 6;
+X
+X  // add prog length to the header
+X  memset(address, '\0', 7 * sizeof(char)); // clear address field
+X  sprintf(address, "%06X", progLen);
+X  TAIL = PushLinkREC(TAIL, address);
+X  recSize += 6;
+X
+X  // Combine header record into head
+X  HEAD->record = RetrieveREC(HEAD);
+X
+X  // Terminate Header record
+X  //TAIL = PushLinkREC(HEAD, "\n");
+X
+X  printf("\nH Record is:\n%s\n", HEAD->record);
+X
+X  while (fgets(line, 1024, fp) != NULL) {
+X    //printf("\n%s", line);
+X    lCount++;
+X    // Take comments out of the output
+X    if (line[0] == 35) {
+#if DEBUG
+X      printf("\nComment: %s", line);
+#endif
+X      continue;
+X    }
+X    // symbol behavior
+X    if ((line[0] >= 65) && (line[0] <= 90)) {
+X      strtok(line, " \t\n");
+X      nextToken = strtok(NULL, " \t\n");
+X      printf("\nnext token after symbol is: %s", nextToken);
+X    } else {
+X      nextToken = strtok(line, " \t\n");
+X    }
+X    strcpy(opcode, nextToken);
+X    KillWhiteChar(opcode);
+X    hashtemp = FindHash(OpcodeTable, 29, opcode);
+X    dirTrack = CmprDir(nextToken);
+X    // itterate through dirTrack
+X    if (dirTrack < 0) {
+X      int test = Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument,
+X                     sym, 0);
+X      //printf("\nTest is: %d", test);
+X      if (test == 1) {
+X        printf("\nclosing program");
+X        fclose(fp);
+X        exit(0);
+X      }else if(test == -1){
+X        printf("\nstarting word");
+X        // case for a word
+X        //operand = strtok(nextToken, " \t\n");
+X        operand = strtok(NULL, " \t");
+X        //KillWhiteChar(operand);
+X        printf("\nOperand is: %s", operand);
+X        if (rHEAD == NULL){
+X          Relative(&rHEAD, &TAIL, locCount, &recSize);
+X          printf("\nrHead is at %s")
+X        }
+X        if(recSize <= 27){
+X          char i[7];
+X          sprintf(i, "%06X", atoi(operand));
+X          TAIL = PushLinkREC(TAIL, i);
+X          recSize += 3;
+X        }
+X        else if (recSize > 27){
+X          //create a temp to hold the record size
+X          RECLIST temp;
+X          temp.record = malloc(3*sizeof(char));
+X          memset(temp.record, '\0', 3*sizeof(char));
+X          //insert the temp into the list after record start address
+X          temp.next = rHEAD->next;
+X          rHEAD->next = &temp;
+X          //enter in the record size
+X          sprintf(temp.record, "%2X", recSize);
+X          //combine and clear space
+X          rHEAD->record = RetrieveREC(rHEAD);
+X          //create a new tail
+X          //TAIL = PushLinkREC(rHEAD, "\n");
+X          TAIL = rHEAD;
+X          //reset the rHEAD
+X          rHEAD = NULL;
+X        }
+X      }
+X      //BYTE case
+X      else if(test == -2){
+X        if (rHEAD == NULL){
+X          Relative(&rHEAD, &TAIL, locCount, &recSize);
+X        }
+X        operand = strtok(NULL, "#\n");
+#if DEBUG
+X        printf("\nBYTE OPERAND: %s", operand);
+#endif
+X        if (operand[0] == 'X') {
+X          strtok(operand, "'");
+X          argument = strtok(NULL, "'");
+#if DEBUG
+X          printf("\nHEXADECIMAL CONSTANT: %s", argument);
+#endif
+X          if (ValHEX(argument)) {
+X            int j = 0;
+X            j += (int)strtol(argument, NULL, 16); // convert char in hex to int
+X            int i = 0;
+X            while (argument[i] != '\0') {
+X              i++;
+X            }
+X            if (i % 2) {
+X              i++;
+X            }
+X            i /= 2;
+X            if (recSize < 27){
+X              char x[7];
+X              sprintf(x, "%X", j);
+X              TAIL = PushLinkREC(TAIL, x);
+X            }
+X            else if(recSize >= 27){
+X              //create a temp to hold the record size
+X              RECLIST temp;
+X              temp.record = malloc(3*sizeof(char));
+X              memset(temp.record, '\0', 3*sizeof(char));
+X              //insert the temp into the list after record start address
+X              temp.next = rHEAD->next;
+X              rHEAD->next = &temp;
+X              //enter in the record size
+X              sprintf(temp.record, "%2X", recSize);
+X              //combine and clear space
+X              rHEAD->record = RetrieveREC(rHEAD);
+X              //create a new tail
+X              //TAIL = PushLinkREC(rHEAD, "\n");
+X              TAIL = rHEAD;
+X              //reset the rHEAD
+X              rHEAD = NULL;
+X            }
+X            recSize += i;
+X            locCount += i; // increment by the number of bytes required to store
+X            // constant
+X          }
+X        } else if (operand[0] == 'C') {
+X          strtok(operand, "'");
+X          argument = strtok(NULL, "'");
+X          //printf("\nArgument is: %s", argument);
+X          int i = 0;
+#if DEBUG
+X          printf("\nCHARACTER CONSTANT: %s", argument);
+#endif
+X          while (argument[i] != '\0') {
+X            //just in case the constant overflows
+X            if (rHEAD == NULL){
+X              Relative(&rHEAD, &TAIL, (locCount+i), &recSize);
+X            }
+X            //put the character into the list
+X            if (recSize < 28){
+X              char c[3]; //to store character as hex
+X              sprintf(c, "%2X", argument[i]); //convert character value into hex value
+X              TAIL = PushLinkREC(TAIL, c);
+X              recSize+= 1;
+X            }else if (recSize >= 28){
+X              printf("\nactivate wrap");
+X              //create a temp to hold the record size
+X              RECLIST *temp = malloc(sizeof(RECLIST));
+X              temp->record = malloc(3*sizeof(char));
+X              memset(temp->record, '\0', 3*sizeof(char));
+X              //insert the temp into the list after record start address
+X              temp->next = rHEAD->next;
+X              rHEAD->next = temp;
+X              //enter in the record size
+X              sprintf(temp->record, "%2X", recSize);
+X              //combine and clear space
+X              rHEAD->record = RetrieveREC(rHEAD);
+X              //create a new tail
+X              //TAIL = PushLinkREC(rHEAD, "\n");
+X              TAIL = rHEAD;
+X              //reset the rHEAD
+X              rHEAD = NULL;
+X            }
+X            i++;
+X          }
+X          locCount += i; // characters are stored in one byte
+X          if (checkOverflow(locCount)) {
+X            ELMSG(lCount, locCount) return 1;
+X          }
+X        }
+X      }
+X    }
+X      // Where the records get created
+X    else if (hashtemp != NULL) {
+//#if DEBUG
+X      printf("\n\"%s\" is an OPCODE", nextToken);
+//#endif
+X      operand = strtok(NULL, " ,\t");
+X      KillWhiteChar(operand);
+X      //get the symbol
+X      sym = FindSymbol(operand);
+//#if DEBUG
+X      printf("\nOPCODE OPERAND: %s", operand);
+//#endif
+X      if (rHEAD == NULL){
+X        Relative(&rHEAD, &TAIL, locCount, &recSize);
+X      }else if (recSize < 27){
+X        char instruct[7];
+X        sprintf(instruct, "%2X%04X", hashtemp->OpCode, sym.Address);
+X        TAIL = PushLinkREC(TAIL, instruct);
+X        recSize += 3;
+X      }else if (recSize >= 27){
+X        //create a temp to hold the record size
+X        RECLIST temp;
+X        temp.record = malloc(3*sizeof(char));
+X        memset(temp.record, '\0', 3*sizeof(char));
+X        //insert the temp into the list after record start address
+X        temp.next = rHEAD->next;
+X        rHEAD->next = &temp;
+X        //enter in the record size
+X        sprintf(temp.record, "%2X", recSize);
+X        //combine and clear space
+X        rHEAD->record = RetrieveREC(rHEAD);
+X        //create a new tail
+X        //TAIL = PushLinkREC(rHEAD, "\n");
+X        TAIL = rHEAD;
+X        //reset the rHEAD
+X        rHEAD = NULL;
+X      }
+X      locCount += 3;
+X    } else {
+X      printf("\nERROR %2d: \"%s\" IS NOT A VALID OPCODE\n", lCount, nextToken);
+X      fclose(fp);
+X      exit(0);
+X    }
+X  }
+X
+X  printf("\nrecSize is %d", recSize);
+X  if (rHEAD != NULL){
+X    RECLIST temp;
+X    temp.record = malloc(3*sizeof(char));
+X    memset(temp.record, '\0', 3*sizeof(char));
+X    //insert the temp into the list after record start address
+X    temp.next = rHEAD->next;
+X    rHEAD->next = &temp;
+X    //enter in the record size
+X    sprintf(temp.record, "%2X", recSize);
+X    //combine and clear space
+X    rHEAD->record = RetrieveREC(rHEAD);
+X    //create a new tail
+X    //TAIL = PushLinkREC(rHEAD, "\n");
+X    TAIL = rHEAD;
+X    //reset the rHEAD
+X    rHEAD = NULL;
+X  }
+X  PrintList(HEAD);
+X  fclose(fp);
+X  exit(0);
+}
+X
+// testing mode to skip normal program runtime behavior
+int TestMode() {
+X  /*
+X   int j = IsAValidSymbol("BYTE");
+X   printf("\ninput is: %s\nj is: %i", "BYTE",j);
+X   printf("\nTesting Binary Tree");
+X
+X
+X   OPCODES opTest;
+X   strcpy(opTest.Name, "ADD");
+X   opTest.OpCode = 0x18;
+X   ReadOpCodeFile();
+X   int result;
+X   result = FindHash(OpcodeTable, 29, &opTest);
+X   printf("\nFindHash Result: %d", result);
+X   */
+X  exit(0);
+}
+int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
+X               char *operand, char *argument, SYMBOL sym, int flag) {
+#if DEBUG
+X  printf("\n\"%s\" is a DIRECTIVE", nextToken);
+#endif
+X  switch (dirTrack) {
+X  case -1: // BYTE
+X    if (flag == 1){
+X      operand = strtok(NULL, "#\n");
+#if DEBUG
+X      printf("\nBYTE OPERAND: %s", operand);
+#endif
+X      if (operand[0] == 'X') {
+X        strtok(operand, "'");
+X        argument = strtok(NULL, "'");
+#if DEBUG
+X        printf("\nHEXADECIMAL CONSTANT: %s", argument);
+#endif
+X        if (ValHEX(argument)) {
+X          int j = 0;
+X          j += (int)strtol(argument, NULL, 16); // convert char in hex to int
+X          if (j > 8388608) {
+X            printf("\nERROR %2d: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON "
+X                   "LINE\n",
+X                   *lCount);
+X            return 1;
+X          }
+X          int i = 0;
+X          while (argument[i] != '\0') {
+X            i++;
+X          }
+X          if (i % 2) {
+X            i++;
+X          }
+X          i /= 2;
+X          *locCount += i; // increment by the number of bytes required to store
+X          // constant
+X        } else {
+X          printf("\nERROR %2d: \"%s\" IS NOT A VALID HEXADECIMAL CONSTANT\n",
+X                 *lCount, argument);
+X          return 1;
+X        }
+X      } else if (operand[0] == 'C') {
+X        strtok(operand, "'");
+X        argument = strtok(NULL, "'");
+X        int i = 0;
+#if DEBUG
+X        printf("\nCHARACTER CONSTANT: %s", argument);
+#endif
+X        while (argument[i] != '\0') {
+X          i++;
+X        }
+X        *locCount += i; // characters are stored in one byte
+X      }
+X      if (checkOverflow(*locCount)) {
+X        ELMSG(*lCount, *locCount) return 1;
+X      }
+X      return 0;
+X    }
+X    else return -2;
+X  case -2: // END
+X    operand = strtok(NULL, "#\n");
+X    if (checkOverflow(*locCount)) {
+X      ELMSG(*lCount, *locCount) return 1;
+X    }
+X    return 0;
+X  case -3: // EXPORT
+X    operand = strtok(NULL, "#\n");
+X    *locCount += 3;
+X    if (checkOverflow(*locCount)) {
+X      ELMSG(*lCount, *locCount) return 1;
+X    }
+X    return 0;
+X  case -4: // RESB
+X    operand = strtok(NULL, "#\n");
+X    *locCount += atoi(operand);
+X    if (checkOverflow(*locCount)) {
+X      ELMSG(*lCount, *locCount) return 1;
+X    }
+X    return 0;
+X  case -5: // RESR
+X    operand = strtok(NULL, "#\n");
+X    *locCount += 3;
+X    if (checkOverflow(*locCount)) {
+X      ELMSG(*lCount, *locCount) return 1;
+X    }
+X    return 0;
+X  case -6: // RESW
+X    operand = strtok(NULL, "#\n");
+X    *locCount += atoi(operand) * 3;
+X    if (checkOverflow(*locCount)) {
+X      ELMSG(*lCount, *locCount) return 1;
+X    }
+X    return 0;
+X  case -7: // START
+X    operand = strtok(NULL, "#\n");
+X    *locCount = (int)strtol(operand, NULL, 16); // convert char in hex to int
+#if DEBUG
+X    printf("\n%x\n", *locCount);
+#endif
+X    if (checkOverflow(*locCount)) {
+X      ELMSG(*lCount, *locCount) return 1;
+X    }
+X    if (flag == 1) {
+X      sym.Address = *locCount;
+X      PushLeaf(sym);
+X    }
+X    return 0;
+X  case -8: // WORD
+X    if (flag == 1){
+X      operand = strtok(NULL, "#\n");
+X      int i = atoi(operand);
+X      if (i > 8388608 || i < -8388608) {
+X        printf("\nERROR %2d: INTEGER CONSTANT %d EXCEEDS LIMIT\n", *lCount, i);
+X      }
+X      *locCount += 3;
+X      if (checkOverflow(*locCount)) {
+X        ELMSG(*lCount, *locCount) exit(0);
+X      }
+X      return 0;
+X    }
+X    else if (flag == 0){
+X      *locCount += 3;
+X      return -1;
+X    }
+X    return 0;
+X  }
+X  return 0;
+}
+SHAR_EOF
+  (set 20 21 10 25 23 57 08 'src/main.c'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/main.c'
+if test $? -ne 0
+then ${echo} "restore of src/main.c failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/main.c': 'MD5 check failed'
+       ) << \SHAR_EOF
+e61299cab509d3039612c7247cc4b707  src/main.c
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/main.c'` -ne 17460 && \
+  ${echo} "restoration warning:  size of 'src/main.c' is not 17460"
+  fi
+fi
+# ============= src/opcodes.c ==============
+if test -n "${keep_file}" && test -f 'src/opcodes.c'
+then
+${echo} "x - SKIPPING src/opcodes.c (file already exists)"
+
+else
+${echo} "x - extracting src/opcodes.c (text)"
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 src/opcodes.c
+M(VEN8VQU9&4@(FAE861E<G,N:"(-"@T*3U!,25-4("I/<&-O9&5486)L95LR
+M.5T[#0H-"FEN="!296%D3W!#;V1E1FEL92@I('L-"B`@+R\@<')I;G1F*")<
+M;DQO;VMI;F<@9F]R(&]P8V]D92!F:6QE+BXN(BD[#0H@($9)3$4@*F9D(#T@
+M3E5,3#L-"B`@+R\@<')I;G1F*")<<FEG:'0@8F5F;W)E(&9O<&5N(BD[#0H@
+M(&9D(#T@9F]P96XH(E-)0U]);G-T<G5C=&EO;G,N8W-V(BP@(G(B*3L-"B`@
+M+R\@<')I;G1F*")<;E=E;G0@=&AR;W5G:"!F;W!E;B(I.PT*#0H@(&EF("AF
+M9"`]/2!.54Q,*2![#0H@("`@<')I;G1F*")%4E)/4CH@3U!#3T1%($-35B!#
+M3U5,1"!.3U0@0D4@1D]53D0B*3L-"B`@("!R971U<FX@,#L-"B`@?0T*#0H@
+M("\O('!R:6YT9B@B7&Y);7!O<G1I;F<@3W!#;V1E<RXN+B(I.PT*("!C:&%R
+M(&QI;F5;,3`R-%T[#0H@(&9G971S*&QI;F4L(#$P,C0L(&9D*3L@+R\@<VMI
+M<"!H96%D97)S#0H@(&-H87(@*F]P3F%M93L-"B`@;W!.86UE(#T@;6%L;&]C
+M*#4@*B!S:7IE;V8H8VAA<BDI.PT*("!M96US970H;W!.86UE+"`G7#`G+"`U
+M("H@<VEZ96]F*&-H87(I*3L-"B`@8VAA<B`J;W!#:&%R.PT*("!O<$-H87(@
+M/2!M86QL;V,H,R`J('-I>F5O9BAC:&%R*2D[#0H@(&UE;7-E="AO<$-H87(L
+M("=<,"<L(#,@*B!S:7IE;V8H8VAA<BDI.PT*("!I;G0@;W!#;V1E.PT*("!/
+M4$-/1$53("IO<#L-"B`@;W`@/2`H3U!#3T1%4R`J*6UA;&QO8RAS:7IE;V8H
+M3U!#3T1%4RDI.PT*("!M96US970H;W`L(#`L('-I>F5O9BA/4$-/1$53*2D[
+M#0H-"B`@=VAI;&4@*&9G971S*&QI;F4L(#$P,C0L(&9D*2`A/2!.54Q,*2![
+M#0H@("`@+R\@<'5L;"!M96UO;FEC(&9R;VT@9FEL90T*("`@(&]P3F%M92`]
+M('-T<G1O:RAL:6YE+"`B+"(I.PT*("`@("\O('-K:7`@<V]M92!D871A#0H@
+M("`@<W1R=&]K*$Y53$PL("(L(BD[#0H@("`@<W1R=&]K*$Y53$PL("(L(BD[
+M#0H@("`@+R\@<'5L;"!O<&-O9&4@9G)O;2!F:6QE#0H@("`@;W!#:&%R(#T@
+M<W1R=&]K*$Y53$PL("(L(BD[#0H@("`@+R\@<')I;G1F*")<;F]P0VAA<B!I
+M<SH@)7,B+"!O<$-H87(I.PT*("`@(&]P0V]D92`]("AI;G0I<W1R=&]L*&]P
+M0VAA<BP@3E5,3"P@,38I.R`O+R!C;VYV97)T(&-H87(@:6X@:&5X('1O(&EN
+M=`T*("`@("\O('-T;W)E('1H92!D871A(&9R;VT@=&AE(&9I;&4@:6YT;R!A
+M;B!O<&-O9&4@;&EN:PT*("`@('-T<F-P>2AO<"T^3F%M92P@;W!.86UE*3L-
+M"B`@("!O<"T^3W!#;V1E(#T@;W!#;V1E.PT*("`@("\O('!R:6YT9B@B7&Y/
+M4$-/1$4@:7,Z("5X(BP@;W!#;V1E*3L-"B`@("`O+R!P=7-H('1H92!D871A
+M(&EN=&\@=&AE(&AA<V@-"B`@("!0=7-H2&%S:"A/<&-O9&5486)L92P@,CDL
+M(&]P*3L-"B`@?0T*("`O+R!O<$YA;64@/2!.54Q,.PT*("`O+R!O<$-H87(@
+M/2!.54Q,.PT*("`O+R!O<"`]($Y53$P[#0H@("\O(&9R964H;W`I.PT*("`O
+M+R!C;VYF:7)M(&]P8V]D97,-"B`@+R\@4')I;G1(87-H*$]P8V]D951A8FQE
+G+"`R.2D[#0H@(&9C;&]S92AF9"D[#0H@(')E='5R;B`Q.PT*?0T*
+`
+end
+SHAR_EOF
+  (set 20 21 10 21 14 33 26 'src/opcodes.c'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/opcodes.c'
+if test $? -ne 0
+then ${echo} "restore of src/opcodes.c failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/opcodes.c': 'MD5 check failed'
+       ) << \SHAR_EOF
+975643c1d8e37892cfa84b6af05910f0  src/opcodes.c
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/opcodes.c'` -ne 1524 && \
+  ${echo} "restoration warning:  size of 'src/opcodes.c' is not 1524"
+  fi
+fi
+# ============= src/pass1.c ==============
+if test -n "${keep_file}" && test -f 'src/pass1.c'
+then
+${echo} "x - SKIPPING src/pass1.c (file already exists)"
+
+else
+${echo} "x - extracting src/pass1.c (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'src/pass1.c' &&
+#include "headers.h"
+SHAR_EOF
+  (set 20 21 10 21 14 33 26 'src/pass1.c'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/pass1.c'
+if test $? -ne 0
+then ${echo} "restore of src/pass1.c failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/pass1.c': 'MD5 check failed'
+       ) << \SHAR_EOF
+9631394cbb6156b1d194bf0cedf9d405  src/pass1.c
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/pass1.c'` -ne 21 && \
+  ${echo} "restoration warning:  size of 'src/pass1.c' is not 21"
+  fi
+fi
+# ============= src/record.c ==============
+if test -n "${keep_file}" && test -f 'src/record.c'
+then
+${echo} "x - SKIPPING src/record.c (file already exists)"
+
+else
+${echo} "x - extracting src/record.c (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'src/record.c' &&
+#include "headers.h"
+#define DEBUG 0
+X
+RECLIST *PushLinkREC(RECLIST *TAIL, char *storage) {
+#if DEBUG
+X  printf("PushLinkREC Called");
+#endif
+X  RECLIST *newlist = (RECLIST *)malloc(sizeof(RECLIST));
+X  memset(newlist, 0, sizeof(RECLIST));
+X  int size = strlen(storage);
+X  // allocate space to copy string to record
+X  newlist->record = malloc(size * sizeof(char));
+X  memset(newlist->record, '\0', size * sizeof(char));
+X  // copy contents of storage to record
+X  strncpy(newlist->record, storage, size);
+X  printf("\nPushed String is: %s", newlist->record);
+X  TAIL->next = newlist;
+X  newlist->next = NULL;
+X  return newlist;
+}
+X
+void ClearList(RECLIST *HEAD) {
+X  if (HEAD != NULL) {
+X    ClearList(HEAD->next);
+X    free(HEAD->record);
+X    free(HEAD->next);
+X  }
+X  return;
+}
+X
+char *RetrieveREC(RECLIST *HEAD) {
+X  RECLIST *current = HEAD;
+X  char *line = malloc(70 * sizeof(char));
+X  memset(line, '\0', 70 * sizeof(char));
+X  while (current != NULL) {
+X    strcat(line, current->record);
+X    printf("\nCurrent line value: %s", line);
+X    current = current->next;
+X  }
+X  ClearList(HEAD);
+X  return line;
+}
+X
+void PrintList(RECLIST *HEAD){
+X  RECLIST *current = HEAD;
+X  while(current != NULL){
+X    printf("\n%s", current->record);
+X    current = current->next;
+X  }
+}
+X
+void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize){
+X  printf("\ncreating new T Record");
+X  char beginning[10];
+X  sprintf(beginning, "T%06X", locCount);
+X  *rHEAD = *TAIL;
+X  *TAIL = PushLinkREC(*TAIL, beginning);
+X  *recSize = 0;
+}
+SHAR_EOF
+  (set 20 21 10 25 23 57 08 'src/record.c'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/record.c'
+if test $? -ne 0
+then ${echo} "restore of src/record.c failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/record.c': 'MD5 check failed'
+       ) << \SHAR_EOF
+9062de08825bd0f51cfd10fcb5fe72b6  src/record.c
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/record.c'` -ne 1497 && \
+  ${echo} "restoration warning:  size of 'src/record.c' is not 1497"
+  fi
+fi
+# ============= src/symbols.c ==============
+if test -n "${keep_file}" && test -f 'src/symbols.c'
+then
+${echo} "x - SKIPPING src/symbols.c (file already exists)"
+
+else
+${echo} "x - extracting src/symbols.c (text)"
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 src/symbols.c
+M(VEN8VQU9&4@(FAE861E<G,N:"(-"B-D969I;F4@1$5"54<@,`T*#0II;G0@
+M0VUP<D1I<BAC:&%R("I3>6UB;VPI.PT*:6YT($ES059A;&ED4WEM8F]L("AC
+M:&%R("I497-T4WEM8F]L*7L-"B`@("!I;G0@4F5S=6QT(#T@,3L-"B`@("!I
+M;G0@;6%X;&5N9W1H(#T@-CL-"@T*("`@("\O1&]E<R!3>6UB;VP@<W1A<G0@
+M=R\@86QP:&$@8VAA<F%C=&5R#0H@("`@:68@*"AI;G0I5&5S=%-Y;6)O;%LP
+M72`\(#8U('Q\("AI;G0I5&5S=%-Y;6)O;%LP72`^(#DP*7L-"B`@("`@("`@
+M4F5S=6QT(#T@,#L-"B`@("`@("`@<F5T=7)N(%)E<W5L=#L-"B`@("!]#0H@
+M("`@+R]C:&5C:R!T;R!S964@:68@:70G<R!A(&1I<F5C=&EV92!O;FQY(&EF
+M('1H92!F:7)S="!L971T97(@<W1A<G1S('1H92!S86UE(&%S(&]N90T*("`@
+M('-W:71C:"A497-T4WEM8F]L6S!=*7L-"B`@("`@("`@8V%S92`G0B<Z#0H@
+M("`@("`@(&-A<V4@)T4G.@T*("`@("`@("!C87-E("=2)SH-"B`@("`@("`@
+M8V%S92`G4R<Z#0H@("`@("`@(&-A<V4@)U<G.@T*("`@("`@("`@("`@4F5S
+M=6QT(#T@0VUP<D1I<BA497-T4WEM8F]L*3L-"B`@("`@("`@("`@(&EF("A2
+M97-U;'0@/"`P*2!R971U<FX@4F5S=6QT.PT*("`@("`@("`@("`@96QS92![
+M4F5S=6QT(#T@,3L@8G)E86L[?0T*("`@("`@("!D969A=6QT.@T*("`@("`@
+M("`@("`@8G)E86L[#0H@("`@?0T*("`@("\O=&5S="!3>6UB;VP@3&5N9W1H
+M#0H@("`@:6YT(&D@/2`P.PT*("`@('=H:6QE*"AI;G0I(%1E<W13>6UB;VQ;
+M:5T@(3T@)UPP)R!\?"!I(#X@-RE[#0H@("`@("`@('-W:71C:"@H:6YT*51E
+M<W13>6UB;VQ;:5TI>PT*("`@("`@("`@("`@8V%S92`S,CH@("\O4W!A8V4-
+M"B`@("`@("`@("`@("`@("!297-U;'0@/2`P.PT*("`@("`@("`@("`@("`@
+M(')E='5R;B!297-U;'0[#0H@("`@("`@("`@("!C87-E(#,V.B`@+R\D#0H@
+M("`@("`@("`@("`@("`@4F5S=6QT(#T@,#L-"B`@("`@("`@("`@("`@("!R
+M971U<FX@4F5S=6QT.PT*("`@("`@("`@("`@8V%S92`S,SH@("\O(0T*("`@
+M("`@("`@("`@("`@(%)E<W5L="`](#`[#0H@("`@("`@("`@("`@("`@<F5T
+M=7)N(%)E<W5L=#L-"B`@("`@("`@("`@(&-A<V4@-#`Z("`O+R@-"B`@("`@
+M("`@("`@("`@("!297-U;'0@/2`P.PT*("`@("`@("`@("`@("`@(')E='5R
+M;B!297-U;'0[#0H@("`@("`@("`@("!C87-E(#0Q.B`@+R\I#0H@("`@("`@
+M("`@("`@("`@4F5S=6QT(#T@,#L-"B`@("`@("`@("`@("`@("!R971U<FX@
+M4F5S=6QT.PT*("`@("`@("`@("`@8V%S92`T,SH@("\O*PT*("`@("`@("`@
+M("`@("`@(%)E<W5L="`](#`[#0H@("`@("`@("`@("`@("`@<F5T=7)N(%)E
+M<W5L=#L-"B`@("`@("`@("`@(&-A<V4@-#4Z("`O+RT-"B`@("`@("`@("`@
+M("`@("!297-U;'0@/2`P.PT*("`@("`@("`@("`@("`@(')E='5R;B!297-U
+M;'0[#0H@("`@("`@("`@("!C87-E(#8Q.B`@+R\]#0H@("`@("`@("`@("`@
+M("`@4F5S=6QT(#T@,#L-"B`@("`@("`@("`@("`@("!R971U<FX@4F5S=6QT
+M.PT*("`@("`@("`@("`@8V%S92`V-#H@("\O0`T*("`@("`@("`@("`@("`@
+M(%)E<W5L="`](#`[#0H@("`@("`@("`@("`@("`@<F5T=7)N(%)E<W5L=#L-
+M"B`@("`@("`@?0T*("`@("`@("!I*RL[#0H@("`@?0T*("`@("\O<')I;G1F
+M*")3=')I;F<@;&5N9W1H(&ES.B`E:2P@4F5S=6QT(&ES.B`E9"(L(&DL(%)E
+M<W5L="D[#0H@("`@:68@*&D@/B!M87AL96YG=&@I('M297-U;'0@/2`P.R!R
+M971U<FX@4F5S=6QT.WT-"B`@("!R971U<FX@4F5S=6QT.PT*?0T*#0II;G0@
+M0VUP<D1I<BAC:&%R("I3>6UB;VPI>PT*("`@(&-H87(@<ELT72`](")215,B
+M.PT*("`@(&EN="!T97-T4CL-"B`@("!S=VET8V@@*%-Y;6)O;%LP72E[#0H@
+M("`@("`@(&-A<V4G0B<Z("\O+3$-"B`@("`@("`@("`@(&EF("@A<W1R8VUP
+M*%-Y;6)O;"P@(D)95$4B*2D@<F5T=7)N("TQ.PT*("`@("`@("`@("`@96QS
+M92!R971U<FX@,3L-"B`@("`@("`@("`@("\O;W!E<F%N9"!I<R!C:&%R86-T
+M97(@;W(@:&5X861E8VEM86P@8V]N<W1A;G0-"B`@("`@("`@8V%S92=%)SH@
+M+R\M,B!A;F0@+3,-"B`@("`@("`@("`@('1E<W12(#T@<W1R8VUP*%-Y;6)O
+M;"P@(D5.1"(I.PT*("`@("`@("`@("`@+R]P<FEN=&8H(E!O<W-I8FQE($1I
+M<CH@)7,L('1E<W0@4F5S=6QT.B`E9%QN(BP@4WEM8F]L+"!T97-T4BD[#0H@
+M("`@("`@("`@("!I9B`H=&5S=%(@/3T@,"E[#0H@("`@("`@("`@("`@("`@
+M<F5T=7)N("TR.PT*("`@("`@("`@("`@?0T*("`@("`@("`@("`@=&5S=%(@
+M/2!S=')C;7`H4WEM8F]L+"`B15A03U)44R(I.PT*("`@("`@("`@("`@:68@
+M*'1E<W12(#T](#`I>PT*("`@("`@("`@("`@("`@(')E='5R;B`M,SL-"B`@
+M("`@("`@("`@("`@("`O+S,@8GET97,@<F5S97)V960-"B`@("`@("`@("`@
+M('T-"B`@("`@("`@("`@(')E='5R;B`Q.PT*("`@("`@("!C87-E("=2)SH@
+M+R\M-"P@+34L("TV#0H@("`@("`@("`@("!F;W(@*&EN="!I(#T@,#L@:2`\
+M(#,[(&DK*RE[#0H@("`@("`@("`@("`@("`@:68H4WEM8F]L6VE=(3UR6VE=
+M*2!R971U<FX@,3L-"B`@("`@("`@("`@('T-"B`@("`@("`@("`@('-W:71C
+M:"`H4WEM8F]L6S-=*7L-"B`@("`@("`@("`@("`@("!C87-E("=")SH-"B`@
+M("`@("`@("`@("`@("`@("`@:68@*%-Y;6)O;%LT72`]/2`G7#`G*7)E='5R
+M;B`M-#L-"B`@("`@("`@("`@("`@("`@("`@96QS92!R971U<FX@,3L-"B`@
+M("`@("`@("`@("`@("`@("`O+W)E<V5R=F4@;G5M(&)Y=&5S#0H@("`@("`@
+M("`@("`@("`@8V%S92`G4B<Z#0H@("`@("`@("`@("`@("`@("`@(&EF("A3
+M>6UB;VQ;-%T@/3T@)UPP)RER971U<FX@+34[#0H@("`@("`@("`@("`@("`@
+M("`@(&5L<V4@<F5T=7)N(#$[#0H@("`@("`@("`@("`@("`@("`@("\O<F5S
+M97)V92`S(&)Y=&5S(&]F(&UE;0T*("`@("`@("`@("`@("`@(&-A<V4@)U<G
+M.@T*("`@("`@("`@("`@("`@("`@("!I9B`H4WEM8F]L6S1=(#T]("=<,"<I
+M<F5T=7)N("TV.PT*("`@("`@("`@("`@("`@("`@("!E;'-E(')E='5R;B`Q
+M.PT*("`@("`@("`@("`@("`@("`@("`O+W)E<V5R=F4@;G5M('=O<F1S#0H@
+M("`@("`@("`@("`@("`@9&5F875L=#H-"B`@("`@("`@("`@("`@("`@("`@
+M8G)E86L[#0H@("`@("`@("`@("!]#0H@("`@("`@("`@("!R971U<FX@,3L-
+M"B`@("`@("`@8V%S92`G4R<Z("\O+3<-"B`@("`@("`@("`@('1E<W12(#T@
+M<W1R8VUP*%-Y;6)O;"P@(E-405)4(BD[#0H@("`@("`@("`@("!I9B`H=&5S
+M=%(@/3T@,"E[#0H@("`@("`@("`@("`@("`@<F5T=7)N("TW.PT*("`@("`@
+M("`@("`@?65L<V4@<F5T=7)N(#$[#0H@("`@("`@("`@("`O+VYE>'0@;W!E
+M<F%N9"!I<R!S=&%R="!A9&1R97-S#0H@("`@("`@(&-A<V4@)U<G.B`O+RTX
+M#0H@("`@("`@("`@("!T97-T4B`]('-T<F-M<"A3>6UB;VPL(")73U)$(BD[
+M#0H@("`@("`@("`@("!I9B`H=&5S=%(@/3T@,"E[#0H@("`@("`@("`@("`@
+M("`@<F5T=7)N("TX.PT*("`@("`@("`@("`@?65L<V4@<F5T=7)N(#$[#0H@
+M("`@("`@("`@("`O+S,@8GET97,-"@T*("`@('T-"B`@("!R971U<FX@,3L-
+M"GT-"@T*+R]R:7`@=VEN9&]W<RP@8G5T($D@9&]N)W0@=V%N="!T;R!D979E
+M;&]P('-E<G9E<BUS:61E#0II;G0@5F%L2$58*&-H87(J(&5V86PI>PT*("`@
+M(&EN="!I(#T@,#L-"B`@("!W:&EL92AE=F%L6VE=("$]("=<,"<I>PT*("`@
+M("`@("!I9B`H*&5V86Q;:5T@/CT@-#@@)B8@979A;%MI72`\/34W*2`@("`@
+M("\O,"TY#0H@("`@("`@("`@("!\?"AE=F%L6VE=(#X](#8U("8F(&5V86Q;
+M:5T@/#T@-S`I("`@+R]!+48-"B`@("`@("`@("`@('Q\*&5V86Q;:5T@/CT@
+M.3<@)B8@979A;%MI72`\/2`Q,#(I*2`O+V$M9@T*("`@("`@("![#0HC:68@
+M1$5"54<-"B`@("`@("`@("`@('!R:6YT9B@B7&YE=F%L6R5D72!I<SH@)6,B
+M+"!I+"!E=F%L6VE=*3L-"B-E;F1I9@T*("`@("`@("`@("`@:2LK.PT*("`@
+M("`@("`@("`@8V]N=&EN=64[#0H@("`@("`@('UE;'-E>PT*("`@("`@("`@
+M("`@<F5T=7)N(#`[("\O<F5T=7)N(#$@:68@:70@8G)E86MS(&AE>"!C;VYV
+M96YT:6]N#0H@("`@("`@('T-"B`@("!]#0H@("`@<F5T=7)N(#$[#0I]#0H-
+M"FEN="!C:&5C:T]V97)F;&]W*&EN="!C;W5N="E[#0H@("`@:68@*&-O=6YT
+M(#X](#!X.#`P,"E[#0H@("`@("`@("\O<')I;G1F*")<;D524D]2.B!,3T-!
+M5$E/3B`E>"!355)005-315,@4TE#($U%34]265QN(BP@8V]U;G0I.PT*("`@
+M("`@("!R971U<FX@,3L-"B`@("!]#0H@("`@<F5T=7)N(#`[#0I]#0IV;VED
+M($MI;&Q7:&ET94-H87(H8VAA<BH@979A;"E[#0H@("`@:6YT(&D@/2`P.PT*
+M("`@('=H:6QE("AE=F%L6VE=("$]("=<,"<I>PT*(VEF($1%0E5'#0H@("`@
+M("`@('!R:6YT9B@B7&Y#:&%R.B`E8R(L(&5V86Q;:5TI.PT*(V5N9&EF#0H@
+M("`@("`@(&EF("@A*"AE=F%L6VE=(#X](#0X("8F(&5V86Q;:5T@/#TU-RD@
+M("`@("`O+S`M.0T*("`@("`@("`@("`@?'PH979A;%MI72`^/2`V-2`F)B!E
+M=F%L6VE=(#P](#DP*2`@("\O02U&#0H@("`@("`@("`@("!\?"AE=F%L6VE=
+M(#X](#DW("8F(&5V86Q;:5T@/#T@,3(R*2DI>R`O+V$M9@T*("`@("`@("`@
+M("`@979A;%MI72`]("=<,"<[#0H@("`@("`@("`@("!B<F5A:SL-"B`@("`@
+M("`@?0T*("`@("`@("!I*RL[#0H@("`@?0T*("`@(')E='5R;CL-"GT-"B\O
+M9F]U;F0@;W5T(')E9V5X(&ES(&%C='5A;&QY('-L;W=E<B!T:&%N(&]R:6=I
+M;F%L(&EM<&QE;65N=&%I=&]N#0HO*@T*:6YT(%9A;$A%6')E9RAC:&%R*B!E
+M=F%L*7L-"B`@("!S=&%T:6,@<F5G97A?="H@<F5G97@[#0H@("`@<F5G97@@
+M/2!M86QL;V,H<VEZ96]F*')E9V5X7W0I*3L-"B`@("!M96US970H<F5G97@L
+M(#`L('-I>F5O9BAR96=E>%]T*2D[#0H@("`@<F5G;V9F7W0@;V9F+"!L96X[
+M#0H@("`@<W1A=&EC(&-H87(@*F-O;G-T($AE>%!A='1E<FX@/2`B*%Q<9"I;
+M82UF72HI*WPH7%QD?%MA+69=*2([#0H@("`@:68@*')E9V5X(#T]($Y53$PI
+M>PT*("`@("`@("!I9BAR96=C;VUP*')E9V5X+"!(97A0871T97)N+"!214=?
+M24-!4T4I*2![#0H@("`@("`@("`@("!P<FEN=&8H(D524D]2.B!(15@@4$%4
+M5$52($-/35!)3$%424].($9!24Q%1"(I.PT*("`@("`@("`@("`@<F5T=7)N
+M(#$[#0H@("`@("`@('T-"B`@("!]#0H@("`@<F5G;6%T8VA?="!P;6%T8VA;
+M,5T[#0H@("`@:68H<F5G97AE8RAR96=E>"P@979A;"P@,2P@<&UA=&-H+"`P
+M*2E[#0H@("`@("`@(')E='5R;B`P.PT*("`@('T-"B`@("`O+V]F9B`]('!M
+M871C:%LP72YR;5]S;R`K("AE=F%L("T@*3L-"B`@("!R96=F<F5E*')E9V5X
+M*3L@+R]F<F5E('1H92!C;VUP:6QE9"!M96UO<GD@8G5F9F5R#0H@("`@<F5T
+-=7)N(#`[#0I]*B\-"B!C
+`
+end
+SHAR_EOF
+  (set 20 21 10 21 14 33 26 'src/symbols.c'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/symbols.c'
+if test $? -ne 0
+then ${echo} "restore of src/symbols.c failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/symbols.c': 'MD5 check failed'
+       ) << \SHAR_EOF
+72541d855c45177f76b002dfe613dcae  src/symbols.c
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/symbols.c'` -ne 5413 && \
+  ${echo} "restoration warning:  size of 'src/symbols.c' is not 5413"
+  fi
+fi
+# ============= src/tree.c ==============
+if test -n "${keep_file}" && test -f 'src/tree.c'
+then
+${echo} "x - SKIPPING src/tree.c (file already exists)"
+
+else
+${echo} "x - extracting src/tree.c (text)"
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 src/tree.c
+M(VEN8VQU9&4@(FAE861E<G,N:"(-"@T*5%)%12`J<F]O=#L-"@T*:6YT(%!U
+M<VA,96%F*%-934)/3"!L96%F*2![#0H@(%12144@*FYE=TYO9&4[#0H@(&EN
+M="!C;7!R.PT*("!N97=.;V1E(#T@*%12144@*BEM86QL;V,H<VEZ96]F*%12
+M144I*3L-"B`@;F5W3F]D92T^;F]D92`](&QE868[#0H-"B`@:68@*')O;W0@
+M/3T@3E5,3"D@>PT*("`@(')O;W0@/2!N97=.;V1E.PT*("`@(&YE=TYO9&4M
+M/FQE9G0@/2!.54Q,.PT*("`@(&YE=TYO9&4M/G)I9VAT(#T@3E5,3#L-"B`@
+M("!R971U<FX@,3L-"B`@?2!E;'-E('L-"B`@("!44D5%("IC=7(@/2!R;V]T
+M.PT*("`@(%12144@*G!A<CL-"B`@("!I;G0@97AI="`](#`[#0H@("`@=VAI
+M;&4@*"%E>&ET*2![#0H@("`@("!P87(@/2!C=7([#0H@("`@("`O+R!R=6X@
+M8V]M<&%R92!O9B!N97=.;V1E(&%G86EN<W0@8W5R<F5N=`T*("`@("`@8VUP
+M<B`]('-T<F-M<"AN97=.;V1E+3YN;V1E+DYA;64L(&-U<BT^;F]D92Y.86UE
+M*3L-"B`@("`@("\O(&=O=&\@<FEG:'0@;F]D90T*("`@("`@:68@*&-M<'(@
+M/B`P*2![#0H@("`@("`@(&-U<B`](&-U<BT^<FEG:'0[#0H@("`@("`@(&EF
+M("AC=7(@/3T@3E5,3"D@>PT*("`@("`@("`@('!A<BT^<FEG:'0@/2!N97=.
+M;V1E.PT*("`@("`@("`@(')E='5R;B`P.PT*("`@("`@("!]#0H@("`@("!]
+M(&5L<V4@:68@*&-M<'(@/"`P*2![#0H@("`@("`@(&-U<B`](&-U<BT^;&5F
+M=#L-"B`@("`@("`@:68@*&-U<B`]/2!.54Q,*2![#0H@("`@("`@("`@<&%R
+M+3YL969T(#T@;F5W3F]D93L-"B`@("`@("`@("!R971U<FX@,#L-"B`@("`@
+M("`@?0T*("`@("`@?2!E;'-E('L@+R\@97)R;W(@8V%S90T*("`@("`@("`O
+M+R!P<FEN=&8H(EQN15)23U(Z($154$Q)0T%412!364U"3TP@7"(E<UPB7&XB
+M+"!N97=.;V1E+3YN;V1E+DYA;64I.PT*("`@("`@("!R971U<FX@,3L-"B`@
+M("`@('T-"B`@("!]#0H@('T-"B`@<F5T=7)N(#`[#0I]#0H-"E-934)/3"!&
+M:6YD4WEM8F]L*&-H87(@*FQE868I('L-"B`@5%)%12`J8W5R(#T@<F]O=#L-
+M"B`@:6YT('1E<W0@/2`Q.PT*("!W:&EL92`H=&5S="`A/2`P*2![#0H@("`@
+M=&5S="`]('-T<F-M<"AL96%F+"!C=7(M/FYO9&4N3F%M92D[#0H@("`@:68@
+M*'1E<W0@(3T@,"D@>PT*("`@("`@:68@*'1E<W0@/"`P*2![#0H@("`@("`@
+M(&-U<B`](&-U<BT^;&5F=#L-"B`@("`@('T@96QS92!I9B`H=&5S="`^(#`I
+M('L-"B`@("`@("`@8W5R(#T@8W5R+3YR:6=H=#L-"B`@("`@('T-"B`@("!]
+M(&5L<V4-"B`@("`@(&)R96%K.PT*("!]#0H@(')E='5R;B!C=7(M/FYO9&4[
+M#0I]#0H-"FEN="!0<FEN=%1R964H*2![#0H@(%1R879E<G-);D]R9&5R*')O
+M;W0I.PT*("!R971U<FX@,#L-"GT-"@T*5%)%12`J5')A=F5R<TEN3W)D97(H
+M5%)%12`J;&]C86Q2;V]T*2![#0H@(&EF("AL;V-A;%)O;W0@(3T@3E5,3"D@
+M>PT*("`@(%1R879E<G-);D]R9&5R*&QO8V%L4F]O="T^;&5F="D[#0H@("`@
+M<')I;G1F*")<;B5S7'0E>"(L(&QO8V%L4F]O="T^;F]D92Y.86UE+"!L;V-A
+M;%)O;W0M/FYO9&4N061D<F5S<RD[#0H@("`@5')A=F5R<TEN3W)D97(H;&]C
+M86Q2;V]T+3YR:6=H="D[#0H@('T-"B`@<F5T=7)N(&QO8V%L4F]O=#L-"GT-
+J"@T*5%)%12`J9V5T5&ET;&5.;V1E*"D@>R!R971U<FX@<F]O=#L@?0T*
+`
+end
+SHAR_EOF
+  (set 20 21 10 21 14 33 26 'src/tree.c'
+   eval "${shar_touch}") && \
+  chmod 0644 'src/tree.c'
+if test $? -ne 0
+then ${echo} "restore of src/tree.c failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'src/tree.c': 'MD5 check failed'
+       ) << \SHAR_EOF
+90d4b2a9a076442428d8e3a7b87b73e5  src/tree.c
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'src/tree.c'` -ne 1662 && \
+  ${echo} "restoration warning:  size of 'src/tree.c' is not 1662"
+  fi
+fi
+# ============= makefile ==============
+if test -n "${keep_file}" && test -f 'makefile'
+then
+${echo} "x - SKIPPING makefile (file already exists)"
+
+else
+${echo} "x - extracting makefile (text)"
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 makefile
+M=G!A=&@@)2YC('-R8PT*=G!A=&@@)2YO(&)I;@T*0T,@/2!G8V,@+5=A;&P@
+M+4\P("UC("UG,R`M9V=D8C,-"G!R;VIE8W0Q.B!M86EN+F\@<WEM8F]L<RYO
+M(&QI<W0N;R!T<F5E+F\@;W!C;V1E<RYO(&AA<V@N;R!R96-O<F0N;R!S<F,O
+M:&5A9&5R<RYH#0H)9V-C("U786QL("UG,R`M9V=D8C,@+6\@<')O:F5C=#$@
+M)%X-"@T*;6%I;BYO.B!M86EN+F,@<W)C+VAE861E<G,N:`T*"20H0T,I("1>
+M#0H-"G-Y;6)O;',N;SH@<WEM8F]L<RYC('-R8R]H96%D97)S+F@-"@DD*$-#
+M*2`D7@T*#0IL:7-T+F\Z(&QI<W0N8R!S<F,O:&5A9&5R<RYH#0H))"A#0RD@
+M)%X-"@T*=')E92YO.B!T<F5E+F,@<W)C+VAE861E<G,N:`T*"20H0T,I("1>
+M#0H-"F]P8V]D97,N;SH@;W!C;V1E<RYC('-R8R]H96%D97)S+F@-"@DD*$-#
+M*2`D7@T*#0IH87-H+F\Z(&AA<V@N8R!S<F,O:&5A9&5R<RYH#0H))"A#0RD@
+M)%X-"@T*<F5C;W)D+F\Z(')E8V]R9"YC('-R8R]H96%D97)S+F@-"@DD*$-#
+M*2`D7@T*#0IC;&5A;CH-"@ER;2`J+F\@8FEN+RHN;R`M9@T*"71O=6-H('-R
+M8R\J+F,-"@ER;2!P<F]J96-T,2`M9@T*"7)M("HN<VEC#0H)<FT@9W)A9&4-
+!"B\J
+`
+end
+SHAR_EOF
+  (set 20 21 10 21 14 33 26 'makefile'
+   eval "${shar_touch}") && \
+  chmod 0644 'makefile'
+if test $? -ne 0
+then ${echo} "restore of makefile failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'makefile': 'MD5 check failed'
+       ) << \SHAR_EOF
+c0bc6e9e160c405c77e9f6f4705d805e  makefile
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'makefile'` -ne 586 && \
+  ${echo} "restoration warning:  size of 'makefile' is not 586"
+  fi
+fi
+# ============= SIC_Instructions.csv ==============
+if test -n "${keep_file}" && test -f 'SIC_Instructions.csv'
+then
+${echo} "x - SKIPPING SIC_Instructions.csv (file already exists)"
+
+else
+${echo} "x - extracting SIC_Instructions.csv (text)"
+  sed 's/^X//' << 'SHAR_EOF' | uudecode &&
+begin 600 SIC_Instructions.csv
+M[[N_36YE;6]N:6,L07)G<RQ&;W)M870L3W!C;V1E#0I!1$0L;2PS+S0L,3@-
+M"D%.1"QM+#,O-"PT,`T*0T]-4"QM+#,O-"PR.`T*1$E6+&TL,R\T+#(T#0I*
+M+&TL,R\T+#-##0I*15$L;2PS+S0L,S`-"DI'5"QM+#,O-"PS-`T*2DQ4+&TL
+M,R\T+#,X#0I*4U5"+&TL,R\T+#0X#0I,1$$L;2PS+S0L,#`-"DQ$0T@L;2PS
+M+S0L-3`-"DQ$3"QM+#,O-"PP.`T*3$18+&TL,R\T+#`T#0I-54PL;2PS+S0L
+M,C`-"D]2+&TL,R\T+#0T#0I21"QM+#,O-"Q$.`T*4E-50BQN+V$L,R\T+#1#
+M#0I35$$L;2PS+S0L,$,-"E-40T@L;2PS+S0L-30-"E-43"QM+#,O-"PQ-`T*
+M4U135RQM+#,O-"Q%.`T*4U18+&TL,R\T+#$P#0I354(L;2PS+S0L,4,-"E1$
+F+&TL,R\T+$4P#0I425@L;2PS+S0L,D,-"E=$+&TL,R\T+$1##0HL
+`
+end
+SHAR_EOF
+  (set 20 21 10 21 14 33 26 'SIC_Instructions.csv'
+   eval "${shar_touch}") && \
+  chmod 0644 'SIC_Instructions.csv'
+if test $? -ne 0
+then ${echo} "restore of SIC_Instructions.csv failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'SIC_Instructions.csv': 'MD5 check failed'
+       ) << \SHAR_EOF
+fc33fbfb1692142cf167d418e9bbc298  SIC_Instructions.csv
+SHAR_EOF
+
+else
+test `LC_ALL=C wc -c < 'SIC_Instructions.csv'` -ne 398 && \
+  ${echo} "restoration warning:  size of 'SIC_Instructions.csv' is not 398"
+  fi
+fi
+if rm -fr ${lock_dir}
+then ${echo} "x - removed lock directory ${lock_dir}."
+else ${echo} "x - failed to remove lock directory ${lock_dir}."
+     exit 1
+fi
+exit 0

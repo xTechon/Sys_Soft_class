@@ -1,0 +1,344 @@
+diff -u -i turnin/src/main.c patch/src/main.c
+--- src/main.c	2021-10-25 23:57:08.000000000 -0400
++++ src/main.c	2021-11-09 11:31:05.000000000 -0500
+@@ -143,8 +143,8 @@
+     // printf("\nLocation is: %x\n", locCount);
+   }
+   // Print out the Symbol Table
+-   PrintTree();
+-   printf("\n");
++  // PrintTree();
++  // printf("\n");
+ 
+   printf("\nFinish Pass 1");
+   // Pass 2
+@@ -167,7 +167,7 @@
+ 
+   // Relative head for record list (starts at new lines)
+   RECLIST *rHEAD = NULL; //= (RECLIST *)malloc(sizeof(RECLIST));
+-  //memset(rHEAD, 0, sizeof(RECLIST));
++  // memset(rHEAD, 0, sizeof(RECLIST));
+ 
+   // end of the linked list
+   RECLIST *TAIL = (RECLIST *)malloc(sizeof(RECLIST));
+@@ -202,12 +202,12 @@
+   HEAD->record = RetrieveREC(HEAD);
+ 
+   // Terminate Header record
+-  //TAIL = PushLinkREC(HEAD, "\n");
++  // TAIL = PushLinkREC(HEAD, "\n");
+ 
+   printf("\nH Record is:\n%s\n", HEAD->record);
+ 
+   while (fgets(line, 1024, fp) != NULL) {
+-    //printf("\n%s", line);
++    // printf("\n%s", line);
+     lCount++;
+     // Take comments out of the output
+     if (line[0] == 35) {
+@@ -230,52 +230,51 @@
+     dirTrack = CmprDir(nextToken);
+     // itterate through dirTrack
+     if (dirTrack < 0) {
+-      int test = Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument,
+-                     sym, 0);
+-      //printf("\nTest is: %d", test);
++      int test = Directives(dirTrack, &lCount, &locCount, nextToken, operand,
++                            argument, sym, 0);
++      // printf("\nTest is: %d", test);
+       if (test == 1) {
+         printf("\nclosing program");
+         fclose(fp);
+         exit(0);
+-      }else if(test == -1){
++      } else if (test == -1) {
+         printf("\nstarting word");
+         // case for a word
+-        //operand = strtok(nextToken, " \t\n");
++        // operand = strtok(nextToken, " \t\n");
+         operand = strtok(NULL, " \t");
+-        //KillWhiteChar(operand);
++        // KillWhiteChar(operand);
+         printf("\nOperand is: %s", operand);
+-        if (rHEAD == NULL){
++        if (rHEAD == NULL) {
+           Relative(&rHEAD, &TAIL, locCount, &recSize);
+-          printf("\nrHead is at %s")
++          printf("\nrHead is at %s", rHEAD->record);
+         }
+-        if(recSize <= 27){
++        if (recSize <= 27) {
+           char i[7];
+           sprintf(i, "%06X", atoi(operand));
+           TAIL = PushLinkREC(TAIL, i);
+           recSize += 3;
+-        }
+-        else if (recSize > 27){
+-          //create a temp to hold the record size
++        } else if (recSize > 27) {
++          // create a temp to hold the record size
+           RECLIST temp;
+-          temp.record = malloc(3*sizeof(char));
+-          memset(temp.record, '\0', 3*sizeof(char));
+-          //insert the temp into the list after record start address
++          temp.record = malloc(3 * sizeof(char));
++          memset(temp.record, '\0', 3 * sizeof(char));
++          // insert the temp into the list after record start address
+           temp.next = rHEAD->next;
+           rHEAD->next = &temp;
+-          //enter in the record size
++          // enter in the record size
+           sprintf(temp.record, "%2X", recSize);
+-          //combine and clear space
++          // combine and clear space
+           rHEAD->record = RetrieveREC(rHEAD);
+-          //create a new tail
+-          //TAIL = PushLinkREC(rHEAD, "\n");
++          // create a new tail
++          // TAIL = PushLinkREC(rHEAD, "\n");
+           TAIL = rHEAD;
+-          //reset the rHEAD
++          // reset the rHEAD
+           rHEAD = NULL;
+         }
+       }
+-      //BYTE case
+-      else if(test == -2){
+-        if (rHEAD == NULL){
++      // BYTE case
++      else if (test == -2) {
++        if (rHEAD == NULL) {
+           Relative(&rHEAD, &TAIL, locCount, &recSize);
+         }
+         operand = strtok(NULL, "#\n");
+@@ -299,27 +298,26 @@
+               i++;
+             }
+             i /= 2;
+-            if (recSize < 27){
++            if (recSize < 27) {
+               char x[7];
+               sprintf(x, "%X", j);
+               TAIL = PushLinkREC(TAIL, x);
+-            }
+-            else if(recSize >= 27){
+-              //create a temp to hold the record size
++            } else if (recSize >= 27) {
++              // create a temp to hold the record size
+               RECLIST temp;
+-              temp.record = malloc(3*sizeof(char));
+-              memset(temp.record, '\0', 3*sizeof(char));
+-              //insert the temp into the list after record start address
++              temp.record = malloc(3 * sizeof(char));
++              memset(temp.record, '\0', 3 * sizeof(char));
++              // insert the temp into the list after record start address
+               temp.next = rHEAD->next;
+               rHEAD->next = &temp;
+-              //enter in the record size
++              // enter in the record size
+               sprintf(temp.record, "%2X", recSize);
+-              //combine and clear space
++              // combine and clear space
+               rHEAD->record = RetrieveREC(rHEAD);
+-              //create a new tail
+-              //TAIL = PushLinkREC(rHEAD, "\n");
++              // create a new tail
++              // TAIL = PushLinkREC(rHEAD, "\n");
+               TAIL = rHEAD;
+-              //reset the rHEAD
++              // reset the rHEAD
+               rHEAD = NULL;
+             }
+             recSize += i;
+@@ -329,39 +327,40 @@
+         } else if (operand[0] == 'C') {
+           strtok(operand, "'");
+           argument = strtok(NULL, "'");
+-          //printf("\nArgument is: %s", argument);
++          // printf("\nArgument is: %s", argument);
+           int i = 0;
+ #if DEBUG
+           printf("\nCHARACTER CONSTANT: %s", argument);
+ #endif
+           while (argument[i] != '\0') {
+-            //just in case the constant overflows
+-            if (rHEAD == NULL){
+-              Relative(&rHEAD, &TAIL, (locCount+i), &recSize);
++            // just in case the constant overflows
++            if (rHEAD == NULL) {
++              Relative(&rHEAD, &TAIL, (locCount + i), &recSize);
+             }
+-            //put the character into the list
+-            if (recSize < 28){
+-              char c[3]; //to store character as hex
+-              sprintf(c, "%2X", argument[i]); //convert character value into hex value
++            // put the character into the list
++            if (recSize < 28) {
++              char c[3]; // to store character as hex
++              sprintf(c, "%2X",
++                      argument[i]); // convert character value into hex value
+               TAIL = PushLinkREC(TAIL, c);
+-              recSize+= 1;
+-            }else if (recSize >= 28){
++              recSize += 1;
++            } else if (recSize >= 28) {
+               printf("\nactivate wrap");
+-              //create a temp to hold the record size
++              // create a temp to hold the record size
+               RECLIST *temp = malloc(sizeof(RECLIST));
+-              temp->record = malloc(3*sizeof(char));
+-              memset(temp->record, '\0', 3*sizeof(char));
+-              //insert the temp into the list after record start address
++              temp->record = malloc(3 * sizeof(char));
++              memset(temp->record, '\0', 3 * sizeof(char));
++              // insert the temp into the list after record start address
+               temp->next = rHEAD->next;
+               rHEAD->next = temp;
+-              //enter in the record size
++              // enter in the record size
+               sprintf(temp->record, "%2X", recSize);
+-              //combine and clear space
++              // combine and clear space
+               rHEAD->record = RetrieveREC(rHEAD);
+-              //create a new tail
+-              //TAIL = PushLinkREC(rHEAD, "\n");
++              // create a new tail
++              // TAIL = PushLinkREC(rHEAD, "\n");
+               TAIL = rHEAD;
+-              //reset the rHEAD
++              // reset the rHEAD
+               rHEAD = NULL;
+             }
+             i++;
+@@ -373,41 +372,41 @@
+         }
+       }
+     }
+-      // Where the records get created
++    // Where the records get created
+     else if (hashtemp != NULL) {
+-//#if DEBUG
+-      printf("\n\"%s\" is an OPCODE", nextToken);
+-//#endif
++      //#if DEBUG
++      // printf("\n\"%s\" is an OPCODE", nextToken);
++      //#endif
+       operand = strtok(NULL, " ,\t");
+       KillWhiteChar(operand);
+-      //get the symbol
++      // get the symbol
+       sym = FindSymbol(operand);
+-//#if DEBUG
+-      printf("\nOPCODE OPERAND: %s", operand);
+-//#endif
+-      if (rHEAD == NULL){
++      //#if DEBUG
++      // printf("\nOPCODE OPERAND: %s", operand);
++      //#endif
++      if (rHEAD == NULL) {
+         Relative(&rHEAD, &TAIL, locCount, &recSize);
+-      }else if (recSize < 27){
++      } else if (recSize < 27) {
+         char instruct[7];
+         sprintf(instruct, "%2X%04X", hashtemp->OpCode, sym.Address);
+         TAIL = PushLinkREC(TAIL, instruct);
+         recSize += 3;
+-      }else if (recSize >= 27){
+-        //create a temp to hold the record size
++      } else if (recSize >= 27) {
++        // create a temp to hold the record size
+         RECLIST temp;
+-        temp.record = malloc(3*sizeof(char));
+-        memset(temp.record, '\0', 3*sizeof(char));
+-        //insert the temp into the list after record start address
++        temp.record = malloc(3 * sizeof(char));
++        memset(temp.record, '\0', 3 * sizeof(char));
++        // insert the temp into the list after record start address
+         temp.next = rHEAD->next;
+         rHEAD->next = &temp;
+-        //enter in the record size
++        // enter in the record size
+         sprintf(temp.record, "%2X", recSize);
+-        //combine and clear space
++        // combine and clear space
+         rHEAD->record = RetrieveREC(rHEAD);
+-        //create a new tail
+-        //TAIL = PushLinkREC(rHEAD, "\n");
++        // create a new tail
++        // TAIL = PushLinkREC(rHEAD, "\n");
+         TAIL = rHEAD;
+-        //reset the rHEAD
++        // reset the rHEAD
+         rHEAD = NULL;
+       }
+       locCount += 3;
+@@ -419,21 +418,21 @@
+   }
+ 
+   printf("\nrecSize is %d", recSize);
+-  if (rHEAD != NULL){
++  if (rHEAD != NULL) {
+     RECLIST temp;
+-    temp.record = malloc(3*sizeof(char));
+-    memset(temp.record, '\0', 3*sizeof(char));
+-    //insert the temp into the list after record start address
++    temp.record = malloc(3 * sizeof(char));
++    memset(temp.record, '\0', 3 * sizeof(char));
++    // insert the temp into the list after record start address
+     temp.next = rHEAD->next;
+     rHEAD->next = &temp;
+-    //enter in the record size
++    // enter in the record size
+     sprintf(temp.record, "%2X", recSize);
+-    //combine and clear space
++    // combine and clear space
+     rHEAD->record = RetrieveREC(rHEAD);
+-    //create a new tail
+-    //TAIL = PushLinkREC(rHEAD, "\n");
++    // create a new tail
++    // TAIL = PushLinkREC(rHEAD, "\n");
+     TAIL = rHEAD;
+-    //reset the rHEAD
++    // reset the rHEAD
+     rHEAD = NULL;
+   }
+   PrintList(HEAD);
+@@ -466,7 +465,7 @@
+ #endif
+   switch (dirTrack) {
+   case -1: // BYTE
+-    if (flag == 1){
++    if (flag == 1) {
+       operand = strtok(NULL, "#\n");
+ #if DEBUG
+       printf("\nBYTE OPERAND: %s", operand);
+@@ -517,8 +516,8 @@
+         ELMSG(*lCount, *locCount) return 1;
+       }
+       return 0;
+-    }
+-    else return -2;
++    } else
++      return -2;
+   case -2: // END
+     operand = strtok(NULL, "#\n");
+     if (checkOverflow(*locCount)) {
+@@ -568,7 +567,7 @@
+     }
+     return 0;
+   case -8: // WORD
+-    if (flag == 1){
++    if (flag == 1) {
+       operand = strtok(NULL, "#\n");
+       int i = atoi(operand);
+       if (i > 8388608 || i < -8388608) {
+@@ -579,8 +578,7 @@
+         ELMSG(*lCount, *locCount) exit(0);
+       }
+       return 0;
+-    }
+-    else if (flag == 0){
++    } else if (flag == 0) {
+       *locCount += 3;
+       return -1;
+     }
