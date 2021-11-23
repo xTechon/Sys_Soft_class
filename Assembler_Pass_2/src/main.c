@@ -193,12 +193,13 @@ int main(int argc, char *argv[]) {
   recSize += 6;
 
   // Combine header record into head
-  HEAD->record = RetrieveREC(HEAD);
+  //HEAD->record = RetrieveREC(HEAD);
 
   // Terminate Header record
-  // TAIL = PushLinkREC(HEAD, "\n");
+  TAIL = PushLinkREC(TAIL, "\n");
 
-  printf("\nH Record is:\n%s\n", HEAD->record);
+  printf("\nH Record is:\n");
+  PrintList(HEAD);
 
   while (fgets(line, 1024, fp) != NULL) {
     // printf("\n%s", line);
@@ -257,7 +258,7 @@ int main(int argc, char *argv[]) {
           // enter in the record size
           sprintf(temp.record, "%02X", recSize);
           // combine and clear space
-          rHEAD->record = RetrieveREC(rHEAD);
+          //rHEAD->record = RetrieveREC(rHEAD);
           // create a new tail
           // TAIL = PushLinkREC(rHEAD, "\n");
           TAIL = rHEAD;
@@ -306,7 +307,7 @@ int main(int argc, char *argv[]) {
               // enter in the record size
               sprintf(temp.record, "%02X", recSize);
               // combine and clear space
-              rHEAD->record = RetrieveREC(rHEAD);
+              //rHEAD->record = RetrieveREC(rHEAD);
               // create a new tail
               // TAIL = PushLinkREC(rHEAD, "\n");
               TAIL = rHEAD;
@@ -348,7 +349,7 @@ int main(int argc, char *argv[]) {
               // enter in the record size
               sprintf(temp->record, "%2X", recSize);
               // combine and clear space
-              rHEAD->record = RetrieveREC(rHEAD);
+              //rHEAD->record = RetrieveREC(rHEAD);
               // create a new tail
               // TAIL = PushLinkREC(rHEAD, "\n");
               TAIL = rHEAD;
@@ -378,28 +379,41 @@ int main(int argc, char *argv[]) {
       //#endif
       if (rHEAD == NULL) {
         Relative(&rHEAD, &TAIL, locCount, &recSize);
+        //printf("\nrHEAD in out of funct: %s", rHEAD->record);
+        //printf("\nTAIL in out of funct: %s", TAIL->record);
+        PrintList(HEAD);
       } else if (recSize < 27) {
         char instruct[7];
         sprintf(instruct, "%02X%04X", hashtemp->OpCode, sym.Address);
         TAIL = PushLinkREC(TAIL, instruct);
         recSize += 3;
       } else if (recSize >= 27) {
+        InsertLength(&rHEAD, &TAIL, recSize);
+        PrintList(HEAD);
+        /*
         // create a temp to hold the record size
         RECLIST temp;
         temp.record = malloc(3 * sizeof(char));
         memset(temp.record, '\0', 3 * sizeof(char));
         // insert the temp into the list after record start address
-        temp.next = rHEAD->next;
-        rHEAD->next = &temp;
+        printf("\nrHEAD in out of funct: %s", rHEAD->record);
+        printf("\nTAIL in out of funct: %s", TAIL->record);
+        printf("\nrHEAD->next is: %s", rHEAD->next->record);
         // enter in the record size
         sprintf(temp.record, "%02X", recSize);
+        printf("\ntemp.record is now: %s", temp.record);
+        temp.next = rHEAD->next;
+        printf("\ntemp.next is now: %s", temp.next->record);
+        rHEAD->next = &temp;
+        printf("\nrHEAD-> is now: %s", rHEAD->next->record);
         // combine and clear space
-        rHEAD->record = RetrieveREC(rHEAD);
+        //rHEAD->record = RetrieveREC(rHEAD);
         // create a new tail
-        // TAIL = PushLinkREC(rHEAD, "\n");
-        TAIL = rHEAD;
+        TAIL = PushLinkREC(TAIL, "\n");
+        PrintList(HEAD);
         // reset the rHEAD
         rHEAD = NULL;
+        */
       }
       locCount += 3;
     } else {
@@ -420,7 +434,7 @@ int main(int argc, char *argv[]) {
     // enter in the record size
     sprintf(temp.record, "%02X", recSize);
     // combine and clear space
-    rHEAD->record = RetrieveREC(rHEAD);
+    //rHEAD->record = RetrieveREC(rHEAD);
     // create a new tail
     // TAIL = PushLinkREC(rHEAD, "\n");
     TAIL = rHEAD;
@@ -431,6 +445,16 @@ int main(int argc, char *argv[]) {
   fclose(fp);
   exit(0);
 }
+
+
+
+
+
+
+
+
+
+
 
 // testing mode to skip normal program runtime behavior
 int TestMode() {
