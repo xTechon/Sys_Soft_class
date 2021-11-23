@@ -31,13 +31,13 @@ void ClearList(RECLIST *HEAD) {
 char *RetrieveREC(RECLIST *HEAD) {
   RECLIST *current = HEAD;
   char *line = malloc(70 * sizeof(char));
-  //memset(line, '\0', 70 * sizeof(char));
+  // memset(line, '\0', 70 * sizeof(char));
   while (current != NULL) {
     strcat(line, current->record);
     printf("\nCurrent line value: %s", line);
     current = current->next;
   }
-  //ClearList(HEAD);
+  // ClearList(HEAD);
   return line;
 }
 
@@ -61,17 +61,17 @@ void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize) {
   *recSize = 0;
 }
 
-void InsertLength(RECLIST **rHEAD, RECLIST **TAIL, int recSize){
+void InsertLength(RECLIST **rHEAD, RECLIST **TAIL, int recSize) {
   RECLIST *size = (RECLIST *)malloc(sizeof(RECLIST));
   memset(size, 0, sizeof(RECLIST));
-  size->record = malloc(3*sizeof(char));
+  size->record = malloc(3 * sizeof(char));
   memset(size->record, '\0', 3 * sizeof(char));
-        printf("\nrHEAD in out of funct: %s", (*rHEAD)->record);
-        printf("\nTAIL in out of funct: %s", (*TAIL)->record);
-        printf("\nrHEAD->next is: %s", (*rHEAD)->next->record);
+  printf("\nrHEAD in InsertLength: %s", (*rHEAD)->record);
+  printf("\nTAIL in InsertLength: %s", (*TAIL)->record);
+  printf("\nrHEAD->next is: %s", (*rHEAD)->next->record);
   sprintf(size->record, "%02X", recSize);
   size->next = (*rHEAD)->next;
   (*rHEAD)->next = size;
   *TAIL = PushLinkREC(*TAIL, "\n");
-  rHEAD = NULL;
+  *rHEAD = NULL;
 }

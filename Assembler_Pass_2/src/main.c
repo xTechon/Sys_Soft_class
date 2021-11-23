@@ -379,15 +379,19 @@ int main(int argc, char *argv[]) {
       //#endif
       if (rHEAD == NULL) {
         Relative(&rHEAD, &TAIL, locCount, &recSize);
+        char instruct[7];
+        sprintf(instruct, "%02X%04X", hashtemp->OpCode, sym.Address);
+        TAIL = PushLinkREC(TAIL, instruct);
         //printf("\nrHEAD in out of funct: %s", rHEAD->record);
         //printf("\nTAIL in out of funct: %s", TAIL->record);
+        recSize += 3;
         PrintList(HEAD);
-      } else if (recSize < 27) {
+      } else if (recSize <= 27) {
         char instruct[7];
         sprintf(instruct, "%02X%04X", hashtemp->OpCode, sym.Address);
         TAIL = PushLinkREC(TAIL, instruct);
         recSize += 3;
-      } else if (recSize >= 27) {
+      } else if (recSize > 27) {
         InsertLength(&rHEAD, &TAIL, recSize);
         PrintList(HEAD);
         /*
