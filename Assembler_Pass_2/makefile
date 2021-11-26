@@ -28,6 +28,12 @@ record.o: record.c src/headers.h
 clean:
 	rm *.o bin/*.o -f
 	touch src/*.c
-	rm project1 -f
+	rm vgcore.*
+
+purge:
+	rm *.o bin/*.o -f
+	touch src/*.c
+	rm vgcore.*
 	rm *.sic
 	rm grade
+	rm project2 -f

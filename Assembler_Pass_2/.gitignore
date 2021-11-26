@@ -3,3 +3,4 @@
 bin/*.o
 src/*.gch
 vgcore.*
+debug
