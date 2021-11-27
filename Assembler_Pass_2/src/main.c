@@ -64,27 +64,7 @@ int main(int argc, char *argv[]) {
 #endif
       continue;
     }
-    // TODO fix not triggering in blank lines
     // quit if it finds a blank line
-    /*
-    if (line[0] == '\n' || line[0] == ' ' || line[0] == '\t' ||
-        line[0] == '\0') {
-      int i = 0;
-      int bag = 1;
-      printf("\nEntered conditional");
-      while ((line[i] == '\n' || line[i] == ' ' || line[i] == '\t') &&
-             (line[i] != '\0')) {
-        printf("\n character on line: %c", line[i]);
-        if ((line[i] != '\n') || (line[i] != ' ') || (line[i] != '\t')) {
-          bag = 0;
-        }
-        i++;
-      }
-      if (bag) {
-        printf("\nERROR %2d: FILE HAS BLANK LINES\n", lCount);
-        exit(0);
-      }
-    }*/
     if (line[0] == 32 || line[0] == '\n' || line[0] == '\0' || line[0] == 13) {
       printf("\nERROR %2d: FILE HAS BLANK LINES\n", lCount);
       exit(0);
@@ -387,7 +367,10 @@ int main(int argc, char *argv[]) {
           printf("\nopcode is: %s", opcode);
           printf("\noperand is: %s", operand);
           printf("\nretrieving operand");
-          strtok(fline, " \t\n");
+          operand = strtok(fline, " \t\n");
+          if ((line[0] >= 65) && (line[0] <= 90)) {
+            operand = strtok(NULL, " \t\n");
+          }
           operand = strtok(NULL, " \t\n");
           printf("\noperand: %s", operand);
           TAIL = PushLinkREC(TAIL, "E");
@@ -406,7 +389,7 @@ int main(int argc, char *argv[]) {
       printf("\n\"%s\" is an OPCODE", nextToken);
       //#endif
       operand = strtok(NULL, " ,\t#\n");
-      printf("\noperand is: %d", operand[0]);
+      // printf("\noperand is: %d", operand[0]);
       if (operand != NULL && (operand[0] != 13)) {
         printf("\nEntered conditinoal");
         KillWhiteChar(operand);
