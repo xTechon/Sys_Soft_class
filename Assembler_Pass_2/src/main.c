@@ -160,7 +160,10 @@ int main(int argc, char *argv[]) {
   // tail for Mods
   RECLIST *MTAIL = (RECLIST *)malloc(sizeof(RECLIST));
   memset(MTAIL, 0, sizeof(RECLIST));
-
+  // link mod head and tail together
+  MTAIL = MHEAD;
+  // flag for initial mod case
+  int modExist = 0;
   // Main obj file head
   RECLIST *HEAD = (RECLIST *)malloc(sizeof(RECLIST));
   HEAD->record = malloc(20 * sizeof(char));
@@ -203,7 +206,8 @@ int main(int argc, char *argv[]) {
   // HEAD->record = RetrieveREC(HEAD);
 
   // Terminate Header record
-  TAIL = PushLinkREC(TAIL, "\n");
+  char newline[2] = {'\n', '\0'};
+  TAIL = PushLinkREC(TAIL, newline);
 
   printf("\nH Record is:\n");
   PrintList(HEAD);
@@ -302,7 +306,7 @@ int main(int argc, char *argv[]) {
               printf("\nHex constant record");
               char x[7];
               sprintf(x, "%X", j);
-              TAIL = PushLinkREC(TAIL, x);
+              TAIL = PushLinkREC(TAIL, argument);
               PrintList(HEAD);
             } else if (recSize > 27) {
               printf("\nHex constant wrapping");
@@ -373,14 +377,16 @@ int main(int argc, char *argv[]) {
           }
           operand = strtok(NULL, " \t\n");
           printf("\noperand: %s", operand);
-          TAIL = PushLinkREC(TAIL, "E");
+          TAIL->next = MHEAD;
+          MTAIL = PushLinkREC(MTAIL, "E");
           KillWhiteChar(operand);
           sym = FindSymbol(operand);
           char add[8];
           sprintf(add, "%06X\n", sym.Address);
-          TAIL = PushLinkREC(TAIL, add);
+          MTAIL = PushLinkREC(MTAIL, add);
         }
         PrintList(HEAD);
+        PrintList(rHEAD);
       }
     }
     // Where the records get created
@@ -411,37 +417,68 @@ int main(int argc, char *argv[]) {
         printf("\nOpcode head null");
         Relative(&rHEAD, &TAIL, locCount, &recSize);
         char instruct[7];
-        if (operand != NULL && operand[0] != 13)
+        char mod[18];
+        if (operand != NULL && operand[0] != 13) {
           sprintf(instruct, "%02X%04X", hashtemp->OpCode, IndexMode);
-        else
+          sprintf(mod, "M%06X04+%-6s\n", locCount + 1,
+                  getTitleNode()->node.Name);
+          if (!modExist) {
+            CreateModHEAD(&MHEAD, mod, 18);
+            modExist = 1;
+          } else {
+            MTAIL = PushLinkREC(MTAIL, mod);
+          }
+        } else
           sprintf(instruct, "%02X0000", hashtemp->OpCode);
         TAIL = PushLinkREC(TAIL, instruct);
         // printf("\nrHEAD in out of funct: %s", rHEAD->record);
         // printf("\nTAIL in out of funct: %s", TAIL->record);
         recSize += 3;
         PrintList(HEAD);
+        PrintList(MHEAD);
       } else if (recSize <= 27) {
         printf("\nOpcode record creation");
         char instruct[7];
-        if (operand != NULL && operand[0] != 13)
+        char mod[18];
+        if (operand != NULL && operand[0] != 13) {
           sprintf(instruct, "%02X%04X", hashtemp->OpCode, IndexMode);
-        else
+          sprintf(mod, "M%06X04+%-6s\n", locCount + 1,
+                  getTitleNode()->node.Name);
+          if (!modExist) {
+            CreateModHEAD(&MHEAD, mod, 18);
+            modExist = 1;
+          } else {
+            MTAIL = PushLinkREC(MTAIL, mod);
+          }
+        } else {
           sprintf(instruct, "%02X0000", hashtemp->OpCode);
+        }
         TAIL = PushLinkREC(TAIL, instruct);
         recSize += 3;
         PrintList(HEAD);
+        PrintList(MHEAD);
       } else if (recSize > 27) {
         printf("\nOpcode wrapping");
         InsertLength(&rHEAD, &TAIL, recSize);
         Relative(&rHEAD, &TAIL, locCount, &recSize);
         char instruct[7];
-        if (operand != NULL && operand[0] != 13)
+        char mod[18];
+        if (operand != NULL && operand[0] != 13) {
           sprintf(instruct, "%02X%04X", hashtemp->OpCode, IndexMode);
-        else
+          sprintf(mod, "M%06X04+%-6s\n", locCount + 1,
+                  getTitleNode()->node.Name);
+          if (!modExist) {
+            CreateModHEAD(&MHEAD, mod, 18);
+            modExist = 1;
+          } else {
+            MTAIL = PushLinkREC(MTAIL, mod);
+          }
+        } else
           sprintf(instruct, "%02X0000", hashtemp->OpCode);
         TAIL = PushLinkREC(TAIL, instruct);
         recSize += 3;
         PrintList(HEAD);
+        PrintList(MHEAD);
       }
       locCount += 3;
     } else {
@@ -452,23 +489,9 @@ int main(int argc, char *argv[]) {
   }
 
   printf("\nrecSize is %d", recSize);
-  if (rHEAD != NULL) {
-    RECLIST temp;
-    temp.record = malloc(3 * sizeof(char));
-    memset(temp.record, '\0', 3 * sizeof(char));
-    // insert the temp into the list after record start address
-    temp.next = rHEAD->next;
-    rHEAD->next = &temp;
-    // enter in the record size
-    sprintf(temp.record, "%02X", recSize);
-    // combine and clear space
-    // rHEAD->record = RetrieveREC(rHEAD);
-    // create a new tail
-    TAIL = rHEAD;
-    // reset the rHEAD
-    rHEAD = NULL;
-  }
   PrintList(HEAD);
+  // PrintList(rHEAD);
+  // PrintList(MHEAD);
   fclose(fp);
   // free(newsym);
   // free(opcode);

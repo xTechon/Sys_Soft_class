@@ -75,3 +75,4 @@ char* RetrieveREC(RECLIST *HEAD);                   //Returns a proper string of
 void PrintList(RECLIST *HEAD);                      //Prints out the list starting from a given HEAD to null
 void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize);
 void InsertLength(RECLIST **rHEAD, RECLIST **TAIL, int recSize);
+void CreateModHEAD(RECLIST **MHEAD, char *mod, int size);

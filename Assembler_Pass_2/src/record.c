@@ -7,7 +7,8 @@ RECLIST *PushLinkREC(RECLIST *TAIL, char *storage) {
 #endif
   RECLIST *newlist = (RECLIST *)malloc(sizeof(RECLIST));
   memset(newlist, 0, sizeof(RECLIST));
-  int size = strlen(storage);
+  int size = strlen(storage) + 1;
+  printf("\nsize = %d", size);
   // allocate space to copy string to record
   newlist->record = malloc(size * sizeof(char));
   memset(newlist->record, '\0', size * sizeof(char));
@@ -74,4 +75,10 @@ void InsertLength(RECLIST **rHEAD, RECLIST **TAIL, int recSize) {
   (*rHEAD)->next = size;
   *TAIL = PushLinkREC(*TAIL, "\n");
   *rHEAD = NULL;
+}
+
+void CreateModHEAD(RECLIST **MHEAD, char *mod, int size) {
+  (*MHEAD)->record = malloc(size * sizeof(char));
+  memset((*MHEAD)->record, '\0', size * sizeof(char));
+  strcpy((*MHEAD)->record, mod);
 }
