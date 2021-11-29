@@ -43,21 +43,29 @@ int PushLeaf(SYMBOL leaf) {
   return 0;
 }
 
-SYMBOL FindSymbol(char *leaf) {
+SYMBOL *FindSymbol(char *leaf) {
   TREE *cur = root;
   int test = 1;
-  while (test != 0) {
+  //printf("\nSearching for in symbol table: %s", leaf);
+  //printf("\nTree traversal start at root: %s", cur->node.Name);
+  while (test != 0 && cur != NULL) {
+    //printf("\nComparing target \"%s\" with current \"%s\"", leaf, cur->node.Name);
     test = strcmp(leaf, cur->node.Name);
+    //printf("\ntest is: %d", test);
     if (test != 0) {
       if (test < 0) {
+        //printf("\nGoing left");
         cur = cur->left;
       } else if (test > 0) {
+        //printf("\nGoing right");
         cur = cur->right;
       }
     } else
       break;
   }
-  return cur->node;
+  if (cur == NULL)
+    return NULL;
+  return &(cur->node);
 }
 
 int PrintTree() {

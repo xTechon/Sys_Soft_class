@@ -8,38 +8,20 @@ RECLIST *PushLinkREC(RECLIST *TAIL, char *storage) {
   RECLIST *newlist = (RECLIST *)malloc(sizeof(RECLIST));
   memset(newlist, 0, sizeof(RECLIST));
   int size = strlen(storage) + 1;
+#if DEBUG
   printf("\nsize = %d", size);
+#endif
   // allocate space to copy string to record
   newlist->record = malloc(size * sizeof(char));
   memset(newlist->record, '\0', size * sizeof(char));
   // copy contents of storage to record
   strncpy(newlist->record, storage, size);
+#if DEBUG
   printf("\nPushed String is: %s", newlist->record);
+#endif
   TAIL->next = newlist;
   newlist->next = NULL;
   return newlist;
-}
-
-void ClearList(RECLIST *HEAD) {
-  if (HEAD != NULL) {
-    ClearList(HEAD->next);
-    free(HEAD->record);
-    free(HEAD->next);
-  }
-  return;
-}
-
-char *RetrieveREC(RECLIST *HEAD) {
-  RECLIST *current = HEAD;
-  char *line = malloc(70 * sizeof(char));
-  // memset(line, '\0', 70 * sizeof(char));
-  while (current != NULL) {
-    strcat(line, current->record);
-    printf("\nCurrent line value: %s", line);
-    current = current->next;
-  }
-  // ClearList(HEAD);
-  return line;
 }
 
 void PrintList(RECLIST *HEAD) {
@@ -51,14 +33,27 @@ void PrintList(RECLIST *HEAD) {
   }
 }
 
+void outputList(RECLIST *HEAD, FILE *stream) {
+  // printf("\nOutputing List to file\n");
+  RECLIST *current = HEAD;
+  while (current != NULL) {
+    fprintf(stream, "%s", current->record);
+    current = current->next;
+  }
+}
+
 void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize) {
+#if DEBUG
   printf("\ncreating new T Record");
+#endif
   char beginning[10];
   sprintf(beginning, "T%06X", locCount);
   *TAIL = PushLinkREC(*TAIL, beginning);
   *rHEAD = *TAIL;
+#if DEBUG
   printf("\nrHEAD in function: %s", (*rHEAD)->record);
   printf("\nTAIL in function: %s", (*TAIL)->record);
+#endif
   *recSize = 0;
 }
 
@@ -67,9 +62,11 @@ void InsertLength(RECLIST **rHEAD, RECLIST **TAIL, int recSize) {
   memset(size, 0, sizeof(RECLIST));
   size->record = malloc(3 * sizeof(char));
   memset(size->record, '\0', 3 * sizeof(char));
+#if DEBUG
   printf("\nrHEAD in InsertLength: %s", (*rHEAD)->record);
   printf("\nTAIL in InsertLength: %s", (*TAIL)->record);
   printf("\nrHEAD->next is: %s", (*rHEAD)->next->record);
+#endif
   sprintf(size->record, "%02X", recSize);
   size->next = (*rHEAD)->next;
   (*rHEAD)->next = size;

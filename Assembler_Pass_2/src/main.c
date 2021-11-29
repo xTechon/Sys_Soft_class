@@ -1,6 +1,8 @@
 #include "headers.h"
 #define TEST 0
 #define DEBUG 0
+#define DEBUGP2 0
+#define TABLES 0
 #define ELMSG(L, V)                                                            \
   printf("\nERROR %2d: LOCATION %x SURPASSES SIC MEMORY\n", L, V);
 
@@ -136,10 +138,11 @@ int main(int argc, char *argv[]) {
     // printf("\nLocation is: %x\n", locCount);
   }
   // Print out the Symbol Table
+#if TABLES
   PrintTree();
   printf("\n");
-
-  printf("\nFinish Pass 1");
+#endif
+  // printf("\nFinish Pass 1");
   // Pass 2
   rewind(fp);
   int progLen = locCount - getTitleNode()->node.Address;
@@ -147,6 +150,7 @@ int main(int argc, char *argv[]) {
   locCount = 0;
   int IndexMode = 0;
   OPCODES *hashtemp = 0;
+  SYMBOL *symvalid;
   // address entries in the object code are 6 characters long
   char *address = malloc(7 * sizeof(char));
   memset(address, '\0', 7 * sizeof(char));
@@ -208,12 +212,16 @@ int main(int argc, char *argv[]) {
   // Terminate Header record
   char newline[2] = {'\n', '\0'};
   TAIL = PushLinkREC(TAIL, newline);
-
+#if DEBUGP2
   printf("\nH Record is:\n");
   PrintList(HEAD);
+#endif
 
+  // Pass2 start
   while (fgets(line, 1024, fp) != NULL) {
+#if DEBUGP2
     printf("\n\nNEWLINE: %s\nlocCount is: %X\n", line, locCount);
+#endif
     strcpy(fline, line);
     // printf("\n%s", line);
     lCount++;
@@ -228,7 +236,9 @@ int main(int argc, char *argv[]) {
     if ((line[0] >= 65) && (line[0] <= 90)) {
       strtok(line, " \t\n");
       nextToken = strtok(NULL, " \t\n");
+#if DEBUGP2
       printf("\nnext token after symbol is: %s", nextToken);
+#endif
     } else {
       nextToken = strtok(line, " \t\n");
     }
@@ -248,39 +258,59 @@ int main(int argc, char *argv[]) {
       }
       // WORD case
       else if (test == -1) {
+#if DEBUGP2
         printf("\nstarting word");
+#endif
         // case for a word
         // operand = strtok(nextToken, " \t\n");
         operand = strtok(NULL, " \t");
         // KillWhiteChar(operand);
+#if DEBUGP2
         printf("\nOperand is: %s", operand);
+#endif
         if (rHEAD == NULL) {
+#if DEBUGP2
           printf("\nWord Head null");
           printf("\nlocCount here is: %X", locCount);
+#endif
           Relative(&rHEAD, &TAIL, locCount, &recSize);
+#if DEBUGP2
           printf("\nrHead is at %s", rHEAD->record);
           PrintList(HEAD);
+#endif
         }
         if (recSize <= 27) {
+#if DEBUGP2
           printf("\nWord record creation");
+#endif
           char i[7];
           sprintf(i, "%06X", atoi(operand));
           TAIL = PushLinkREC(TAIL, i);
           recSize += 3;
+#if DEBUGP2
           PrintList(HEAD);
+#endif
         } else if (recSize > 27) {
+#if DEBUGP2
           printf("\nWord record wrapping");
+#endif
           InsertLength(&rHEAD, &TAIL, recSize);
+#if DEBUGP2
           PrintList(HEAD);
+#endif
         }
         locCount += 3;
       }
       // BYTE case
       else if (test == -2) {
         if (rHEAD == NULL) {
+#if DEBUGP2
           printf("\nByte constant null");
+#endif
           Relative(&rHEAD, &TAIL, locCount, &recSize);
+#if DEBUGP2
           PrintList(HEAD);
+#endif
         }
         operand = strtok(NULL, "#\n");
         // Hexadecimal case
@@ -305,15 +335,23 @@ int main(int argc, char *argv[]) {
             }
             i /= 2;
             if (recSize <= 27) {
+#if DEBUGP2
               printf("\nHex constant record");
+#endif
               char x[7];
               sprintf(x, "%X", j);
               TAIL = PushLinkREC(TAIL, argument);
+#if DEBUGP2
               PrintList(HEAD);
+#endif
             } else if (recSize > 27) {
+#if DEBUGP2
               printf("\nHex constant wrapping");
+#endif
               InsertLength(&rHEAD, &TAIL, recSize);
+#if DEBUGP2
               PrintList(HEAD);
+#endif
             }
             recSize += i;
             locCount += i; // increment by the number of bytes required to store
@@ -331,25 +369,35 @@ int main(int argc, char *argv[]) {
           int i = 0;
           while (argument[i] != '\0') {
             if (rHEAD == NULL) {
+#if DEBUGP2
               printf("\nCharacter constant record null");
+#endif
               Relative(&rHEAD, &TAIL, (locCount + i), &recSize);
               char c[3]; // to store character as hex
               sprintf(c, "%X",
                       argument[i]); // convert character value into hex value
               TAIL = PushLinkREC(TAIL, c);
               recSize += 1;
+#if DEBUGP2
               PrintList(HEAD);
+#endif
             }
             if (recSize <= 29) {
+#if DEBUGP2
               printf("\nCharacter constant record");
+#endif
               char c[3]; // to store character as hex
               sprintf(c, "%X",
                       argument[i]); // convert character value into hex value
               TAIL = PushLinkREC(TAIL, c);
               recSize += 1;
+#if DEBUGP2
               PrintList(HEAD);
+#endif
             } else if (recSize > 29) {
+#if DEBUGP2
               printf("\nCharacter constant record wrapping");
+#endif
               InsertLength(&rHEAD, &TAIL, recSize);
               Relative(&rHEAD, &TAIL, (locCount + i), &recSize);
               char c[3]; // to store character as hex
@@ -357,7 +405,9 @@ int main(int argc, char *argv[]) {
                       argument[i]); // convert character value into hex value
               TAIL = PushLinkREC(TAIL, c);
               recSize += 1;
+#if DEBUGP2
               PrintList(HEAD);
+#endif
             }
             i++;
           }
@@ -369,60 +419,92 @@ int main(int argc, char *argv[]) {
       }
       // END, RESB, and RESW case
       else if (test <= -3) {
+#if DEBUGP2
         printf("\nDirective END, RESB, or RESW read");
+#endif
         InsertLength(&rHEAD, &TAIL, recSize);
         // create END record
         if (test == -3) {
+#if DEBUGP2
           printf("\ncreating end record");
           printf("\nLine is: %s", fline);
           printf("\nnextToken is: %s", nextToken);
           printf("\nopcode is: %s", opcode);
           printf("\noperand is: %s", operand);
           printf("\nretrieving operand");
+#endif
           operand = strtok(fline, " \t\n");
           if ((line[0] >= 65) && (line[0] <= 90)) {
             operand = strtok(NULL, " \t\n");
           }
           operand = strtok(NULL, " \t\n");
+#if DEBUGP2
           printf("\noperand: %s", operand);
+#endif
           TAIL->next = MHEAD;
           MTAIL = PushLinkREC(MTAIL, "E");
           KillWhiteChar(operand);
-          sym = FindSymbol(operand);
+          symvalid = FindSymbol(operand);
+          if (symvalid == NULL) {
+            printf("\nERROR %2d: \"%s\" IS AN UNDEFINED SYMBOL\n", lCount,
+                   operand);
+            fclose(fp);
+            exit(0);
+          }
           char add[8];
           sprintf(add, "%06X\n", sym.Address);
           MTAIL = PushLinkREC(MTAIL, add);
         }
+#if DEBUGP2
         PrintList(HEAD);
         PrintList(rHEAD);
+#endif
       }
     }
     // Where the records get created
     else if (hashtemp != NULL) {
-      //#if DEBUG
+#if DEBUGP2
       printf("\n\"%s\" is an OPCODE", nextToken);
-      //#endif
+#endif
       operand = strtok(NULL, " ,\t#\n");
+#if DEBUGP2
       printf("\noperand is: %s", operand);
+#endif
       if (operand != NULL && (operand[0] != 13)) {
+#if DEBUGP2
         printf("\nEntered conditinoal");
+#endif
         KillWhiteChar(operand);
+#if DEBUGP2
         printf("\noperand is: %s", operand);
+#endif
         // get the symbol
-        sym = FindSymbol(operand);
+        symvalid = FindSymbol(operand);
+        if (symvalid == NULL) {
+          printf("\nERROR %2d: \"%s\" IS AN UNDEFINED SYMBOL\n", lCount,
+                 operand);
+          fclose(fp);
+          exit(0);
+        }
         IndexMode = sym.Address;
-        //#if DEBUG
+#if DEBUGP2
         printf("\nOPCODE OPERAND: %s", operand);
-        //#endif
+#endif
         argument = strtok(NULL, " ,\t#");
         if ((argument != NULL) && (argument[0] == 'X')) {
+#if DEBUGP2
           printf("\nSymbol has index, %s", argument);
+#endif
           IndexMode += 0x8000;
         }
       }
+#if DEBUGP2
       printf("\noperand failed test");
+#endif
       if (rHEAD == NULL) {
+#if DEBUGP2
         printf("\nOpcode head null");
+#endif
         Relative(&rHEAD, &TAIL, locCount, &recSize);
         char instruct[7];
         char mod[18];
@@ -439,13 +521,15 @@ int main(int argc, char *argv[]) {
         } else
           sprintf(instruct, "%02X0000", hashtemp->OpCode);
         TAIL = PushLinkREC(TAIL, instruct);
-        // printf("\nrHEAD in out of funct: %s", rHEAD->record);
-        // printf("\nTAIL in out of funct: %s", TAIL->record);
         recSize += 3;
+#if DEBUGP2
         PrintList(HEAD);
         PrintList(MHEAD);
+#endif
       } else if (recSize <= 27) {
+#if DEBUGP2
         printf("\nOpcode record creation");
+#endif
         char instruct[7];
         char mod[18];
         if (operand != NULL && operand[0] != 13) {
@@ -463,10 +547,14 @@ int main(int argc, char *argv[]) {
         }
         TAIL = PushLinkREC(TAIL, instruct);
         recSize += 3;
+#if DEBUGP2
         PrintList(HEAD);
         PrintList(MHEAD);
+#endif
       } else if (recSize > 27) {
+#if DEBUGP2
         printf("\nOpcode wrapping");
+#endif
         InsertLength(&rHEAD, &TAIL, recSize);
         Relative(&rHEAD, &TAIL, locCount, &recSize);
         char instruct[7];
@@ -485,8 +573,10 @@ int main(int argc, char *argv[]) {
           sprintf(instruct, "%02X0000", hashtemp->OpCode);
         TAIL = PushLinkREC(TAIL, instruct);
         recSize += 3;
+#if DEBUGP2
         PrintList(HEAD);
         PrintList(MHEAD);
+#endif
       }
       locCount += 3;
     } else {
@@ -495,11 +585,22 @@ int main(int argc, char *argv[]) {
       exit(0);
     }
   }
-
-  printf("\nrecSize is %d", recSize);
+#if TABLES
   PrintList(HEAD);
-  // PrintList(rHEAD);
-  // PrintList(MHEAD);
+#endif
+
+  // File Writing
+  char obj[] = ".obj";
+  int fileNameLength = strlen(argv[1]) + strlen(obj) + 1;
+  char fileName[fileNameLength];
+  strcpy(fileName, argv[1]);
+  strcat(fileName, obj);
+  // output stream
+  FILE *op = fopen(fileName, "w");
+
+  // write list to file
+  outputList(HEAD, op);
+  fclose(op);
   fclose(fp);
   // free(newsym);
   // free(opcode);

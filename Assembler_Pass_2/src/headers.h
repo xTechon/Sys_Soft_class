@@ -46,7 +46,7 @@ struct branch {
 };
 typedef struct branch TREE;
 int PushLeaf(SYMBOL leaf);             // returns 1 if successful
-SYMBOL FindSymbol(char *leaf);         // returns SYMBOL if symbol found
+SYMBOL *FindSymbol(char *leaf);         // returns SYMBOL if symbol found
 TREE *TraversInOrder(TREE *localRoot); // recursively traverses tree given root
 int PrintTree();                       // returns 1 if successful
 TREE *getTitleNode();
@@ -70,9 +70,8 @@ struct strRec{
 };
 typedef struct strRec RECLIST;
 RECLIST *PushLinkREC(RECLIST *TAIL, char* storage); //Pushes a new link to the list
-void ClearList(RECLIST *HEAD);                      //Recursively clears the list given the head
-char* RetrieveREC(RECLIST *HEAD);                   //Returns a proper string of the record and clears the list
 void PrintList(RECLIST *HEAD);                      //Prints out the list starting from a given HEAD to null
+void outputList(RECLIST *HEAD, FILE *stream);       //Outputs the list to a file given the File stream and HEAD
 void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize);
 void InsertLength(RECLIST **rHEAD, RECLIST **TAIL, int recSize);
 void CreateModHEAD(RECLIST **MHEAD, char *mod, int size);

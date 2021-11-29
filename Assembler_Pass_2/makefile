@@ -33,7 +33,6 @@ clean:
 purge:
 	rm *.o bin/*.o -f
 	touch src/*.c
-	rm vgcore.*
 	rm *.sic
 	rm grade
 	rm project2 -f
