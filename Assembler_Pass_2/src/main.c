@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
       // set some of the values of the new Symbol
       strcpy(sym.Name, newsym);
       sym.SourceLine = lCount;
-      if (locCount != 0) {
+      if (getTitleNode() != NULL) {
         sym.Address = locCount;
         if (PushLeaf(sym)) {
           fclose(fp);
@@ -256,6 +256,7 @@ int main(int argc, char *argv[]) {
         printf("\nOperand is: %s", operand);
         if (rHEAD == NULL) {
           printf("\nWord Head null");
+          printf("\nlocCount here is: %X", locCount);
           Relative(&rHEAD, &TAIL, locCount, &recSize);
           printf("\nrHead is at %s", rHEAD->record);
           PrintList(HEAD);
@@ -272,6 +273,7 @@ int main(int argc, char *argv[]) {
           InsertLength(&rHEAD, &TAIL, recSize);
           PrintList(HEAD);
         }
+        locCount += 3;
       }
       // BYTE case
       else if (test == -2) {
@@ -349,6 +351,12 @@ int main(int argc, char *argv[]) {
             } else if (recSize > 29) {
               printf("\nCharacter constant record wrapping");
               InsertLength(&rHEAD, &TAIL, recSize);
+              Relative(&rHEAD, &TAIL, (locCount + i), &recSize);
+              char c[3]; // to store character as hex
+              sprintf(c, "%X",
+                      argument[i]); // convert character value into hex value
+              TAIL = PushLinkREC(TAIL, c);
+              recSize += 1;
               PrintList(HEAD);
             }
             i++;
@@ -395,7 +403,7 @@ int main(int argc, char *argv[]) {
       printf("\n\"%s\" is an OPCODE", nextToken);
       //#endif
       operand = strtok(NULL, " ,\t#\n");
-      // printf("\noperand is: %d", operand[0]);
+      printf("\noperand is: %s", operand);
       if (operand != NULL && (operand[0] != 13)) {
         printf("\nEntered conditinoal");
         KillWhiteChar(operand);
@@ -648,7 +656,6 @@ int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
       }
       return 0;
     } else if (flag == 0) {
-      *locCount += 3;
       return -1;
     }
     return 0;
