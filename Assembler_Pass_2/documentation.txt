@@ -22,24 +22,20 @@ The Assembler catches errors in the code and syntax such as:
 Errors thrown by the assembler will list the line of the error.
 Additionally, Symbols thrown with an error code less than 0 match an Assembler Directive
 
+------------------------------------------------Pass-2------------------------------------------------
+
 Pass 2:
-In pass 2 of the SIC base model Assembler, an object file was planned to be created
+In pass 2 of the SIC base model Assembler, the assebly code is parsed again from the
+beginning to generate object code.
+The Symbol table was needed in pass 1 to add the ability to use addresses that may occur later
+in the assembly file that a 1 pass assembler would not have access to.
 
-Many things happened betweent the start of the assignment and the due date of the assignment,
-so pass 2 was not able to be completed.
+As with pass 1, the Assembler will not run without the inclusion of "SIC_Instructions.csv"
 
-What was completed was only a the header record, and given a couple more hours, the Text
-record would have been finished. Once the Text Records were finished the M records would
-have only take a quarter of the time to finish
+With this new version, more errors can be detected in adition to the errors from Pass 1:
+- Missing a START directive in the assembly file
+- Attempting to use a Symbol that doesn't exist
 
-As it stands it the debug outputs have been left on to show what is happening, the T records
-are not truncating properly.
-
-The plan was to have a relative head, add to that tail and then combine the Text record once
-the length was known.
-
-list:
-
-[HEAD] -> [record] -> [record] -> [rHEAD(cont. "Tadd")] -> [record] -> [TAIL]
-[HEAD] -> [record] -> [record] -> [rHEAD(cont. "Tadd")] -> [insert length here] -> [record] -> [TAIL]
-[HEAD] -> [record] -> [record] -> [rHEAD(cont. final T-rec)]
+If any errors are detected a File will not be written to the computer
+If there are no errors detected, a File containg the object code with ".obj" appended
+to the end will be placed in the same directory as the ".sic" file passed to the assembler

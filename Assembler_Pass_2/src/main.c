@@ -457,7 +457,7 @@ int main(int argc, char *argv[]) {
             exit(0);
           }
           char add[8];
-          sprintf(add, "%06X\n", sym.Address);
+          sprintf(add, "%06X\n", (*symvalid).Address);
           MTAIL = PushLinkREC(MTAIL, add);
         }
 #if DEBUGP2
@@ -491,7 +491,7 @@ int main(int argc, char *argv[]) {
           fclose(fp);
           exit(0);
         }
-        IndexMode = sym.Address;
+        IndexMode = (*symvalid).Address;
 #if DEBUGP2
         printf("\nOPCODE OPERAND: %s", operand);
 #endif
