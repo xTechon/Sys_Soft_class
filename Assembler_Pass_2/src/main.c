@@ -143,6 +143,11 @@ int main(int argc, char *argv[]) {
   printf("\n");
 #endif
   // printf("\nFinish Pass 1");
+  if (getTitleNode() == NULL) {
+    printf("\nERROR   : FILE MISSING START DIRECTIVE\n");
+    fclose(fp);
+    exit(0);
+  }
   // Pass 2
   rewind(fp);
   int progLen = locCount - getTitleNode()->node.Address;
@@ -741,6 +746,7 @@ int Directives(int dirTrack, int *lCount, int *locCount, char *nextToken,
     }
     if (flag == 1) {
       sym.Address = *locCount;
+      sym.SourceLine = *lCount;
       PushLeaf(sym);
     }
     return 0;
