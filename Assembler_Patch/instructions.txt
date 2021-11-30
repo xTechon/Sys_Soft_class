@@ -1,0 +1,19 @@
+Step 1: make a directory, well call it "original"
+Step 2: copy the original Project 2 submission shar file to original
+Step 3: copy Pass2.patch to original
+Step 4: change directory to original
+Step 5: execute the submission shar file in the directory "original"
+Step 6: after the original shar file has executed run the patch:
+
+patch -s -p1 < Pass2.patch
+
+Command order:
+mkdir original
+cp Project2shar original
+cp Pass2.patch original
+cd original
+./Project2shar
+patch -s -p1 < Pass2.patch
+
+This will update the directory containg Project2 to the fixed version for grading.
+

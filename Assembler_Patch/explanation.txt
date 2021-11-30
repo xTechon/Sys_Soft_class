@@ -1,0 +1,34 @@
+
+what went wrong with Project 2 the first time around:
+
+Excuses aside, my Project 2 the first time around did not compile.
+In one of the strings it was missing a semicolon that got deleted right when I saved the code in Emacs
+before I made a commit to my git hub and submitted it through the class server.
+Even if Project 2 compiled at the time, it did not come close to meeting the project requirements,
+where it would output all the debugging information to the terminal and segfault before even writing a T-record.
+
+Solution:
+
+After that massive problem, I have done a complete overhaul of Project 2, and fixed just about everything that was wrong with it.
+I ditched my old attempt at space efficency where I tried to compress multiple linked strings that made up a T-record into a single object
+in favor of not messing with the linked list too much. I have actually met the project requriements this time around too.
+
+Other Notes:
+
+As far as the patch file goes, it includes all of the fixes, and I had a fun time learing how to patch my project an hour before I have to turn this in.
+I did figure out how to only use one patch, less steps means that many less chances of error in the instructions.
+This class while tough has been my favorite in my CS track and that is not something I say about every class I've taken.
+
+Github:
+
+I will also include a link to the github repo in this explanation so you can take a quick look at some of the commits I made for this class and it's projects:
+https://github.com/xTechon/Sys_Soft_class
+
+And my github profile is:
+https://github.com/xTechon
+
+Thank you for this opportunity to fix my grade and have a nice Evening.
+
+Sincerely,
+William D. Hiromoto
+N01452026

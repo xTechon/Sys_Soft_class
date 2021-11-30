@@ -1,0 +1,1341 @@
+diff -ruN original/documentation.txt patch/documentation.txt
+--- original/documentation.txt	1969-12-31 19:00:00.000000000 -0500
++++ patch/documentation.txt	2021-11-29 22:19:46.569906674 -0500
+@@ -0,0 +1,41 @@
++SIC base model Assembler
++
++Usage: ./project1 [filepath]
++
++Pass 1:
++In pass 1 of the SIC base model Assembler, only a symbol table is printed.
++The symbol table is stored using a binary tree data structure and is printed in alphabetical order.
++
++The Assembler comes with a list of valid opcodes in the file "SIC_Instructions.csv" and will
++not run without the inclusion of "SIC_Instructions.csv".
++
++Opcodes are stored by reading the opcode file and storing them in a hash table for fast referencing.
++
++The Assembler catches errors in the code and syntax such as:
++- duplicate symbols
++- invalid hex constants
++- symbols that do not fit the Assembly Language Specification
++- programs that exceed the SIC memory limit
++- assembly files that contain blank lines against the specification
++- word constants that exceed the maximum integer limit
++
++Errors thrown by the assembler will list the line of the error.
++Additionally, Symbols thrown with an error code less than 0 match an Assembler Directive
++
++------------------------------------------------Pass-2------------------------------------------------
++
++Pass 2:
++In pass 2 of the SIC base model Assembler, the assebly code is parsed again from the
++beginning to generate object code.
++The Symbol table was needed in pass 1 to add the ability to use addresses that may occur later
++in the assembly file that a 1 pass assembler would not have access to.
++
++As with pass 1, the Assembler will not run without the inclusion of "SIC_Instructions.csv"
++
++With this new version, more errors can be detected in adition to the errors from Pass 1:
++- Missing a START directive in the assembly file
++- Attempting to use a Symbol that doesn't exist
++
++If any errors are detected a File will not be written to the computer
++If there are no errors detected, a File containg the object code with ".obj" appended
++to the end will be placed in the same directory as the ".sic" file passed to the assembler
+diff -ruN original/makefile patch/makefile
+--- original/makefile	2021-10-21 14:33:26.000000000 -0400
++++ patch/makefile	2021-11-29 16:25:11.599935469 -0500
+@@ -2,7 +2,7 @@
+ vpath %.o bin
+ CC = gcc -Wall -O0 -c -g3 -ggdb3
+ project1: main.o symbols.o list.o tree.o opcodes.o hash.o record.o src/headers.h
+-	gcc -Wall -g3 -ggdb3 -o project1 $^
++	gcc -Wall -g3 -ggdb3 -o project2 $^
+ 
+ main.o: main.c src/headers.h
+ 	$(CC) $^
+@@ -28,6 +28,11 @@
+ clean:
+ 	rm *.o bin/*.o -f
+ 	touch src/*.c
+-	rm project1 -f
++	rm vgcore.*
++
++purge:
++	rm *.o bin/*.o -f
++	touch src/*.c
+ 	rm *.sic
+ 	rm grade
++	rm project2 -f
+diff -ruN original/src/headers.h patch/src/headers.h
+--- original/src/headers.h	2021-10-25 23:57:08.000000000 -0400
++++ patch/src/headers.h	2021-11-29 21:12:24.436633881 -0500
+@@ -46,7 +46,7 @@
+ };
+ typedef struct branch TREE;
+ int PushLeaf(SYMBOL leaf);             // returns 1 if successful
+-SYMBOL FindSymbol(char *leaf);         // returns SYMBOL if symbol found
++SYMBOL *FindSymbol(char *leaf);         // returns SYMBOL if symbol found
+ TREE *TraversInOrder(TREE *localRoot); // recursively traverses tree given root
+ int PrintTree();                       // returns 1 if successful
+ TREE *getTitleNode();
+@@ -70,7 +70,8 @@
+ };
+ typedef struct strRec RECLIST;
+ RECLIST *PushLinkREC(RECLIST *TAIL, char* storage); //Pushes a new link to the list
+-void ClearList(RECLIST *HEAD);                      //Recursively clears the list given the head
+-char* RetrieveREC(RECLIST *HEAD);                   //Returns a proper string of the record and clears the list
+ void PrintList(RECLIST *HEAD);                      //Prints out the list starting from a given HEAD to null
++void outputList(RECLIST *HEAD, FILE *stream);       //Outputs the list to a file given the File stream and HEAD
+ void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize);
++void InsertLength(RECLIST **rHEAD, RECLIST **TAIL, int recSize);
++void CreateModHEAD(RECLIST **MHEAD, char *mod, int size);
+diff -ruN original/src/main.c patch/src/main.c
+--- original/src/main.c	2021-10-25 23:57:08.000000000 -0400
++++ patch/src/main.c	2021-11-29 22:45:41.823216761 -0500
+@@ -1,6 +1,8 @@
+ #include "headers.h"
+ #define TEST 0
+ #define DEBUG 0
++#define DEBUGP2 0
++#define TABLES 0
+ #define ELMSG(L, V)                                                            \
+   printf("\nERROR %2d: LOCATION %x SURPASSES SIC MEMORY\n", L, V);
+ 
+@@ -8,6 +10,7 @@
+ int Directives(int, int *, int *, char *, char *, char *, SYMBOL, int);
+ // int checkOverflow(int count);
+ int main(int argc, char *argv[]) {
++  // program start
+ #if TEST
+   TestMode();
+   exit(0); // uncomment for testing mode
+@@ -23,37 +26,30 @@
+     printf("ERROR: %s could not be opened for reading.\n", argv[1]);
+     exit(0);
+   }
+-
+ #if DEBUG
+   printf("\nFile Opened successfully.");
+ #endif
+-
++  // Opcode hash table
+   memset(OpcodeTable, 0, 29 * sizeof(OPLIST *));
+   ReadOpCodeFile(); // import opcodes
+-
+   char line[1024];
+   char fline[1024];
+-  char *newsym;
+   int errC = 0;
++  char *newsym;
+   newsym = malloc(1024 * sizeof(char));
+   memset(newsym, '\0', 1024 * sizeof(char));
+-
+   char *nextToken;
+   nextToken = malloc(1024 * sizeof(char));
+   memset(nextToken, '\0', 1024 * sizeof(char));
+-
+   char *operand;
+   operand = malloc(1024 * sizeof(char));
+   memset(operand, '\0', 1024 * sizeof(char));
+-
+   char *argument;
+   argument = malloc(1024 * sizeof(char));
+   memset(argument, '\0', 1024 * sizeof(char));
+-
+   char *opcode;
+   opcode = malloc(1024 * sizeof(char));
+   memset(opcode, '\0', 1024 * sizeof(char));
+-
+   int lCount = 0;   // keeps track of the line number
+   int locCount = 0; // location in BYTES not words
+   SYMBOL sym;
+@@ -70,9 +66,8 @@
+ #endif
+       continue;
+     }
+-    // TODO fix not triggering in blank lines
+     // quit if it finds a blank line
+-    if (line[0] == '\n') {
++    if (line[0] == 32 || line[0] == '\n' || line[0] == '\0' || line[0] == 13) {
+       printf("\nERROR %2d: FILE HAS BLANK LINES\n", lCount);
+       exit(0);
+     }
+@@ -93,7 +88,7 @@
+       // set some of the values of the new Symbol
+       strcpy(sym.Name, newsym);
+       sym.SourceLine = lCount;
+-      if (locCount != 0) {
++      if (getTitleNode() != NULL) {
+         sym.Address = locCount;
+         if (PushLeaf(sym)) {
+           fclose(fp);
+@@ -143,16 +138,24 @@
+     // printf("\nLocation is: %x\n", locCount);
+   }
+   // Print out the Symbol Table
+-   PrintTree();
+-   printf("\n");
+-
+-  printf("\nFinish Pass 1");
++#if TABLES
++  PrintTree();
++  printf("\n");
++#endif
++  // printf("\nFinish Pass 1");
++  if (getTitleNode() == NULL) {
++    printf("\nERROR   : FILE MISSING START DIRECTIVE\n");
++    fclose(fp);
++    exit(0);
++  }
+   // Pass 2
+   rewind(fp);
+   int progLen = locCount - getTitleNode()->node.Address;
+   lCount = 0;
+   locCount = 0;
++  int IndexMode = 0;
+   OPCODES *hashtemp = 0;
++  SYMBOL *symvalid;
+   // address entries in the object code are 6 characters long
+   char *address = malloc(7 * sizeof(char));
+   memset(address, '\0', 7 * sizeof(char));
+@@ -160,6 +163,16 @@
+   // keep track of the linked list record
+   int recSize = 0;
+ 
++  // records for Mods
++  RECLIST *MHEAD = (RECLIST *)malloc(sizeof(RECLIST));
++  memset(MHEAD, 0, sizeof(RECLIST));
++  // tail for Mods
++  RECLIST *MTAIL = (RECLIST *)malloc(sizeof(RECLIST));
++  memset(MTAIL, 0, sizeof(RECLIST));
++  // link mod head and tail together
++  MTAIL = MHEAD;
++  // flag for initial mod case
++  int modExist = 0;
+   // Main obj file head
+   RECLIST *HEAD = (RECLIST *)malloc(sizeof(RECLIST));
+   HEAD->record = malloc(20 * sizeof(char));
+@@ -167,7 +180,7 @@
+ 
+   // Relative head for record list (starts at new lines)
+   RECLIST *rHEAD = NULL; //= (RECLIST *)malloc(sizeof(RECLIST));
+-  //memset(rHEAD, 0, sizeof(RECLIST));
++  // memset(rHEAD, 0, sizeof(RECLIST));
+ 
+   // end of the linked list
+   RECLIST *TAIL = (RECLIST *)malloc(sizeof(RECLIST));
+@@ -199,15 +212,23 @@
+   recSize += 6;
+ 
+   // Combine header record into head
+-  HEAD->record = RetrieveREC(HEAD);
++  // HEAD->record = RetrieveREC(HEAD);
+ 
+   // Terminate Header record
+-  //TAIL = PushLinkREC(HEAD, "\n");
+-
+-  printf("\nH Record is:\n%s\n", HEAD->record);
++  char newline[2] = {'\n', '\0'};
++  TAIL = PushLinkREC(TAIL, newline);
++#if DEBUGP2
++  printf("\nH Record is:\n");
++  PrintList(HEAD);
++#endif
+ 
++  // Pass2 start
+   while (fgets(line, 1024, fp) != NULL) {
+-    //printf("\n%s", line);
++#if DEBUGP2
++    printf("\n\nNEWLINE: %s\nlocCount is: %X\n", line, locCount);
++#endif
++    strcpy(fline, line);
++    // printf("\n%s", line);
+     lCount++;
+     // Take comments out of the output
+     if (line[0] == 35) {
+@@ -220,7 +241,9 @@
+     if ((line[0] >= 65) && (line[0] <= 90)) {
+       strtok(line, " \t\n");
+       nextToken = strtok(NULL, " \t\n");
++#if DEBUGP2
+       printf("\nnext token after symbol is: %s", nextToken);
++#endif
+     } else {
+       nextToken = strtok(line, " \t\n");
+     }
+@@ -230,67 +253,84 @@
+     dirTrack = CmprDir(nextToken);
+     // itterate through dirTrack
+     if (dirTrack < 0) {
+-      int test = Directives(dirTrack, &lCount, &locCount, nextToken, operand, argument,
+-                     sym, 0);
+-      //printf("\nTest is: %d", test);
++      int test = Directives(dirTrack, &lCount, &locCount, nextToken, operand,
++                            argument, sym, 0);
++      // printf("\nTest is: %d", test);
+       if (test == 1) {
+         printf("\nclosing program");
+         fclose(fp);
+         exit(0);
+-      }else if(test == -1){
++      }
++      // WORD case
++      else if (test == -1) {
++#if DEBUGP2
+         printf("\nstarting word");
++#endif
+         // case for a word
+-        //operand = strtok(nextToken, " \t\n");
++        // operand = strtok(nextToken, " \t\n");
+         operand = strtok(NULL, " \t");
+-        //KillWhiteChar(operand);
++        // KillWhiteChar(operand);
++#if DEBUGP2
+         printf("\nOperand is: %s", operand);
+-        if (rHEAD == NULL){
++#endif
++        if (rHEAD == NULL) {
++#if DEBUGP2
++          printf("\nWord Head null");
++          printf("\nlocCount here is: %X", locCount);
++#endif
+           Relative(&rHEAD, &TAIL, locCount, &recSize);
+-          printf("\nrHead is at %s")
++#if DEBUGP2
++          printf("\nrHead is at %s", rHEAD->record);
++          PrintList(HEAD);
++#endif
+         }
+-        if(recSize <= 27){
++        if (recSize <= 27) {
++#if DEBUGP2
++          printf("\nWord record creation");
++#endif
+           char i[7];
+           sprintf(i, "%06X", atoi(operand));
+           TAIL = PushLinkREC(TAIL, i);
+           recSize += 3;
++#if DEBUGP2
++          PrintList(HEAD);
++#endif
++        } else if (recSize > 27) {
++#if DEBUGP2
++          printf("\nWord record wrapping");
++#endif
++          InsertLength(&rHEAD, &TAIL, recSize);
++#if DEBUGP2
++          PrintList(HEAD);
++#endif
+         }
+-        else if (recSize > 27){
+-          //create a temp to hold the record size
+-          RECLIST temp;
+-          temp.record = malloc(3*sizeof(char));
+-          memset(temp.record, '\0', 3*sizeof(char));
+-          //insert the temp into the list after record start address
+-          temp.next = rHEAD->next;
+-          rHEAD->next = &temp;
+-          //enter in the record size
+-          sprintf(temp.record, "%2X", recSize);
+-          //combine and clear space
+-          rHEAD->record = RetrieveREC(rHEAD);
+-          //create a new tail
+-          //TAIL = PushLinkREC(rHEAD, "\n");
+-          TAIL = rHEAD;
+-          //reset the rHEAD
+-          rHEAD = NULL;
+-        }
+-      }
+-      //BYTE case
+-      else if(test == -2){
+-        if (rHEAD == NULL){
++        locCount += 3;
++      }
++      // BYTE case
++      else if (test == -2) {
++        if (rHEAD == NULL) {
++#if DEBUGP2
++          printf("\nByte constant null");
++#endif
+           Relative(&rHEAD, &TAIL, locCount, &recSize);
++#if DEBUGP2
++          PrintList(HEAD);
++#endif
+         }
+         operand = strtok(NULL, "#\n");
+-#if DEBUG
+-        printf("\nBYTE OPERAND: %s", operand);
+-#endif
++        // Hexadecimal case
+         if (operand[0] == 'X') {
+           strtok(operand, "'");
+           argument = strtok(NULL, "'");
+-#if DEBUG
+-          printf("\nHEXADECIMAL CONSTANT: %s", argument);
+-#endif
+           if (ValHEX(argument)) {
+             int j = 0;
+             j += (int)strtol(argument, NULL, 16); // convert char in hex to int
++            if (j > 8388608) {
++              printf("\nERROR %2d: HEXADECIMAL CONSTANT OVER INTEGER LIMIT ON "
++                     "LINE\n",
++                     lCount);
++              exit(0);
++            }
+             int i = 0;
+             while (argument[i] != '\0') {
+               i++;
+@@ -299,116 +339,249 @@
+               i++;
+             }
+             i /= 2;
+-            if (recSize < 27){
++            if (recSize <= 27) {
++#if DEBUGP2
++              printf("\nHex constant record");
++#endif
+               char x[7];
+               sprintf(x, "%X", j);
+-              TAIL = PushLinkREC(TAIL, x);
+-            }
+-            else if(recSize >= 27){
+-              //create a temp to hold the record size
+-              RECLIST temp;
+-              temp.record = malloc(3*sizeof(char));
+-              memset(temp.record, '\0', 3*sizeof(char));
+-              //insert the temp into the list after record start address
+-              temp.next = rHEAD->next;
+-              rHEAD->next = &temp;
+-              //enter in the record size
+-              sprintf(temp.record, "%2X", recSize);
+-              //combine and clear space
+-              rHEAD->record = RetrieveREC(rHEAD);
+-              //create a new tail
+-              //TAIL = PushLinkREC(rHEAD, "\n");
+-              TAIL = rHEAD;
+-              //reset the rHEAD
+-              rHEAD = NULL;
++              TAIL = PushLinkREC(TAIL, argument);
++#if DEBUGP2
++              PrintList(HEAD);
++#endif
++            } else if (recSize > 27) {
++#if DEBUGP2
++              printf("\nHex constant wrapping");
++#endif
++              InsertLength(&rHEAD, &TAIL, recSize);
++#if DEBUGP2
++              PrintList(HEAD);
++#endif
+             }
+             recSize += i;
+             locCount += i; // increment by the number of bytes required to store
+             // constant
++          } else {
++            printf("\nERROR %2d: \"%s\" IS NOT A VALID HEXADECIMAL CONSTANT\n",
++                   lCount, argument);
++            exit(0);
+           }
+-        } else if (operand[0] == 'C') {
++        }
++        // Character case
++        else if (operand[0] == 'C') {
+           strtok(operand, "'");
+           argument = strtok(NULL, "'");
+-          //printf("\nArgument is: %s", argument);
+           int i = 0;
+-#if DEBUG
+-          printf("\nCHARACTER CONSTANT: %s", argument);
+-#endif
+           while (argument[i] != '\0') {
+-            //just in case the constant overflows
+-            if (rHEAD == NULL){
+-              Relative(&rHEAD, &TAIL, (locCount+i), &recSize);
++            if (rHEAD == NULL) {
++#if DEBUGP2
++              printf("\nCharacter constant record null");
++#endif
++              Relative(&rHEAD, &TAIL, (locCount + i), &recSize);
++              char c[3]; // to store character as hex
++              sprintf(c, "%X",
++                      argument[i]); // convert character value into hex value
++              TAIL = PushLinkREC(TAIL, c);
++              recSize += 1;
++#if DEBUGP2
++              PrintList(HEAD);
++#endif
+             }
+-            //put the character into the list
+-            if (recSize < 28){
+-              char c[3]; //to store character as hex
+-              sprintf(c, "%2X", argument[i]); //convert character value into hex value
++            if (recSize <= 29) {
++#if DEBUGP2
++              printf("\nCharacter constant record");
++#endif
++              char c[3]; // to store character as hex
++              sprintf(c, "%X",
++                      argument[i]); // convert character value into hex value
+               TAIL = PushLinkREC(TAIL, c);
+-              recSize+= 1;
+-            }else if (recSize >= 28){
+-              printf("\nactivate wrap");
+-              //create a temp to hold the record size
+-              RECLIST *temp = malloc(sizeof(RECLIST));
+-              temp->record = malloc(3*sizeof(char));
+-              memset(temp->record, '\0', 3*sizeof(char));
+-              //insert the temp into the list after record start address
+-              temp->next = rHEAD->next;
+-              rHEAD->next = temp;
+-              //enter in the record size
+-              sprintf(temp->record, "%2X", recSize);
+-              //combine and clear space
+-              rHEAD->record = RetrieveREC(rHEAD);
+-              //create a new tail
+-              //TAIL = PushLinkREC(rHEAD, "\n");
+-              TAIL = rHEAD;
+-              //reset the rHEAD
+-              rHEAD = NULL;
++              recSize += 1;
++#if DEBUGP2
++              PrintList(HEAD);
++#endif
++            } else if (recSize > 29) {
++#if DEBUGP2
++              printf("\nCharacter constant record wrapping");
++#endif
++              InsertLength(&rHEAD, &TAIL, recSize);
++              Relative(&rHEAD, &TAIL, (locCount + i), &recSize);
++              char c[3]; // to store character as hex
++              sprintf(c, "%X",
++                      argument[i]); // convert character value into hex value
++              TAIL = PushLinkREC(TAIL, c);
++              recSize += 1;
++#if DEBUGP2
++              PrintList(HEAD);
++#endif
+             }
+             i++;
+           }
+           locCount += i; // characters are stored in one byte
+-          if (checkOverflow(locCount)) {
+-            ELMSG(lCount, locCount) return 1;
++        }
++        if (checkOverflow(locCount)) {
++          ELMSG(lCount, locCount) return 1;
++        }
++      }
++      // END, RESB, and RESW case
++      else if (test <= -3) {
++#if DEBUGP2
++        printf("\nDirective END, RESB, or RESW read");
++#endif
++        InsertLength(&rHEAD, &TAIL, recSize);
++        // create END record
++        if (test == -3) {
++#if DEBUGP2
++          printf("\ncreating end record");
++          printf("\nLine is: %s", fline);
++          printf("\nnextToken is: %s", nextToken);
++          printf("\nopcode is: %s", opcode);
++          printf("\noperand is: %s", operand);
++          printf("\nretrieving operand");
++#endif
++          operand = strtok(fline, " \t\n");
++          if ((line[0] >= 65) && (line[0] <= 90)) {
++            operand = strtok(NULL, " \t\n");
+           }
++          operand = strtok(NULL, " \t\n");
++#if DEBUGP2
++          printf("\noperand: %s", operand);
++#endif
++          TAIL->next = MHEAD;
++          MTAIL = PushLinkREC(MTAIL, "E");
++          KillWhiteChar(operand);
++          symvalid = FindSymbol(operand);
++          if (symvalid == NULL) {
++            printf("\nERROR %2d: \"%s\" IS AN UNDEFINED SYMBOL\n", lCount,
++                   operand);
++            fclose(fp);
++            exit(0);
++          }
++          char add[8];
++          sprintf(add, "%06X\n", (*symvalid).Address);
++          MTAIL = PushLinkREC(MTAIL, add);
+         }
++#if DEBUGP2
++        PrintList(HEAD);
++        PrintList(rHEAD);
++#endif
+       }
+     }
+-      // Where the records get created
++    // Where the records get created
+     else if (hashtemp != NULL) {
+-//#if DEBUG
++#if DEBUGP2
+       printf("\n\"%s\" is an OPCODE", nextToken);
+-//#endif
+-      operand = strtok(NULL, " ,\t");
+-      KillWhiteChar(operand);
+-      //get the symbol
+-      sym = FindSymbol(operand);
+-//#if DEBUG
+-      printf("\nOPCODE OPERAND: %s", operand);
+-//#endif
+-      if (rHEAD == NULL){
++#endif
++      operand = strtok(NULL, " ,\t#\n");
++#if DEBUGP2
++      printf("\noperand is: %s", operand);
++#endif
++      if (operand != NULL && (operand[0] != 13)) {
++#if DEBUGP2
++        printf("\nEntered conditinoal");
++#endif
++        KillWhiteChar(operand);
++#if DEBUGP2
++        printf("\noperand is: %s", operand);
++#endif
++        // get the symbol
++        symvalid = FindSymbol(operand);
++        if (symvalid == NULL) {
++          printf("\nERROR %2d: \"%s\" IS AN UNDEFINED SYMBOL\n", lCount,
++                 operand);
++          fclose(fp);
++          exit(0);
++        }
++        IndexMode = (*symvalid).Address;
++#if DEBUGP2
++        printf("\nOPCODE OPERAND: %s", operand);
++#endif
++        argument = strtok(NULL, " ,\t#");
++        if ((argument != NULL) && (argument[0] == 'X')) {
++#if DEBUGP2
++          printf("\nSymbol has index, %s", argument);
++#endif
++          IndexMode += 0x8000;
++        }
++      }
++#if DEBUGP2
++      printf("\noperand failed test");
++#endif
++      if (rHEAD == NULL) {
++#if DEBUGP2
++        printf("\nOpcode head null");
++#endif
++        Relative(&rHEAD, &TAIL, locCount, &recSize);
++        char instruct[7];
++        char mod[18];
++        if (operand != NULL && operand[0] != 13) {
++          sprintf(instruct, "%02X%04X", hashtemp->OpCode, IndexMode);
++          sprintf(mod, "M%06X04+%-6s\n", locCount + 1,
++                  getTitleNode()->node.Name);
++          if (!modExist) {
++            CreateModHEAD(&MHEAD, mod, 18);
++            modExist = 1;
++          } else {
++            MTAIL = PushLinkREC(MTAIL, mod);
++          }
++        } else
++          sprintf(instruct, "%02X0000", hashtemp->OpCode);
++        TAIL = PushLinkREC(TAIL, instruct);
++        recSize += 3;
++#if DEBUGP2
++        PrintList(HEAD);
++        PrintList(MHEAD);
++#endif
++      } else if (recSize <= 27) {
++#if DEBUGP2
++        printf("\nOpcode record creation");
++#endif
++        char instruct[7];
++        char mod[18];
++        if (operand != NULL && operand[0] != 13) {
++          sprintf(instruct, "%02X%04X", hashtemp->OpCode, IndexMode);
++          sprintf(mod, "M%06X04+%-6s\n", locCount + 1,
++                  getTitleNode()->node.Name);
++          if (!modExist) {
++            CreateModHEAD(&MHEAD, mod, 18);
++            modExist = 1;
++          } else {
++            MTAIL = PushLinkREC(MTAIL, mod);
++          }
++        } else {
++          sprintf(instruct, "%02X0000", hashtemp->OpCode);
++        }
++        TAIL = PushLinkREC(TAIL, instruct);
++        recSize += 3;
++#if DEBUGP2
++        PrintList(HEAD);
++        PrintList(MHEAD);
++#endif
++      } else if (recSize > 27) {
++#if DEBUGP2
++        printf("\nOpcode wrapping");
++#endif
++        InsertLength(&rHEAD, &TAIL, recSize);
+         Relative(&rHEAD, &TAIL, locCount, &recSize);
+-      }else if (recSize < 27){
+         char instruct[7];
+-        sprintf(instruct, "%2X%04X", hashtemp->OpCode, sym.Address);
++        char mod[18];
++        if (operand != NULL && operand[0] != 13) {
++          sprintf(instruct, "%02X%04X", hashtemp->OpCode, IndexMode);
++          sprintf(mod, "M%06X04+%-6s\n", locCount + 1,
++                  getTitleNode()->node.Name);
++          if (!modExist) {
++            CreateModHEAD(&MHEAD, mod, 18);
++            modExist = 1;
++          } else {
++            MTAIL = PushLinkREC(MTAIL, mod);
++          }
++        } else
++          sprintf(instruct, "%02X0000", hashtemp->OpCode);
+         TAIL = PushLinkREC(TAIL, instruct);
+         recSize += 3;
+-      }else if (recSize >= 27){
+-        //create a temp to hold the record size
+-        RECLIST temp;
+-        temp.record = malloc(3*sizeof(char));
+-        memset(temp.record, '\0', 3*sizeof(char));
+-        //insert the temp into the list after record start address
+-        temp.next = rHEAD->next;
+-        rHEAD->next = &temp;
+-        //enter in the record size
+-        sprintf(temp.record, "%2X", recSize);
+-        //combine and clear space
+-        rHEAD->record = RetrieveREC(rHEAD);
+-        //create a new tail
+-        //TAIL = PushLinkREC(rHEAD, "\n");
+-        TAIL = rHEAD;
+-        //reset the rHEAD
+-        rHEAD = NULL;
++#if DEBUGP2
++        PrintList(HEAD);
++        PrintList(MHEAD);
++#endif
+       }
+       locCount += 3;
+     } else {
+@@ -417,27 +590,27 @@
+       exit(0);
+     }
+   }
+-
+-  printf("\nrecSize is %d", recSize);
+-  if (rHEAD != NULL){
+-    RECLIST temp;
+-    temp.record = malloc(3*sizeof(char));
+-    memset(temp.record, '\0', 3*sizeof(char));
+-    //insert the temp into the list after record start address
+-    temp.next = rHEAD->next;
+-    rHEAD->next = &temp;
+-    //enter in the record size
+-    sprintf(temp.record, "%2X", recSize);
+-    //combine and clear space
+-    rHEAD->record = RetrieveREC(rHEAD);
+-    //create a new tail
+-    //TAIL = PushLinkREC(rHEAD, "\n");
+-    TAIL = rHEAD;
+-    //reset the rHEAD
+-    rHEAD = NULL;
+-  }
++#if TABLES
+   PrintList(HEAD);
++#endif
++
++  // File Writing
++  char obj[] = ".obj";
++  int fileNameLength = strlen(argv[1]) + strlen(obj) + 1;
++  char fileName[fileNameLength];
++  strcpy(fileName, argv[1]);
++  strcat(fileName, obj);
++  // output stream
++  FILE *op = fopen(fileName, "w");
++
++  // write list to file
++  outputList(HEAD, op);
++  fclose(op);
+   fclose(fp);
++  // free(newsym);
++  // free(opcode);
++  // free(argument);
++  // free(nextToken);
+   exit(0);
+ }
+ 
+@@ -466,7 +639,7 @@
+ #endif
+   switch (dirTrack) {
+   case -1: // BYTE
+-    if (flag == 1){
++    if (flag == 1) {
+       operand = strtok(NULL, "#\n");
+ #if DEBUG
+       printf("\nBYTE OPERAND: %s", operand);
+@@ -517,14 +690,17 @@
+         ELMSG(*lCount, *locCount) return 1;
+       }
+       return 0;
+-    }
+-    else return -2;
++    } else
++      return -2;
+   case -2: // END
+     operand = strtok(NULL, "#\n");
+     if (checkOverflow(*locCount)) {
+       ELMSG(*lCount, *locCount) return 1;
+     }
+-    return 0;
++    if (flag == 1)
++      return 0;
++    else
++      return -3;
+   case -3: // EXPORT
+     operand = strtok(NULL, "#\n");
+     *locCount += 3;
+@@ -538,14 +714,20 @@
+     if (checkOverflow(*locCount)) {
+       ELMSG(*lCount, *locCount) return 1;
+     }
+-    return 0;
++    if (flag == 1)
++      return 0;
++    else
++      return -4;
+   case -5: // RESR
+     operand = strtok(NULL, "#\n");
+     *locCount += 3;
+     if (checkOverflow(*locCount)) {
+       ELMSG(*lCount, *locCount) return 1;
+     }
+-    return 0;
++    if (flag == 1)
++      return 0;
++    else
++      return -5;
+   case -6: // RESW
+     operand = strtok(NULL, "#\n");
+     *locCount += atoi(operand) * 3;
+@@ -564,11 +746,12 @@
+     }
+     if (flag == 1) {
+       sym.Address = *locCount;
++      sym.SourceLine = *lCount;
+       PushLeaf(sym);
+     }
+     return 0;
+   case -8: // WORD
+-    if (flag == 1){
++    if (flag == 1) {
+       operand = strtok(NULL, "#\n");
+       int i = atoi(operand);
+       if (i > 8388608 || i < -8388608) {
+@@ -579,9 +762,7 @@
+         ELMSG(*lCount, *locCount) exit(0);
+       }
+       return 0;
+-    }
+-    else if (flag == 0){
+-      *locCount += 3;
++    } else if (flag == 0) {
+       return -1;
+     }
+     return 0;
+diff -ruN original/src/record.c patch/src/record.c
+--- original/src/record.c	2021-10-25 23:57:08.000000000 -0400
++++ patch/src/record.c	2021-11-29 22:45:41.823216761 -0500
+@@ -7,53 +7,75 @@
+ #endif
+   RECLIST *newlist = (RECLIST *)malloc(sizeof(RECLIST));
+   memset(newlist, 0, sizeof(RECLIST));
+-  int size = strlen(storage);
++  int size = strlen(storage) + 1;
++#if DEBUG
++  printf("\nsize = %d", size);
++#endif
+   // allocate space to copy string to record
+   newlist->record = malloc(size * sizeof(char));
+   memset(newlist->record, '\0', size * sizeof(char));
+   // copy contents of storage to record
+   strncpy(newlist->record, storage, size);
++#if DEBUG
+   printf("\nPushed String is: %s", newlist->record);
++#endif
+   TAIL->next = newlist;
+   newlist->next = NULL;
+   return newlist;
+ }
+ 
+-void ClearList(RECLIST *HEAD) {
+-  if (HEAD != NULL) {
+-    ClearList(HEAD->next);
+-    free(HEAD->record);
+-    free(HEAD->next);
+-  }
+-  return;
+-}
+-
+-char *RetrieveREC(RECLIST *HEAD) {
++void PrintList(RECLIST *HEAD) {
++  printf("\nPrinting List\n");
+   RECLIST *current = HEAD;
+-  char *line = malloc(70 * sizeof(char));
+-  memset(line, '\0', 70 * sizeof(char));
+   while (current != NULL) {
+-    strcat(line, current->record);
+-    printf("\nCurrent line value: %s", line);
++    printf("%s", current->record);
+     current = current->next;
+   }
+-  ClearList(HEAD);
+-  return line;
+ }
+ 
+-void PrintList(RECLIST *HEAD){
++void outputList(RECLIST *HEAD, FILE *stream) {
++  // printf("\nOutputing List to file\n");
+   RECLIST *current = HEAD;
+-  while(current != NULL){
+-    printf("\n%s", current->record);
++  while (current != NULL) {
++    fprintf(stream, "%s", current->record);
+     current = current->next;
+   }
+ }
+ 
+-void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize){
++void Relative(RECLIST **rHEAD, RECLIST **TAIL, int locCount, int *recSize) {
++#if DEBUG
+   printf("\ncreating new T Record");
++#endif
+   char beginning[10];
+   sprintf(beginning, "T%06X", locCount);
+-  *rHEAD = *TAIL;
+   *TAIL = PushLinkREC(*TAIL, beginning);
++  *rHEAD = *TAIL;
++#if DEBUG
++  printf("\nrHEAD in function: %s", (*rHEAD)->record);
++  printf("\nTAIL in function: %s", (*TAIL)->record);
++#endif
+   *recSize = 0;
+ }
++
++void InsertLength(RECLIST **rHEAD, RECLIST **TAIL, int recSize) {
++  RECLIST *size = (RECLIST *)malloc(sizeof(RECLIST));
++  memset(size, 0, sizeof(RECLIST));
++  size->record = malloc(3 * sizeof(char));
++  memset(size->record, '\0', 3 * sizeof(char));
++#if DEBUG
++  printf("\nrHEAD in InsertLength: %s", (*rHEAD)->record);
++  printf("\nTAIL in InsertLength: %s", (*TAIL)->record);
++  printf("\nrHEAD->next is: %s", (*rHEAD)->next->record);
++#endif
++  sprintf(size->record, "%02X", recSize);
++  size->next = (*rHEAD)->next;
++  (*rHEAD)->next = size;
++  *TAIL = PushLinkREC(*TAIL, "\n");
++  *rHEAD = NULL;
++}
++
++void CreateModHEAD(RECLIST **MHEAD, char *mod, int size) {
++  (*MHEAD)->record = malloc(size * sizeof(char));
++  memset((*MHEAD)->record, '\0', size * sizeof(char));
++  strcpy((*MHEAD)->record, mod);
++}
+diff -ruN original/src/symbols.c patch/src/symbols.c
+--- original/src/symbols.c	2021-10-21 14:33:26.000000000 -0400
++++ patch/src/symbols.c	2021-11-29 22:45:41.823216761 -0500
+@@ -2,169 +2,189 @@
+ #define DEBUG 0
+ 
+ int CmprDir(char *Symbol);
+-int IsAValidSymbol (char *TestSymbol){
+-    int Result = 1;
+-    int maxlength = 6;
+-
+-    //Does Symbol start w/ alpha character
+-    if ((int)TestSymbol[0] < 65 || (int)TestSymbol[0] > 90){
+-        Result = 0;
+-        return Result;
+-    }
+-    //check to see if it's a directive only if the first letter starts the same as one
+-    switch(TestSymbol[0]){
+-        case 'B':
+-        case 'E':
+-        case 'R':
+-        case 'S':
+-        case 'W':
+-            Result = CmprDir(TestSymbol);
+-            if (Result < 0) return Result;
+-            else {Result = 1; break;}
+-        default:
+-            break;
+-    }
+-    //test Symbol Length
+-    int i = 0;
+-    while((int) TestSymbol[i] != '\0' || i > 7){
+-        switch((int)TestSymbol[i]){
+-            case 32:  //Space
+-                Result = 0;
+-                return Result;
+-            case 36:  //$
+-                Result = 0;
+-                return Result;
+-            case 33:  //!
+-                Result = 0;
+-                return Result;
+-            case 40:  //(
+-                Result = 0;
+-                return Result;
+-            case 41:  //)
+-                Result = 0;
+-                return Result;
+-            case 43:  //+
+-                Result = 0;
+-                return Result;
+-            case 45:  //-
+-                Result = 0;
+-                return Result;
+-            case 61:  //=
+-                Result = 0;
+-                return Result;
+-            case 64:  //@
+-                Result = 0;
+-                return Result;
+-        }
+-        i++;
+-    }
+-    //printf("String length is: %i, Result is: %d", i, Result);
+-    if (i > maxlength) {Result = 0; return Result;}
++int IsAValidSymbol(char *TestSymbol) {
++  int Result = 1;
++  int maxlength = 6;
++
++  // Does Symbol start w/ alpha character
++  if ((int)TestSymbol[0] < 65 || (int)TestSymbol[0] > 90) {
++    Result = 0;
+     return Result;
++  }
++  // check to see if it's a directive only if the first letter starts the same
++  // as one
++  switch (TestSymbol[0]) {
++  case 'B':
++  case 'E':
++  case 'R':
++  case 'S':
++  case 'W':
++    Result = CmprDir(TestSymbol);
++    if (Result < 0)
++      return Result;
++    else {
++      Result = 1;
++      break;
++    }
++  default:
++    break;
++  }
++  // test Symbol Length
++  int i = 0;
++  while ((int)TestSymbol[i] != '\0' || i > 7) {
++    switch ((int)TestSymbol[i]) {
++    case 32: // Space
++      Result = 0;
++      return Result;
++    case 36: //$
++      Result = 0;
++      return Result;
++    case 33: //!
++      Result = 0;
++      return Result;
++    case 40: //(
++      Result = 0;
++      return Result;
++    case 41: //)
++      Result = 0;
++      return Result;
++    case 43: //+
++      Result = 0;
++      return Result;
++    case 45: //-
++      Result = 0;
++      return Result;
++    case 61: //=
++      Result = 0;
++      return Result;
++    case 64: //@
++      Result = 0;
++      return Result;
++    }
++    i++;
++  }
++  // printf("String length is: %i, Result is: %d", i, Result);
++  if (i > maxlength) {
++    Result = 0;
++    return Result;
++  }
++  return Result;
+ }
+ 
+-int CmprDir(char *Symbol){
+-    char r[4] = "RES";
+-    int testR;
+-    switch (Symbol[0]){
+-        case'B': //-1
+-            if (!strcmp(Symbol, "BYTE")) return -1;
+-            else return 1;
+-            //operand is character or hexadecimal constant
+-        case'E': //-2 and -3
+-            testR = strcmp(Symbol, "END");
+-            //printf("Possible Dir: %s, test Result: %d\n", Symbol, testR);
+-            if (testR == 0){
+-                return -2;
+-            }
+-            testR = strcmp(Symbol, "EXPORTS");
+-            if (testR == 0){
+-                return -3;
+-                //3 bytes reserved
+-            }
+-            return 1;
+-        case 'R': //-4, -5, -6
+-            for (int i = 0; i < 3; i++){
+-                if(Symbol[i]!=r[i]) return 1;
+-            }
+-            switch (Symbol[3]){
+-                case 'B':
+-                    if (Symbol[4] == '\0')return -4;
+-                    else return 1;
+-                   //reserve num bytes
+-                case 'R':
+-                    if (Symbol[4] == '\0')return -5;
+-                    else return 1;
+-                    //reserve 3 bytes of mem
+-                case 'W':
+-                    if (Symbol[4] == '\0')return -6;
+-                    else return 1;
+-                    //reserve num words
+-                default:
+-                    break;
+-            }
+-            return 1;
+-        case 'S': //-7
+-            testR = strcmp(Symbol, "START");
+-            if (testR == 0){
+-                return -7;
+-            }else return 1;
+-            //next operand is start address
+-        case 'W': //-8
+-            testR = strcmp(Symbol, "WORD");
+-            if (testR == 0){
+-                return -8;
+-            }else return 1;
+-            //3 bytes
+-
++int CmprDir(char *Symbol) {
++  char r[4] = "RES";
++  int testR;
++  switch (Symbol[0]) {
++  case 'B': //-1
++    if (!strcmp(Symbol, "BYTE"))
++      return -1;
++    else
++      return 1;
++    // operand is character or hexadecimal constant
++  case 'E': //-2 and -3
++    testR = strcmp(Symbol, "END");
++    // printf("Possible Dir: %s, test Result: %d\n", Symbol, testR);
++    if (testR == 0) {
++      return -2;
++    }
++    testR = strcmp(Symbol, "EXPORTS");
++    if (testR == 0) {
++      return -3;
++      // 3 bytes reserved
++    }
++    return 1;
++  case 'R': //-4, -5, -6
++    for (int i = 0; i < 3; i++) {
++      if (Symbol[i] != r[i])
++        return 1;
++    }
++    switch (Symbol[3]) {
++    case 'B':
++      if (Symbol[4] == '\0')
++        return -4;
++      else
++        return 1;
++      // reserve num bytes
++    case 'R':
++      if (Symbol[4] == '\0')
++        return -5;
++      else
++        return 1;
++      // reserve 3 bytes of mem
++    case 'W':
++      if (Symbol[4] == '\0')
++        return -6;
++      else
++        return 1;
++      // reserve num words
++    default:
++      break;
+     }
+     return 1;
++  case 'S': //-7
++    testR = strcmp(Symbol, "START");
++    if (testR == 0) {
++      return -7;
++    } else
++      return 1;
++    // next operand is start address
++  case 'W': //-8
++    testR = strcmp(Symbol, "WORD");
++    if (testR == 0) {
++      return -8;
++    } else
++      return 1;
++    // 3 bytes
++  }
++  return 1;
+ }
+ 
+-//rip windows, but I don't want to develop server-side
+-int ValHEX(char* eval){
+-    int i = 0;
+-    while(eval[i] != '\0'){
+-        if ((eval[i] >= 48 && eval[i] <=57)      //0-9
+-            ||(eval[i] >= 65 && eval[i] <= 70)   //A-F
+-            ||(eval[i] >= 97 && eval[i] <= 102)) //a-f
+-        {
++// rip windows, but I don't want to develop server-side
++int ValHEX(char *eval) {
++  int i = 0;
++  while (eval[i] != '\0') {
++    if ((eval[i] >= 48 && eval[i] <= 57)      // 0-9
++        || (eval[i] >= 65 && eval[i] <= 70)   // A-F
++        || (eval[i] >= 97 && eval[i] <= 102)) // a-f
++    {
+ #if DEBUG
+-            printf("\neval[%d] is: %c", i, eval[i]);
++      printf("\neval[%d] is: %c", i, eval[i]);
+ #endif
+-            i++;
+-            continue;
+-        }else{
+-            return 0; //return 1 if it breaks hex convention
+-        }
++      i++;
++      continue;
++    } else {
++      return 0; // return 1 if it breaks hex convention
+     }
+-    return 1;
++  }
++  return 1;
+ }
+ 
+-int checkOverflow(int count){
+-    if (count >= 0x8000){
+-        //printf("\nERROR: LOCATION %x SURPASSES SIC MEMORY\n", count);
+-        return 1;
+-    }
+-    return 0;
++int checkOverflow(int count) {
++  if (count >= 0x8000) {
++    // printf("\nERROR: LOCATION %x SURPASSES SIC MEMORY\n", count);
++    return 1;
++  }
++  return 0;
+ }
+-void KillWhiteChar(char* eval){
+-    int i = 0;
+-    while (eval[i] != '\0'){
++void KillWhiteChar(char *eval) {
++  int i = 0;
++  while (eval[i] != '\0') {
+ #if DEBUG
+-        printf("\nChar: %c", eval[i]);
++    printf("\nChar %d: %c", i, eval[i]);
+ #endif
+-        if (!((eval[i] >= 48 && eval[i] <=57)      //0-9
+-            ||(eval[i] >= 65 && eval[i] <= 90)   //A-F
+-            ||(eval[i] >= 97 && eval[i] <= 122))){ //a-f
+-            eval[i] = '\0';
+-            break;
+-        }
+-        i++;
+-    }
+-    return;
++    if (!((eval[i] >= 48 && eval[i] <= 57)         // 0-9
++          || (eval[i] >= 65 && eval[i] <= 90)      // A-F
++          || (eval[i] >= 97 && eval[i] <= 122))) { // a-f
++      eval[i] = '\0';
++      // printf("\nreplaced");
++      break;
++    }
++    i++;
++  }
++  // printf("\nfree from while loop");
++  return;
+ }
+-//found out regex is actually slower than original implementaiton
++// found out regex is actually slower than original implementaiton
+ /*
+ int ValHEXreg(char* eval){
+     static regex_t* regex;
+diff -ruN original/src/tree.c patch/src/tree.c
+--- original/src/tree.c	2021-10-21 14:33:26.000000000 -0400
++++ patch/src/tree.c	2021-11-29 22:45:41.823216761 -0500
+@@ -1,6 +1,6 @@
+ #include "headers.h"
+ 
+-TREE *root;
++static TREE *root = NULL;
+ 
+ int PushLeaf(SYMBOL leaf) {
+   TREE *newNode;
+@@ -43,21 +43,29 @@
+   return 0;
+ }
+ 
+-SYMBOL FindSymbol(char *leaf) {
++SYMBOL *FindSymbol(char *leaf) {
+   TREE *cur = root;
+   int test = 1;
+-  while (test != 0) {
++  //printf("\nSearching for in symbol table: %s", leaf);
++  //printf("\nTree traversal start at root: %s", cur->node.Name);
++  while (test != 0 && cur != NULL) {
++    //printf("\nComparing target \"%s\" with current \"%s\"", leaf, cur->node.Name);
+     test = strcmp(leaf, cur->node.Name);
++    //printf("\ntest is: %d", test);
+     if (test != 0) {
+       if (test < 0) {
++        //printf("\nGoing left");
+         cur = cur->left;
+       } else if (test > 0) {
++        //printf("\nGoing right");
+         cur = cur->right;
+       }
+     } else
+       break;
+   }
+-  return cur->node;
++  if (cur == NULL)
++    return NULL;
++  return &(cur->node);
+ }
+ 
+ int PrintTree() {
+@@ -68,7 +76,7 @@
+ TREE *TraversInOrder(TREE *localRoot) {
+   if (localRoot != NULL) {
+     TraversInOrder(localRoot->left);
+-    printf("\n%s\t%x", localRoot->node.Name, localRoot->node.Address);
++    printf("\n%s\t%04X", localRoot->node.Name, localRoot->node.Address);
+     TraversInOrder(localRoot->right);
+   }
+   return localRoot;
