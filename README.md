@@ -6,3 +6,6 @@ Projects from my Systems Software class
 `Assembler_Pass_2` patch is a patch for an old submission of Assembler Pass 2<br>
 `Device_Driver` is for a hypothetical clock that runs on a hypotetical SIC Device<br>
 `SIC_Docs` contains documentation about the SIC Device
+
+---
+The Readmes in the directories contain the project specifications
