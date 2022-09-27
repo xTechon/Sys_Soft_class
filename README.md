@@ -1,6 +1,6 @@
 # Sys_Soft_class
-Projects from my Systems Software class
-
+Projects from my Systems Software class<br>
+SIC Stands for Simplified Instructional Computer<br>
 `Assembler_Pass_1` contains code for the class' first assignment<br>
 `Assembler_Pass_2` is the complete assembler<br>
 `Assembler_Pass_2` patch is a patch for an old submission of Assembler Pass 2<br>
